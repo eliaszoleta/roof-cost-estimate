@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { HelmetProvider } from 'react-helmet-async';
-import { supabase } from './lib/supabase';
 import RoofingCalculator from './components/calculator/RoofingCalculator';
 import ResultsScreen from './components/calculator/ResultsScreen';
-import CompanyDashboard from './components/dashboard/CompanyDashboard';
-import AuthPage from './components/dashboard/AuthPage';
 import Header from './components/ui/Header';
 import Footer from './components/ui/Footer';
 import SEOContent from './components/ui/SEOContent';
@@ -19,14 +16,13 @@ import './App.css';
 const pathname = window.location.pathname.replace(/\/$/, '') || '/';
 const searchParams = new URLSearchParams(window.location.search);
 
-const isEmbed = pathname.startsWith('/embed');
-const isResults = pathname === '/results';
-const isCompany = pathname === '/company' || pathname.startsWith('/company');
+const isEmbed        = pathname.startsWith('/embed');
+const isResults      = pathname === '/results';
 const isForCompanies = pathname === '/for-companies';
-const isAbout = pathname === '/about';
-const isContact = pathname === '/contact';
-const isPrivacy = pathname === '/privacy-policy';
-const isTerms = pathname === '/terms-of-service';
+const isAbout        = pathname === '/about';
+const isContact      = pathname === '/contact';
+const isPrivacy      = pathname === '/privacy-policy';
+const isTerms        = pathname === '/terms-of-service';
 
 const embedCompanyId = isEmbed ? searchParams.get('company') : null;
 
@@ -41,7 +37,7 @@ function ResultsPage() {
 
   if (!data) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-      Report not found. <a href="/" style={{ marginLeft: 8, color: '#2563eb' }}>Start a new estimate →</a>
+      Report not found. <a href="/" style={{ marginLeft: 8, color: '#ea580c' }}>Start a new estimate →</a>
     </div>
   );
 
@@ -63,63 +59,20 @@ function ResultsPage() {
 }
 
 export default function App() {
-  const [user, setUser] = useState(null);
-  const [authLoading, setAuthLoading] = useState(isCompany);
-
-  useEffect(() => {
-    if (!isCompany || !supabase) { setAuthLoading(false); return; }
-    const timeout = setTimeout(() => setAuthLoading(false), 3000);
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      clearTimeout(timeout);
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-    }).catch(() => { clearTimeout(timeout); setAuthLoading(false); });
-
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-    });
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const handleLogout = async () => {
-    if (supabase) await supabase.auth.signOut();
-    setUser(null);
-    window.location.href = '/';
-  };
-
   if (isEmbed) return (
     <HelmetProvider>
       <EmbedWrapper companyId={embedCompanyId} />
     </HelmetProvider>
   );
 
-  if (isResults) return <HelmetProvider><ResultsPage /></HelmetProvider>;
-
+  if (isResults)      return <HelmetProvider><ResultsPage /></HelmetProvider>;
   if (isForCompanies) return <HelmetProvider><CompanyLanding /></HelmetProvider>;
+  if (isAbout)        return <HelmetProvider><div className="app"><Header /><main><About /></main><Footer /></div></HelmetProvider>;
+  if (isContact)      return <HelmetProvider><div className="app"><Header /><main><Contact /></main><Footer /></div></HelmetProvider>;
+  if (isPrivacy)      return <HelmetProvider><div className="app"><Header /><main><PrivacyPolicy /></main><Footer /></div></HelmetProvider>;
+  if (isTerms)        return <HelmetProvider><div className="app"><Header /><main><TermsOfService /></main><Footer /></div></HelmetProvider>;
 
-  if (isAbout) return <HelmetProvider><div className="app"><Header /><main><About /></main><Footer /></div></HelmetProvider>;
-  if (isContact) return <HelmetProvider><div className="app"><Header /><main><Contact /></main><Footer /></div></HelmetProvider>;
-  if (isPrivacy) return <HelmetProvider><div className="app"><Header /><main><PrivacyPolicy /></main><Footer /></div></HelmetProvider>;
-  if (isTerms) return <HelmetProvider><div className="app"><Header /><main><TermsOfService /></main><Footer /></div></HelmetProvider>;
-
-  if (isCompany) {
-    if (authLoading) return (
-      <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#0f172a' }}>
-        <div style={{ color: 'white', fontSize: 16 }}>Loading...</div>
-      </div>
-    );
-    if (!user && !supabase) return (
-      <HelmetProvider>
-        <div className="app"><Header /><main style={{ padding: 40, textAlign: 'center' }}>
-          <h2>Supabase not configured</h2>
-          <p style={{ color: '#64748b', marginTop: 8 }}>Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY to enable authentication.</p>
-        </main><Footer /></div>
-      </HelmetProvider>
-    );
-    if (!user) return <HelmetProvider><AuthPage onAuth={setUser} /></HelmetProvider>;
-    return <HelmetProvider><CompanyDashboard user={user} onLogout={handleLogout} /></HelmetProvider>;
-  }
-
+  // Home — public calculator
   return (
     <HelmetProvider>
       <div className="app">
