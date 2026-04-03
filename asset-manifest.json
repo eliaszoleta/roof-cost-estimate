@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/roof-cost-estimate/static/css/main.8ef8b228.css",
+    "main.js": "/roof-cost-estimate/static/js/main.05acf928.js",
+    "index.html": "/roof-cost-estimate/index.html",
+    "main.8ef8b228.css.map": "/roof-cost-estimate/static/css/main.8ef8b228.css.map",
+    "main.05acf928.js.map": "/roof-cost-estimate/static/js/main.05acf928.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.8ef8b228.css",
+    "static/js/main.05acf928.js"
+  ]
+}
