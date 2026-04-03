@@ -20,13 +20,13 @@ export function formatDateTime(iso) {
 
 export function serviceTypeLabel(type) {
   const map = {
-    asphalt_shingle: 'Asphalt Shingle Roof',
-    metal: 'Metal Roof',
-    tile: 'Tile Roof',
-    flat_tpo: 'Flat / TPO Roof',
-    repair: 'Roof Repair',
-    inspection: 'Roof Inspection',
-    gutter: 'Gutter Installation',
+    shingle_replacement: 'Asphalt Shingle Roof',
+    metal_roofing:       'Metal Roof',
+    tile_roofing:        'Tile Roof',
+    flat_roof:           'Flat / TPO Roof',
+    roof_repair:         'Roof Repair',
+    roof_inspection:     'Roof Inspection',
+    gutter_replacement:  'Gutter Installation',
   };
   return map[type] || type;
 }

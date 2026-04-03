@@ -59,7 +59,10 @@ export default function InspectionStep({ value, onBack, onNext, primaryColor = '
       title="Tell us about the property"
       subtitle="Help us estimate your inspection cost."
       onBack={onBack}
-      onNext={() => onNext({ propertyType, stories, roofAge, reason })}
+      onNext={() => onNext({
+        inspectionType: reason === 'after_storm' ? 'post_storm' : 'standard',
+        propertyType, stories, roofAge, reason,
+      })}
       canNext={canNext}
       primaryColor={primaryColor}
     >

@@ -1,13 +1,13 @@
 import React from 'react';
 
 const SERVICES = [
-  { id: 'asphalt_shingle', label: 'Asphalt Shingle Roof', emoji: '🏠', desc: 'Full replacement — most popular' },
-  { id: 'metal',           label: 'Metal Roof',           emoji: '🔩', desc: 'Standing seam, corrugated, ribbed' },
-  { id: 'tile',            label: 'Tile Roof',            emoji: '🎨', desc: 'Clay, concrete, or slate tile' },
-  { id: 'flat_tpo',        label: 'Flat / TPO Roof',      emoji: '🟧', desc: 'TPO, EPDM, modified bitumen' },
-  { id: 'repair',          label: 'Roof Repair',          emoji: '🔧', desc: 'Patch leaks, shingles, flashing' },
-  { id: 'inspection',      label: 'Roof Inspection',      emoji: '🔍', desc: 'Pre-purchase or annual checkup' },
-  { id: 'gutter',          label: 'Gutter Installation',  emoji: '💧', desc: 'New gutters + guards' },
+  { id: 'shingle_replacement', label: 'Asphalt Shingle Roof', emoji: '🏠', desc: 'Full replacement — most popular' },
+  { id: 'metal_roofing',       label: 'Metal Roof',           emoji: '🔩', desc: 'Standing seam, corrugated, ribbed' },
+  { id: 'tile_roofing',        label: 'Tile Roof',            emoji: '🎨', desc: 'Clay, concrete, or slate tile' },
+  { id: 'flat_roof',           label: 'Flat / TPO Roof',      emoji: '🟧', desc: 'TPO, EPDM, modified bitumen' },
+  { id: 'roof_repair',         label: 'Roof Repair',          emoji: '🔧', desc: 'Patch leaks, shingles, flashing' },
+  { id: 'roof_inspection',     label: 'Roof Inspection',      emoji: '🔍', desc: 'Pre-purchase or annual checkup' },
+  { id: 'gutter_replacement',  label: 'Gutter Installation',  emoji: '💧', desc: 'New gutters + guards' },
 ];
 
 export default function ServiceSelect({ onSelect, primaryColor = '#ea580c', companyName = null }) {

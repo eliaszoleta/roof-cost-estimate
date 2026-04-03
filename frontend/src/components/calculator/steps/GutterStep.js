@@ -61,7 +61,16 @@ export default function GutterStep({ value, onBack, onNext, primaryColor = '#ea5
       title="Tell us about your gutters"
       subtitle="Gutter cost depends on material, linear footage, and stories."
       onBack={onBack}
-      onNext={() => onNext({ linearFeet, gutterMaterial, stories, addOns })}
+      onNext={() => {
+        const LF_MAP = { under_100: 75, '100_150': 125, '150_200': 175, '200_300': 250, over_300: 350 };
+        onNext({
+          linearFeet: LF_MAP[linearFeet] || 150,
+          gutterMaterial,
+          stories: Number(stories),
+          downspouts: addOns.includes('downspouts') ? 4 : 0,
+          gutterGuards: addOns.includes('guards'),
+        });
+      }}
       canNext={canNext}
       primaryColor={primaryColor}
     >

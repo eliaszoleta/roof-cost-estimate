@@ -12,13 +12,13 @@ import LeadCaptureStep from './steps/LeadCaptureStep';
 import ResultsScreen from './ResultsScreen';
 
 const SERVICE_STEPS = {
-  asphalt_shingle: ['service', 'location', 'details', 'lead', 'results'],
-  metal:           ['service', 'location', 'details', 'lead', 'results'],
-  tile:            ['service', 'location', 'details', 'lead', 'results'],
-  flat_tpo:        ['service', 'location', 'details', 'lead', 'results'],
-  repair:          ['service', 'location', 'repair',  'lead', 'results'],
-  inspection:      ['service', 'location', 'inspection', 'lead', 'results'],
-  gutter:          ['service', 'location', 'gutter',  'lead', 'results'],
+  shingle_replacement: ['service', 'location', 'details',    'lead', 'results'],
+  metal_roofing:       ['service', 'location', 'details',    'lead', 'results'],
+  tile_roofing:        ['service', 'location', 'details',    'lead', 'results'],
+  flat_roof:           ['service', 'location', 'details',    'lead', 'results'],
+  roof_repair:         ['service', 'location', 'repair',     'lead', 'results'],
+  roof_inspection:     ['service', 'location', 'inspection', 'lead', 'results'],
+  gutter_replacement:  ['service', 'location', 'gutter',     'lead', 'results'],
 };
 
 const DETAIL_STEP_COMPONENT = {

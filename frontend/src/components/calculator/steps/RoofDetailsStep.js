@@ -3,7 +3,7 @@ import { Home } from 'lucide-react';
 import StepWrapper from './StepWrapper';
 
 const METAL_TYPES   = [['standing_seam','Standing Seam'],['corrugated','Corrugated'],['ribbed','Ribbed / R-Panel']];
-const TILE_TYPES    = [['clay','Clay'],['concrete','Concrete'],['slate','Slate']];
+const TILE_TYPES    = [['clay_tile','Clay'],['concrete_tile','Concrete'],['slate','Slate']];
 const FLAT_TYPES    = [['tpo','TPO'],['epdm','EPDM'],['modified_bitumen','Modified Bitumen']];
 const PITCH_OPTIONS = [['low','Low (flat–4:12)'],['medium','Medium (4–8:12)'],['steep','Steep (8:12+)']];
 const STORY_OPTIONS = [['1','1 story'],['2','2 stories'],['3','3+ stories']];
@@ -45,18 +45,33 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
 
   const toggleAddOn = (id) => setAddOns(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
 
-  const isAsphalt = serviceType === 'asphalt_shingle';
-  const isMetal   = serviceType === 'metal';
-  const isTile    = serviceType === 'tile';
-  const isFlat    = serviceType === 'flat_tpo';
+  const isAsphalt = serviceType === 'shingle_replacement';
+  const isMetal   = serviceType === 'metal_roofing';
+  const isTile    = serviceType === 'tile_roofing';
+  const isFlat    = serviceType === 'flat_roof';
 
   const canNext = !!roofSize && !!stories && (isFlat || !!pitch) &&
     (isMetal ? !!metalType : true) &&
     (isTile  ? !!tileType  : true) &&
     (isFlat  ? !!flatType  : true);
 
+  const SIZE_TO_SQFT = {
+    under_1000: 800, '1000_1500': 1250, '1500_2000': 1750,
+    '2000_2500': 2250, '2500_3000': 2750, over_3000: 3500,
+  };
+  const sqft = SIZE_TO_SQFT[roofSize] || 1750;
+
   const handleNext = () => {
-    onNext({ roofSize, stories, pitch, metalType, tileType, flatType, addOns });
+    const base = { stories: Number(stories), pitch, addons: [] };
+    if (isFlat) {
+      onNext({ ...base, buildingFootprint: sqft, flatMaterial: flatType });
+    } else if (isMetal) {
+      onNext({ ...base, houseSqft: sqft, metalType });
+    } else if (isTile) {
+      onNext({ ...base, houseSqft: sqft, tileType });
+    } else {
+      onNext({ ...base, houseSqft: sqft, shingleType: 'architectural' });
+    }
   };
 
   const fieldLabel = { fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 0 };

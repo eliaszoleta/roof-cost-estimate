@@ -62,7 +62,7 @@ export default function RepairStep({ value, onBack, onNext, primaryColor = '#ea5
       title="Tell us about the repair"
       subtitle="More detail means a more accurate estimate."
       onBack={onBack}
-      onNext={() => onNext({ repairType, damageSize, stories, roofAge })}
+      onNext={() => onNext({ repairSize: damageSize, repairType, stories, roofAge })}
       canNext={canNext}
       primaryColor={primaryColor}
     >
