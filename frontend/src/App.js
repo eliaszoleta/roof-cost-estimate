@@ -5,6 +5,9 @@ import ResultsScreen from './components/calculator/ResultsScreen';
 import Header from './components/ui/Header';
 import Footer from './components/ui/Footer';
 import SEOContent from './components/ui/SEOContent';
+import BlogIndex from './components/blog/BlogIndex';
+import BlogCategory from './components/blog/BlogCategory';
+import BlogPost from './components/blog/BlogPost';
 import CompanyLanding from './components/pages/CompanyLanding';
 import About from './components/pages/About';
 import Contact from './components/pages/Contact';
@@ -18,6 +21,7 @@ const searchParams = new URLSearchParams(window.location.search);
 
 const isEmbed        = pathname.startsWith('/embed');
 const isResults      = pathname === '/results';
+const isBlog         = pathname === '/blog' || pathname.startsWith('/blog/');
 const isForCompanies = pathname === '/for-companies';
 const isAbout        = pathname === '/about';
 const isContact      = pathname === '/contact';
@@ -65,7 +69,16 @@ export default function App() {
     </HelmetProvider>
   );
 
-  if (isResults)      return <HelmetProvider><ResultsPage /></HelmetProvider>;
+  if (isResults) return <HelmetProvider><ResultsPage /></HelmetProvider>;
+
+  if (isBlog) {
+    const blogPath = pathname.replace('/blog', '') || '/';
+    let blogContent;
+    if (blogPath === '/' || blogPath === '') blogContent = <BlogIndex />;
+    else if (blogPath.startsWith('/category/')) blogContent = <BlogCategory category={blogPath.replace('/category/', '')} />;
+    else blogContent = <BlogPost slug={blogPath.replace('/', '')} />;
+    return <HelmetProvider><div className="app"><Header /><main>{blogContent}</main><Footer /></div></HelmetProvider>;
+  }
   if (isForCompanies) return <HelmetProvider><CompanyLanding /></HelmetProvider>;
   if (isAbout)        return <HelmetProvider><div className="app"><Header /><main><About /></main><Footer /></div></HelmetProvider>;
   if (isContact)      return <HelmetProvider><div className="app"><Header /><main><Contact /></main><Footer /></div></HelmetProvider>;
