@@ -1,3 +1,5 @@
+import { clientCalculate } from './calculate';
+
 const API_URL = process.env.REACT_APP_API_URL || '';
 
 async function apiFetch(path, options = {}) {
@@ -13,6 +15,10 @@ async function apiFetch(path, options = {}) {
 }
 
 export async function postCalculate(payload) {
+  // If no backend configured, run calculation client-side
+  if (!API_URL) {
+    return clientCalculate(payload);
+  }
   return apiFetch('/api/calculate', { method: 'POST', body: JSON.stringify(payload) });
 }
 
