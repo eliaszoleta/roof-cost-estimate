@@ -21,8 +21,28 @@ const STATE_NAMES = {
   WA:'Washington',WV:'West Virginia',WI:'Wisconsin',WY:'Wyoming',DC:'Washington D.C.',
 };
 
+// Pitch multiplier converts house footprint → roof surface area (and adds labor difficulty)
 const PITCH_MULT = { flat:1.00, low:1.05, medium:1.20, steep:1.40 };
-const STORY_MULT = { 1:1.00, 2:1.12, 3:1.25 };
+
+// Story multiplier — working at height adds labor cost
+const STORY_MULT = { 1:1.00, 2:1.12, 3:1.28 };
+
+// Complexity: labor multiplier + waste factor
+const COMPLEXITY_LABOR = { simple:1.00, moderate:1.18, complex:1.40 };
+const COMPLEXITY_WASTE = { simple:1.08, moderate:1.13, complex:1.20 }; // extra material waste
+
+// Shingle grade: installed $/sqft range (materials + labor combined)
+const SHINGLE_GRADE = {
+  standard:      { pLow: 3.50, pHigh: 5.50, label: '3-Tab shingles' },
+  architectural: { pLow: 5.00, pHigh: 7.50, label: 'Architectural shingles' },
+  designer:      { pLow: 8.00, pHigh: 13.00, label: 'Designer/premium shingles' },
+};
+
+// Extra cost per sqft for 2nd layer tear-off
+const EXTRA_LAYER_COST = { one:[0,0], two:[0.65,1.10], unknown:[0.30,0.75] };
+
+// Penetration flashing costs (chimneys, skylights, pipe boots)
+const PENETRATION_COST = { none:[0,0], low:[400,800], medium:[900,1800], high:[2000,3800] };
 
 function resolveState(state, zip) {
   if (state && STATE_MULT[state.toUpperCase()]) return state.toUpperCase();
@@ -52,108 +72,253 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
   const stateName = STATE_NAMES[state] || state;
   const stateMultiplier = sm;
 
-  const pitch = serviceDetails.pitch || 'low';
-  const stories = Number(serviceDetails.stories) || 1;
-  const pm = PITCH_MULT[pitch] || 1.05;
-  const stm = STORY_MULT[stories] || 1.0;
+  const pitch    = serviceDetails.pitch    || 'low';
+  const stories  = Number(serviceDetails.stories) || 1;
+  const pm  = PITCH_MULT[pitch]         || 1.05;
+  const stm = STORY_MULT[stories]       || 1.00;
+
+  const complexity     = serviceDetails.complexity     || 'moderate';
+  const existingLayers = serviceDetails.existingLayers || 'one';
+  const penetrations   = serviceDetails.penetrations   || 'none';
+  const cLaborM = COMPLEXITY_LABOR[complexity] || 1.18;
+  const cWasteM = COMPLEXITY_WASTE[complexity] || 1.13;
+  const [penLow, penHigh] = PENETRATION_COST[penetrations] || [0, 0];
+  const [extraLayerLow, extraLayerHigh] = EXTRA_LAYER_COST[existingLayers] || [0, 0];
 
   let totalLow, totalHigh, adjustments = [], keyFactors = [], disclaimer, urgencyLevel = 'normal', unit = 'total';
+  let included = [], notIncluded = [];
 
   if (serviceType === 'shingle_replacement') {
-    const sqft = Number(serviceDetails.houseSqft) || 1750;
-    const roofArea = Math.round(sqft * pm);
-    const baseLow = 4.0 * roofArea * stm;
-    const baseHigh = 6.0 * roofArea * stm;
+    const sqft        = Number(serviceDetails.houseSqft) || 1750;
+    const grade       = serviceDetails.shingleGrade || 'architectural';
+    const gradeData   = SHINGLE_GRADE[grade] || SHINGLE_GRADE.architectural;
+    const addOns      = serviceDetails.addOns || [];
+
+    // Roof surface area = footprint × pitch factor × waste factor
+    const roofArea    = Math.round(sqft * pm * cWasteM);
+    const laborMult   = stm * cLaborM;
+
+    // 1. Shingles (materials + labor)
+    const shingleLow  = gradeData.pLow  * roofArea * laborMult;
+    const shingleHigh = gradeData.pHigh * roofArea * laborMult;
+
+    // 2. Tear-off existing shingles
+    const tearoffLow  = roofArea * 0.55 * stm;
+    const tearoffHigh = roofArea * 0.95 * stm;
+
+    // 3. Extra layer tear-off cost (if 2 layers or unknown)
+    const extraLayerCostLow  = extraLayerLow  * roofArea;
+    const extraLayerCostHigh = extraLayerHigh * roofArea;
+
+    // 4. Underlayment, drip edge, flashing, ridge cap
+    const underlayLow  = roofArea * 0.40;
+    const underlayHigh = roofArea * 0.75;
+
+    // 5. Penetration flashing (already state-neutral — varies by local trade rates)
+    const penCostLow  = penLow;
+    const penCostHigh = penHigh;
+
+    // 6. Add-ons
+    const addOnItems = [];
+    if (addOns.includes('new_decking')) {
+      // Estimate 15% of deck needs replacement at $2–3/sqft
+      const deckSqft = Math.round(sqft * 0.15);
+      addOnItems.push({ label: `New decking (est. ${deckSqft} sq ft)`, low: r(deckSqft * 2.0), high: r(deckSqft * 3.5) });
+    }
+    if (addOns.includes('ice_water_shield')) {
+      addOnItems.push({ label: 'Ice & water shield', low: r(roofArea * 0.15), high: r(roofArea * 0.30) });
+    }
+    if (addOns.includes('ridge_ventilation')) {
+      addOnItems.push({ label: 'Ridge ventilation upgrade', low: 450, high: 950 });
+    }
+    if (addOns.includes('gutter_replacement')) {
+      addOnItems.push({ label: 'Gutter replacement (est. 150 lf)', low: 1100, high: 2600 });
+    }
+    const addOnTotalLow  = addOnItems.reduce((s, a) => s + a.low,  0);
+    const addOnTotalHigh = addOnItems.reduce((s, a) => s + a.high, 0);
+
     adjustments = [
-      { label: `Shingle installation (${roofArea.toLocaleString()} sq ft)`, low: r(baseLow), high: r(baseHigh) },
-      { label: 'Tear-off & disposal', low: r(roofArea * 0.5), high: r(roofArea * 1.0) },
-      { label: 'Underlayment & flashing', low: r(roofArea * 0.3), high: r(roofArea * 0.6) },
+      { label: `${gradeData.label} — materials & labor (${roofArea.toLocaleString()} sq ft)`, low: r(shingleLow), high: r(shingleHigh) },
+      { label: 'Tear-off & old shingle disposal', low: r(tearoffLow), high: r(tearoffHigh) },
     ];
-    totalLow = r((baseLow + roofArea*0.5 + roofArea*0.3) * sm);
-    totalHigh = r((baseHigh + roofArea*1.0 + roofArea*0.6) * sm);
+    if (extraLayerCostLow > 0 || extraLayerCostHigh > 0) {
+      adjustments.push({
+        label: existingLayers === 'two'
+          ? 'Extra layer removal & disposal (2nd layer)'
+          : 'Extra layer buffer (layers unknown)',
+        low: r(extraLayerCostLow), high: r(extraLayerCostHigh),
+      });
+    }
+    adjustments.push({ label: 'Underlayment, drip edge, flashing & ridge cap', low: r(underlayLow), high: r(underlayHigh) });
+    if (penCostLow > 0) {
+      adjustments.push({ label: 'Chimney / skylight / pipe boot flashing', low: penCostLow, high: penCostHigh });
+    }
+    adjustments.push(...addOnItems);
+
+    const baseLow  = shingleLow  + tearoffLow  + extraLayerCostLow  + underlayLow  + penCostLow  + addOnTotalLow;
+    const baseHigh = shingleHigh + tearoffHigh + extraLayerCostHigh + underlayHigh + penCostHigh + addOnTotalHigh;
+    totalLow  = r(baseLow  * sm);
+    totalHigh = r(baseHigh * sm);
+
+    const gradeLabel = grade === 'standard' ? '3-Tab' : grade === 'architectural' ? 'Architectural' : 'Designer/Premium';
+    const complexLabel = complexity === 'simple' ? 'Simple (gable)' : complexity === 'moderate' ? 'Moderate (hip/valley)' : 'Complex (dormers)';
     keyFactors = [
-      { label: 'Roof area', impact: `${roofArea.toLocaleString()} sq ft` },
-      { label: 'Pitch', impact: pitch },
-      { label: 'Stories', impact: `${stories}` },
+      { label: 'Shingle grade',   impact: gradeLabel },
+      { label: 'Roof area',       impact: `${roofArea.toLocaleString()} sq ft (incl. pitch & waste)` },
+      { label: 'Complexity',      impact: complexLabel },
+      { label: 'Pitch',           impact: pitch },
+      { label: 'Stories',         impact: `${stories}` },
     ];
+    if (existingLayers !== 'one') keyFactors.push({ label: 'Existing layers', impact: existingLayers === 'two' ? '2 layers' : 'Unknown' });
+    if (penetrations !== 'none') keyFactors.push({ label: 'Penetrations', impact: penetrations === 'low' ? '1–2' : penetrations === 'medium' ? '3–4' : '5+' });
+
+    included = [
+      'Full tear-off of existing shingles',
+      'Deck inspection for rot/damage',
+      'Synthetic underlayment',
+      'Drip edge & step flashing',
+      'Ridge cap shingles',
+      'Cleanup & haul-away',
+    ];
+    notIncluded = [
+      'Rotted decking replacement (~$70–$100/sheet extra)',
+      'Building permit ($150–$600 depending on city)',
+      'Structural repairs (rafters, fascia, etc.)',
+    ];
+    if (existingLayers === 'one' && !addOns.includes('new_decking')) {
+      notIncluded.unshift('New roof decking (if needed, ~$70–$100/sheet)');
+    }
+
   } else if (serviceType === 'metal_roofing') {
-    const sqft = Number(serviceDetails.houseSqft) || 1750;
-    const roofArea = Math.round(sqft * pm);
+    const sqft      = Number(serviceDetails.houseSqft) || 1750;
     const metalType = serviceDetails.metalType || 'standing_seam';
-    const [pLow, pHigh] = metalType === 'standing_seam' ? [10,16] : metalType === 'corrugated' ? [5,9] : [7,12];
+    const roofArea  = Math.round(sqft * pm * cWasteM);
+    const laborMult = stm * cLaborM;
+    const [pLow, pHigh] = metalType === 'standing_seam' ? [10, 17] : metalType === 'corrugated' ? [5, 9] : [7, 12];
+    const matLow  = pLow  * roofArea * laborMult;
+    const matHigh = pHigh * roofArea * laborMult;
+    const tearoffLow  = roofArea * 0.55 * stm;
+    const tearoffHigh = roofArea * 1.00 * stm;
+    const extraLayerCostLow  = extraLayerLow  * roofArea;
+    const extraLayerCostHigh = extraLayerHigh * roofArea;
     adjustments = [
-      { label: `Metal roofing — ${metalType.replace(/_/g,' ')} (${roofArea.toLocaleString()} sq ft)`, low: r(pLow*roofArea*stm), high: r(pHigh*roofArea*stm) },
-      { label: 'Tear-off & disposal', low: r(roofArea*0.5), high: r(roofArea*1.0) },
+      { label: `Metal roofing — ${metalType.replace(/_/g,' ')} (${roofArea.toLocaleString()} sq ft)`, low: r(matLow), high: r(matHigh) },
+      { label: 'Tear-off & disposal', low: r(tearoffLow), high: r(tearoffHigh) },
     ];
-    totalLow = r((pLow*roofArea*stm + roofArea*0.5) * sm);
-    totalHigh = r((pHigh*roofArea*stm + roofArea*1.0) * sm);
-    keyFactors = [{ label: 'Type', impact: metalType.replace(/_/g,' ') }, { label: 'Area', impact: `${roofArea.toLocaleString()} sq ft` }];
+    if (extraLayerCostLow > 0 || extraLayerCostHigh > 0) {
+      adjustments.push({ label: 'Extra layer removal', low: r(extraLayerCostLow), high: r(extraLayerCostHigh) });
+    }
+    if (penLow > 0) adjustments.push({ label: 'Penetration flashing', low: penLow, high: penHigh });
+    const baseLow  = matLow  + tearoffLow  + extraLayerCostLow  + penLow;
+    const baseHigh = matHigh + tearoffHigh + extraLayerCostHigh + penHigh;
+    totalLow  = r(baseLow  * sm);
+    totalHigh = r(baseHigh * sm);
+    keyFactors = [
+      { label: 'Type',       impact: metalType.replace(/_/g,' ') },
+      { label: 'Roof area',  impact: `${roofArea.toLocaleString()} sq ft` },
+      { label: 'Complexity', impact: complexity },
+    ];
+    included    = ['Tear-off of existing roof', 'Fasteners & trim', 'Ridge cap', 'Cleanup & haul-away'];
+    notIncluded = ['Rotted decking (~$70–$100/sheet)', 'Building permit ($150–$600)', 'Structural repairs'];
+
   } else if (serviceType === 'tile_roofing') {
-    const sqft = Number(serviceDetails.houseSqft) || 1750;
-    const roofArea = Math.round(sqft * pm);
+    const sqft     = Number(serviceDetails.houseSqft) || 1750;
     const tileType = serviceDetails.tileType || 'concrete_tile';
-    const [pLow, pHigh] = tileType === 'slate' ? [15,25] : tileType === 'clay_tile' ? [12,20] : [9,15];
+    const roofArea = Math.round(sqft * pm * cWasteM);
+    const laborMult = stm * cLaborM;
+    const [pLow, pHigh] = tileType === 'slate' ? [15, 28] : tileType === 'clay_tile' ? [12, 22] : [9, 16];
+    const matLow  = pLow  * roofArea * laborMult;
+    const matHigh = pHigh * roofArea * laborMult;
+    const tearoffLow  = roofArea * 0.75 * stm;
+    const tearoffHigh = roofArea * 1.30 * stm;
+    const extraLayerCostLow  = extraLayerLow  * roofArea;
+    const extraLayerCostHigh = extraLayerHigh * roofArea;
     adjustments = [
-      { label: `Tile roofing — ${tileType.replace(/_/g,' ')} (${roofArea.toLocaleString()} sq ft)`, low: r(pLow*roofArea*stm), high: r(pHigh*roofArea*stm) },
-      { label: 'Tear-off & disposal', low: r(roofArea*0.7), high: r(roofArea*1.2) },
+      { label: `${tileType.replace(/_/g,' ')} tile (${roofArea.toLocaleString()} sq ft)`, low: r(matLow), high: r(matHigh) },
+      { label: 'Tear-off & disposal (tile is heavy)', low: r(tearoffLow), high: r(tearoffHigh) },
     ];
-    totalLow = r((pLow*roofArea*stm + roofArea*0.7) * sm);
-    totalHigh = r((pHigh*roofArea*stm + roofArea*1.2) * sm);
-    keyFactors = [{ label: 'Material', impact: tileType.replace(/_/g,' ') }];
+    if (extraLayerCostLow > 0) adjustments.push({ label: 'Extra layer removal', low: r(extraLayerCostLow), high: r(extraLayerCostHigh) });
+    if (penLow > 0) adjustments.push({ label: 'Penetration flashing', low: penLow, high: penHigh });
+    const baseLow  = matLow  + tearoffLow  + extraLayerCostLow  + penLow;
+    const baseHigh = matHigh + tearoffHigh + extraLayerCostHigh + penHigh;
+    totalLow  = r(baseLow  * sm);
+    totalHigh = r(baseHigh * sm);
+    keyFactors = [{ label: 'Material', impact: tileType.replace(/_/g,' ') }, { label: 'Area', impact: `${roofArea.toLocaleString()} sq ft` }, { label: 'Complexity', impact: complexity }];
+    included    = ['Tear-off & haul-away', 'Underlayment & flashing', 'Ridge tile', 'Cleanup'];
+    notIncluded = ['Rafter/structural reinforcement for tile weight', 'Building permit', 'Rotted decking'];
+
   } else if (serviceType === 'flat_roof') {
     const area = Number(serviceDetails.buildingFootprint) || 1500;
-    const mat = serviceDetails.flatMaterial || 'tpo';
-    const [pLow, pHigh] = mat === 'epdm' ? [4,7] : mat === 'modified_bitumen' ? [5,8] : [5,8];
+    const mat  = serviceDetails.flatMaterial || 'tpo';
+    const complexity_ = serviceDetails.complexity || 'simple';
+    const cM = COMPLEXITY_LABOR[complexity_] || 1.00;
+    const [pLow, pHigh] = mat === 'epdm' ? [4.5, 7.5] : mat === 'modified_bitumen' ? [5, 9] : [5.5, 9.5];
+    const matLow  = pLow  * area * cM;
+    const matHigh = pHigh * area * cM;
+    const tearoffLow  = area * 0.45;
+    const tearoffHigh = area * 0.85;
+    if (penLow > 0) adjustments.push({ label: 'Penetration flashing & boots', low: penLow, high: penHigh });
     adjustments = [
-      { label: `Flat roof — ${mat.toUpperCase()} (${area.toLocaleString()} sq ft)`, low: r(pLow*area), high: r(pHigh*area) },
-      { label: 'Tear-off', low: r(area*0.4), high: r(area*0.8) },
+      { label: `Flat roof — ${mat.toUpperCase()} membrane (${area.toLocaleString()} sq ft)`, low: r(matLow), high: r(matHigh) },
+      { label: 'Tear-off & disposal', low: r(tearoffLow), high: r(tearoffHigh) },
+      ...(penLow > 0 ? [{ label: 'Penetration flashing & boots', low: penLow, high: penHigh }] : []),
     ];
-    totalLow = r((pLow*area + area*0.4) * sm);
-    totalHigh = r((pHigh*area + area*0.8) * sm);
+    totalLow  = r((matLow  + tearoffLow  + penLow)  * sm);
+    totalHigh = r((matHigh + tearoffHigh + penHigh) * sm);
     keyFactors = [{ label: 'System', impact: mat.toUpperCase() }, { label: 'Area', impact: `${area.toLocaleString()} sq ft` }];
+    included    = ['Membrane installation', 'Tear-off', 'Seams & edge details', 'Drain inspection'];
+    notIncluded = ['Insulation board (if needed)', 'Building permit', 'Structural deck repairs'];
+
   } else if (serviceType === 'roof_repair') {
     const size = serviceDetails.repairSize || 'small';
-    const costs = { minor:[150,350], small:[300,700], medium:[600,1500], large:[1200,3000], emergency:[800,2500] };
+    const costs = { minor:[150,400], small:[350,800], medium:[700,1800], large:[1500,3500], emergency:[900,2800] };
     const [cl, ch] = costs[size] || costs.small;
     adjustments = [{ label: `Roof repair — ${size}`, low: cl, high: ch }];
-    totalLow = r(cl * sm);
+    totalLow  = r(cl * sm);
     totalHigh = r(ch * sm);
     if (size === 'large' || size === 'emergency') {
       urgencyLevel = 'high';
-      disclaimer = 'Large repairs may indicate the roof is nearing end of life. Get a full inspection before committing to repairs vs. replacement.';
+      disclaimer = 'Large repairs may signal the roof is near end-of-life. Consider getting a full inspection before committing to repairs — replacement may be the better long-term value.';
     }
-    keyFactors = [{ label: 'Damage size', impact: size }];
+    keyFactors  = [{ label: 'Damage size', impact: size }];
+    included    = ['Labor & patching materials', 'Seal & waterproofing', 'Debris cleanup'];
+    notIncluded = ['Decking replacement if rot is found', 'Structural repairs', 'Interior water damage repairs'];
+
   } else if (serviceType === 'roof_inspection') {
     const type = serviceDetails.inspectionType || 'standard';
-    const costs = { standard:[100,300], drone:[150,400], post_storm:[175,350], thermal:[300,600] };
+    const costs = { standard:[125,325], drone:[175,425], post_storm:[200,400], thermal:[325,650] };
     const [cl, ch] = costs[type] || costs.standard;
     adjustments = [{ label: `Roof inspection — ${type.replace(/_/g,' ')}`, low: cl, high: ch }];
-    totalLow = r(cl * sm);
+    totalLow  = r(cl * sm);
     totalHigh = r(ch * sm);
-    keyFactors = [{ label: 'Type', impact: type.replace(/_/g,' ') }];
+    keyFactors  = [{ label: 'Inspection type', impact: type.replace(/_/g,' ') }];
+    included    = ['Visual inspection', 'Written report', 'Photo documentation'];
+    notIncluded = ['Repairs', 'Infrared/thermal scan (unless thermal type selected)'];
+
   } else if (serviceType === 'gutter_replacement') {
-    const lf = Number(serviceDetails.linearFeet) || 150;
+    const lf  = Number(serviceDetails.linearFeet) || 150;
     const mat = serviceDetails.gutterMaterial || 'aluminum';
-    const costs = { vinyl:[3,6], aluminum:[6,12], steel:[8,14], copper:[20,40] };
+    const costs = { vinyl:[3,6], aluminum:[6,12], steel:[8,15], copper:[22,45] };
     const [pLow, pHigh] = costs[mat] || costs.aluminum;
-    const gutterLow = pLow * lf;
+    const gutterLow  = pLow  * lf;
     const gutterHigh = pHigh * lf;
-    adjustments = [{ label: `Gutters — ${mat} (${lf} lf)`, low: r(gutterLow), high: r(gutterHigh) }];
+    adjustments = [{ label: `${mat} gutters (${lf} lf)`, low: r(gutterLow), high: r(gutterHigh) }];
     let extraLow = 0, extraHigh = 0;
     if (serviceDetails.downspouts > 0) {
-      const ds = serviceDetails.downspouts * 75;
-      const dsh = serviceDetails.downspouts * 150;
-      adjustments.push({ label: `Downspouts ×${serviceDetails.downspouts}`, low: ds, high: dsh });
-      extraLow += ds; extraHigh += dsh;
+      const dl = serviceDetails.downspouts * 80, dh = serviceDetails.downspouts * 160;
+      adjustments.push({ label: `Downspouts ×${serviceDetails.downspouts}`, low: dl, high: dh });
+      extraLow += dl; extraHigh += dh;
     }
     if (serviceDetails.gutterGuards) {
-      const gl = lf * 3, gh = lf * 8;
+      const gl = lf * 3, gh = lf * 9;
       adjustments.push({ label: `Gutter guards (${lf} lf)`, low: gl, high: gh });
       extraLow += gl; extraHigh += gh;
     }
-    totalLow = r((gutterLow + extraLow) * sm);
+    totalLow  = r((gutterLow  + extraLow)  * sm);
     totalHigh = r((gutterHigh + extraHigh) * sm);
-    keyFactors = [{ label: 'Material', impact: mat }, { label: 'Length', impact: `${lf} lf` }];
+    keyFactors  = [{ label: 'Material', impact: mat }, { label: 'Length', impact: `${lf} lf` }];
+    included    = ['Remove old gutters', 'Install new gutters & downspouts', 'Secure to fascia', 'Test drainage'];
+    notIncluded = ['Fascia board repair/replacement', 'Soffit repair', 'Underground drainage'];
   } else {
     throw new Error(`Unknown serviceType: ${serviceType}`);
   }
@@ -164,6 +329,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
       totalLow, totalHigh, adjustments, keyFactors,
       serviceType, stateName, stateMultiplier, unit,
       urgencyLevel, disclaimer: disclaimer || null,
+      included, notIncluded,
     },
   };
 }

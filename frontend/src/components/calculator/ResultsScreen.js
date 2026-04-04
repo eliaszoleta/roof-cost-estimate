@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, AlertTriangle, Zap, Phone, Share2, Printer, Check, ArrowLeft } from 'lucide-react';
+import { MapPin, AlertTriangle, Zap, Phone, Share2, Printer, Check, ArrowLeft, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { formatPrice, formatPriceRange, serviceTypeLabel, urgencyColor } from '../../utils/formatters';
 
 export default function ResultsScreen({ result, serviceDetails, companyConfig, embedded, onReset }) {
@@ -13,7 +13,7 @@ export default function ResultsScreen({ result, serviceDetails, companyConfig, e
   const {
     totalLow, totalHigh, stateName, stateMultiplier,
     adjustments = [], keyFactors = [], disclaimer, urgencyLevel,
-    serviceType, unit,
+    serviceType, unit, included = [], notIncluded = [],
   } = result;
 
   const primaryColor = companyConfig?.primaryColor || '#ea580c';
@@ -135,6 +135,49 @@ export default function ResultsScreen({ result, serviceDetails, companyConfig, e
                   {stateMultiplier < 0.95 && `Roofing prices in ${stateName} run ${Math.round((1 - stateMultiplier) * 100)}% below the national average.`}
                   {stateMultiplier >= 0.95 && stateMultiplier <= 1.05 && `${stateName} is close to the national average for roofing costs.`}
                 </span>
+              </div>
+
+              {/* What's included */}
+              {(included.length > 0 || notIncluded.length > 0) && (
+                <div style={{ marginBottom: 20 }}>
+                  <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 10 }}>What's typically included</div>
+                  <div style={{ border: '1px solid #f1f5f9', borderRadius: 10, overflow: 'hidden' }}>
+                    {included.map((item, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '9px 14px', borderBottom: '1px solid #f8fafc', background: 'white', fontSize: 13 }}>
+                        <CheckCircle2 size={14} color="#16a34a" style={{ flexShrink: 0, marginTop: 1 }} />
+                        <span style={{ color: '#374151' }}>{item}</span>
+                      </div>
+                    ))}
+                    {notIncluded.map((item, i) => (
+                      <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 9, padding: '9px 14px', borderBottom: i < notIncluded.length - 1 ? '1px solid #f8fafc' : 'none', background: '#fafafa', fontSize: 13 }}>
+                        <XCircle size={14} color="#f59e0b" style={{ flexShrink: 0, marginTop: 1 }} />
+                        <span style={{ color: '#64748b' }}><strong style={{ color: '#374151', fontWeight: 600 }}>Not included:</strong> {item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Contractor red flags */}
+              <div style={{ background: '#fefce8', border: '1px solid #fde68a', borderRadius: 10, padding: '14px 16px', marginBottom: 20 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 7, marginBottom: 10 }}>
+                  <AlertCircle size={14} color="#d97706" />
+                  <span style={{ fontWeight: 700, fontSize: 13, color: '#78350f' }}>4 red flags to watch for when getting quotes</span>
+                </div>
+                {[
+                  ['Demands full payment upfront', 'A small deposit (10–30%) is normal. Full payment before work starts is a scam signal.'],
+                  ['Quote is way below everyone else', "Storm chasers and uninsured crews low-ball then disappear. If it seems too good to be true, it is."],
+                  ["Can't provide license & insurance certificate", 'Always ask for their roofing license number and a certificate of insurance — verify both before signing.'],
+                  ['No written contract', 'Every legitimate contractor provides a written contract with materials, timeline, warranty terms, and payment schedule.'],
+                ].map(([flag, detail], i) => (
+                  <div key={i} style={{ display: 'flex', gap: 8, marginBottom: i < 3 ? 8 : 0 }}>
+                    <span style={{ fontWeight: 800, color: '#d97706', fontSize: 13, flexShrink: 0, marginTop: 1 }}>!</span>
+                    <div>
+                      <div style={{ fontWeight: 700, fontSize: 12.5, color: '#78350f' }}>{flag}</div>
+                      <div style={{ fontSize: 12, color: '#92400e', lineHeight: 1.5 }}>{detail}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
 
               <div style={{ background: embedded && companyName ? `${primaryColor}08` : '#f8fafc', border: `1px solid ${embedded && companyName ? primaryColor + '28' : '#e2e8f0'}`, borderRadius: 12, padding: '18px 20px' }}>
