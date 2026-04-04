@@ -155,19 +155,19 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
       <div style={{
         background: embedded ? 'white' : 'linear-gradient(135deg, #fff7ed 0%, #f8fafc 100%)',
         minHeight: embedded ? 'auto' : '100vh',
-        padding: embedded ? '0' : '40px 16px',
+        padding: embedded ? '0' : '24px 16px 40px',
       }}>
         {!embedded && currentStep === 'service' && (
-          <div style={{ textAlign: 'center', marginBottom: 40 }}>
-            <div style={{ display: 'inline-block', background: '#ffedd5', color: '#9a3412', padding: '6px 16px', borderRadius: 20, fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
+          <div style={{ textAlign: 'center', marginBottom: 20 }}>
+            <div style={{ display: 'inline-block', background: '#ffedd5', color: '#9a3412', padding: '4px 14px', borderRadius: 20, fontSize: 12, fontWeight: 600, marginBottom: 10 }}>
               Free • Instant • No signup required
             </div>
-            <h1 style={{ fontSize: 'clamp(28px, 5vw, 48px)', fontWeight: 800, color: '#0f172a', lineHeight: 1.15, marginBottom: 16 }}>
-              How Much Does a New Roof Cost<br />
+            <h1 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, color: '#0f172a', lineHeight: 1.2, marginBottom: 8 }}>
+              How Much Does a New Roof Cost{' '}
               <span style={{ color: primaryColor }}>In Your Area?</span>
             </h1>
-            <p style={{ fontSize: 18, color: '#64748b', maxWidth: 560, margin: '0 auto' }}>
-              RoofCalc gives you accurate, ZIP-code specific estimates for any roofing project in seconds.
+            <p style={{ fontSize: 15, color: '#64748b', maxWidth: 480, margin: '0 auto' }}>
+              ZIP-code accurate estimates for any roofing project — in seconds.
             </p>
           </div>
         )}
