@@ -1,87 +1,101 @@
 import React, { useState } from 'react';
-import { Copy, Check, ExternalLink, Code2, Smartphone, Monitor } from 'lucide-react';
-import { url } from '../../../utils/routes';
+import { Copy, Check, ExternalLink } from 'lucide-react';
+
+const BASE = 'https://eliaszoleta.github.io/roof-cost-estimate';
 
 export default function EmbedTab({ companyId = 'demo' }) {
   const [copied, setCopied] = useState('');
 
-  const snippet = `<div id="roofcalc-widget"></div>\n<script src="https://eliaszoleta.github.io/roof-cost-estimate/embed.js"\n  data-company="${companyId}"\n  async>\n</script>`;
+  const HEIGHT = 680;
+  const RADIUS = 12;
 
-  const iframeSnippet = `<iframe\n  src="https://eliaszoleta.github.io/roof-cost-estimate/embed?company=${companyId}"\n  width="100%" height="640"\n  frameborder="0"\n  style="border-radius:12px;border:1px solid #e2e8f0;"\n>\n</iframe>`;
+  const iframeCode = `<iframe
+  src="${BASE}/embed?company=${companyId}"
+  width="100%"
+  height="${HEIGHT}"
+  style="border:none;border-radius:${RADIUS}px;box-shadow:0 4px 24px rgba(0,0,0,0.10);"
+  title="Roofing Cost Estimator"
+  loading="lazy">
+</iframe>`;
+
+  const jsCode = `<div id="roofcalc-widget"></div>
+<script>
+  (function(){
+    var el=document.createElement('iframe');
+    el.src='${BASE}/embed?company=${companyId}';
+    el.width='100%';el.height='${HEIGHT}';
+    el.style.cssText='border:none;border-radius:${RADIUS}px;box-shadow:0 4px 24px rgba(0,0,0,.10);';
+    el.title='Roofing Cost Estimator';el.loading='lazy';
+    document.getElementById('roofcalc-widget').appendChild(el);
+  })();
+</script>`;
+
+  const wpCode = `[roofcalc_widget company_id="${companyId}" height="${HEIGHT}"]`;
 
   const copy = (text, key) => {
-    navigator.clipboard.writeText(text).then(() => {
-      setCopied(key);
-      setTimeout(() => setCopied(''), 2500);
-    });
+    navigator.clipboard.writeText(text).then(() => { setCopied(key); setTimeout(() => setCopied(''), 2500); });
   };
 
-  const CodeBlock = ({ code, id, label }) => (
-    <div style={{ background: '#0f172a', borderRadius: 12, overflow: 'hidden', border: '1px solid #1e293b' }}>
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 16px', borderBottom: '1px solid #1e293b' }}>
-        <span style={{ fontSize: 12.5, fontWeight: 600, color: '#64748b' }}>{label}</span>
+  const CodeBlock = ({ id, label, badge, sub, code }) => (
+    <div style={{ background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', overflow: 'hidden', marginBottom: 16 }}>
+      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '16px 20px' }}>
+        <div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <span style={{ fontWeight: 700, fontSize: 15, color: '#0f172a' }}>{label}</span>
+            {badge && <span style={{ background: '#eff6ff', color: '#1d4ed8', fontSize: 11.5, fontWeight: 700, padding: '2px 9px', borderRadius: 99, border: '1px solid #bfdbfe' }}>{badge}</span>}
+          </div>
+          {sub && <div style={{ fontSize: 13, color: '#94a3b8', marginTop: 3 }}>{sub}</div>}
+        </div>
         <button onClick={() => copy(code, id)}
-          style={{ display: 'flex', alignItems: 'center', gap: 6, background: copied === id ? '#16a34a' : 'rgba(255,255,255,0.06)', border: `1px solid ${copied === id ? '#16a34a' : 'rgba(255,255,255,0.1)'}`, color: copied === id ? '#4ade80' : '#94a3b8', padding: '5px 12px', borderRadius: 7, cursor: 'pointer', fontSize: 12.5, fontWeight: 600 }}>
-          {copied === id ? <><Check size={13} /> Copied!</> : <><Copy size={13} /> Copy</>}
+          style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '8px 16px', borderRadius: 8, border: '1.5px solid #e2e8f0', background: 'white', cursor: 'pointer', fontSize: 13.5, fontWeight: 600, color: copied === id ? '#16a34a' : '#374151', whiteSpace: 'nowrap' }}>
+          {copied === id ? <><Check size={14} /> Copied!</> : <><Copy size={14} /> Copy Code</>}
         </button>
       </div>
-      <pre style={{ margin: 0, padding: '16px 20px', fontSize: 13, color: '#94a3b8', overflowX: 'auto', lineHeight: 1.7, fontFamily: 'monospace' }}>{code}</pre>
+      <pre style={{ margin: 0, padding: '16px 20px', fontSize: 13, background: '#0f172a', color: '#94a3b8', overflowX: 'auto', lineHeight: 1.7, fontFamily: '"Fira Code", "Cascadia Code", monospace' }}>{code}</pre>
     </div>
   );
 
   return (
     <div>
       <div style={{ marginBottom: 28 }}>
-        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Embed</h2>
-        <p style={{ fontSize: 14, color: '#64748b' }}>Add your branded calculator to any website in minutes.</p>
+        <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>Embed Your Widget</h2>
+        <p style={{ fontSize: 14, color: '#64748b' }}>Paste the code below anywhere on your website to embed your branded calculator.</p>
       </div>
 
-      {/* Steps */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 14, marginBottom: 32 }}>
-        {[
-          [Code2, '1. Copy the code', 'Copy the snippet below.'],
-          [Monitor, '2. Paste into your site', 'Add it to any page on your website.'],
-          [Smartphone, '3. It just works', 'Fully responsive on all devices.'],
-        ].map(([Icon, title, desc]) => (
-          <div key={title} style={{ background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', padding: '18px 20px', display: 'flex', gap: 14, alignItems: 'flex-start' }}>
-            <div style={{ width: 36, height: 36, borderRadius: 10, background: '#fff7ed', border: '1px solid #fed7aa', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-              <Icon size={17} color="#ea580c" strokeWidth={2} />
+      <CodeBlock id="iframe" label="Standard iFrame" badge="Recommended" sub="Works on any website. Paste inside your page's HTML." code={iframeCode} />
+      <CodeBlock id="js"     label="JavaScript Snippet" sub="Dynamically injects the widget. Good for CMS platforms." code={jsCode} />
+      <CodeBlock id="wp"     label="WordPress Shortcode" sub="Install the RoofCalc WordPress plugin, then paste this shortcode." code={wpCode} />
+
+      {/* Installation Guide */}
+      <div style={{ background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', padding: '22px 24px', marginBottom: 16 }}>
+        <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 18 }}>Installation Guide</div>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 24 }}>
+          {[
+            ['Wix', ['Go to Edit Site', 'Add an Embed element', 'Paste the iFrame code']],
+            ['Squarespace', ['Add a Code Block', 'Switch to HTML mode', 'Paste the iFrame code']],
+            ['WordPress', ['Open Gutenberg editor', 'Add a Custom HTML block', 'Paste the iFrame code']],
+            ['Weebly / Duda', ['Add Embed Code element', 'Paste iFrame in the box', 'Publish your changes']],
+          ].map(([platform, steps]) => (
+            <div key={platform}>
+              <div style={{ fontWeight: 700, fontSize: 14, color: '#0f172a', marginBottom: 10 }}>{platform}</div>
+              <ol style={{ margin: 0, padding: '0 0 0 16px' }}>
+                {steps.map((s, i) => <li key={i} style={{ fontSize: 13, color: '#64748b', marginBottom: 5, lineHeight: 1.5 }}>{s}</li>)}
+              </ol>
             </div>
-            <div>
-              <div style={{ fontWeight: 700, fontSize: 13.5, color: '#0f172a', marginBottom: 3 }}>{title}</div>
-              <div style={{ fontSize: 12.5, color: '#64748b' }}>{desc}</div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Script embed */}
-      <div style={{ marginBottom: 20 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>Script Embed (recommended)</div>
-        <CodeBlock code={snippet} id="script" label="HTML" />
-      </div>
-
-      {/* iFrame fallback */}
-      <div style={{ marginBottom: 28 }}>
-        <div style={{ fontSize: 13, fontWeight: 700, color: '#374151', marginBottom: 10 }}>iFrame Embed (fallback)</div>
-        <CodeBlock code={iframeSnippet} id="iframe" label="HTML" />
-      </div>
-
-      {/* Preview link */}
-      <div style={{ background: 'white', borderRadius: 14, border: '1px solid #e2e8f0', padding: '20px 24px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-        <div>
-          <div style={{ fontWeight: 700, fontSize: 14.5, color: '#0f172a', marginBottom: 4 }}>Preview your widget</div>
-          <div style={{ fontSize: 13.5, color: '#64748b' }}>See exactly how homeowners will experience your calculator.</div>
+          ))}
         </div>
-        <a href={url(`/embed?company=${companyId}`)} target="_blank" rel="noopener noreferrer"
-          style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#ea580c', color: 'white', padding: '10px 20px', borderRadius: 9, textDecoration: 'none', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' }}>
+      </div>
+
+      {/* Preview */}
+      <div style={{ background: '#eff6ff', border: '1px solid #bfdbfe', borderRadius: 12, padding: '18px 22px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 16, flexWrap: 'wrap' }}>
+        <div>
+          <div style={{ fontWeight: 700, fontSize: 14.5, color: '#1e40af' }}>Preview your widget</div>
+          <div style={{ fontSize: 13.5, color: '#3b82f6', marginTop: 3 }}>See exactly how it looks before embedding on your site.</div>
+        </div>
+        <a href={`${BASE}/embed?company=${companyId}`} target="_blank" rel="noopener noreferrer"
+          style={{ display: 'inline-flex', alignItems: 'center', gap: 7, background: '#2563eb', color: 'white', padding: '10px 20px', borderRadius: 9, textDecoration: 'none', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' }}>
           Open Preview <ExternalLink size={14} />
         </a>
-      </div>
-
-      {/* Compatibility */}
-      <div style={{ marginTop: 20, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 10, padding: '14px 18px', fontSize: 13.5, color: '#166534' }}>
-        Works with WordPress, Shopify, Wix, Squarespace, Webflow, Framer, and any custom HTML site.
       </div>
     </div>
   );
