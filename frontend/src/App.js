@@ -9,6 +9,7 @@ import BlogIndex from './components/blog/BlogIndex';
 import BlogCategory from './components/blog/BlogCategory';
 import BlogPost from './components/blog/BlogPost';
 import CompanyLanding from './components/pages/CompanyLanding';
+import CompanyPortal from './components/dashboard/CompanyPortal';
 import About from './components/pages/About';
 import Contact from './components/pages/Contact';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
@@ -24,6 +25,7 @@ const isEmbed        = pathname.startsWith('/embed');
 const isResults      = pathname === '/results';
 const isBlog         = pathname === '/blog' || pathname.startsWith('/blog/');
 const isForCompanies = pathname === '/for-companies';
+const isCompany      = pathname === '/company' || pathname.startsWith('/company/');
 const isAbout        = pathname === '/about';
 const isContact      = pathname === '/contact';
 const isPrivacy      = pathname === '/privacy-policy';
@@ -81,6 +83,7 @@ export default function App() {
     return <HelmetProvider><div className="app"><Header /><main>{blogContent}</main><Footer /></div></HelmetProvider>;
   }
   if (isForCompanies) return <HelmetProvider><CompanyLanding /></HelmetProvider>;
+  if (isCompany)      return <HelmetProvider><CompanyPortal /></HelmetProvider>;
   if (isAbout)        return <HelmetProvider><div className="app"><Header /><main><About /></main><Footer /></div></HelmetProvider>;
   if (isContact)      return <HelmetProvider><div className="app"><Header /><main><Contact /></main><Footer /></div></HelmetProvider>;
   if (isPrivacy)      return <HelmetProvider><div className="app"><Header /><main><PrivacyPolicy /></main><Footer /></div></HelmetProvider>;
