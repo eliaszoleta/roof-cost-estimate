@@ -9,8 +9,12 @@ export default function Footer() {
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: 32, marginBottom: 40 }}>
 
           <div>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 12 }}>
-              <span style={{ fontSize: 20 }}>🏠</span>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 12 }}>
+              <div style={{ width: 32, height: 32, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, boxShadow: '0 2px 8px rgba(234,88,12,0.35)' }}>
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="white">
+                  <path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z"/>
+                </svg>
+              </div>
               <span style={{ fontWeight: 800, fontSize: 17, color: 'white' }}>RoofCalc</span>
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>

@@ -4,11 +4,75 @@
     <meta charset="utf-8" />
     <link rel="icon" href="%PUBLIC_URL%/favicon.ico" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#2563eb" />
-    <meta name="description" content="Free roofing cost estimator. Get instant ZIP-code specific estimates for roof replacement, repair, inspection, and gutters." />
-    <title>Roof Cost Estimator 2026 | RoofCalc</title>
+    <meta name="theme-color" content="#ea580c" />
+
+    <!-- Primary SEO -->
+    <title>Free Roof Cost Estimator 2026 | Instant ZIP-Code Pricing | RoofCalc</title>
+    <meta name="description" content="Get an instant, ZIP-code accurate roofing cost estimate in 60 seconds. Covers replacement, repair, metal, tile, flat roofs, gutters & inspections. Free, no login required." />
+    <meta name="keywords" content="roofing cost estimator, roof replacement cost, roof repair cost, metal roof cost, how much does a new roof cost, roofing calculator" />
+    <link rel="canonical" href="https://eliaszoleta.github.io/roof-cost-estimate/" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://eliaszoleta.github.io/roof-cost-estimate/" />
+    <meta property="og:title" content="Free Roof Cost Estimator 2026 | Instant ZIP-Code Pricing" />
+    <meta property="og:description" content="Get an instant roofing estimate in 60 seconds. ZIP-code accurate pricing for replacement, repair, metal, tile, flat roofs & gutters. Free tool." />
+    <meta property="og:image" content="https://eliaszoleta.github.io/roof-cost-estimate/og-image.png" />
+    <meta property="og:site_name" content="RoofCalc" />
+    <meta property="og:locale" content="en_US" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Free Roof Cost Estimator 2026 | Instant ZIP-Code Pricing" />
+    <meta name="twitter:description" content="Get an instant roofing estimate in 60 seconds. ZIP-code accurate pricing for any roofing project." />
+    <meta name="twitter:image" content="https://eliaszoleta.github.io/roof-cost-estimate/og-image.png" />
+
+    <!-- PWA / App -->
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+    <link rel="apple-touch-icon" href="%PUBLIC_URL%/logo192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="apple-mobile-web-app-title" content="RoofCalc" />
+
+    <!-- Robots -->
+    <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
+
+    <!-- Structured Data: WebSite + SearchAction -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "RoofCalc",
+      "url": "https://eliaszoleta.github.io/roof-cost-estimate/",
+      "description": "Free roofing cost estimator with ZIP-code accurate pricing for homeowners",
+      "potentialAction": {
+        "@type": "SearchAction",
+        "target": "https://eliaszoleta.github.io/roof-cost-estimate/blog",
+        "query-input": "required name=search_term_string"
+      }
+    }
+    </script>
+
+    <!-- Structured Data: LocalBusiness Tool -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebApplication",
+      "name": "RoofCalc — Free Roofing Cost Estimator",
+      "url": "https://eliaszoleta.github.io/roof-cost-estimate/",
+      "applicationCategory": "UtilitiesApplication",
+      "operatingSystem": "Any",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD"
+      },
+      "description": "Instant ZIP-code specific roofing cost estimates for homeowners. Covers roof replacement, repair, metal, tile, flat roofs, gutter installation and roof inspections."
+    }
+    </script>
+
+    <!-- SPA redirect decode -->
     <script>
-      // Decode SPA redirect from 404.html
       (function(l) {
         if (l.search[1] === '/') {
           var decoded = l.search.slice(1).split('&').map(function(s) {

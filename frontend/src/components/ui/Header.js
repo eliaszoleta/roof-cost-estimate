@@ -32,14 +32,13 @@ const styles = {
   logoIcon: {
     width: 34,
     height: 34,
-    background: 'linear-gradient(135deg, #ea580c, #dc2626)',
-    borderRadius: 8,
+    background: 'linear-gradient(135deg, #ea580c, #c2410c)',
+    borderRadius: 9,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    color: 'white',
-    fontSize: 18,
     flexShrink: 0,
+    boxShadow: '0 2px 8px rgba(234,88,12,0.30)',
   },
   nav: { display: 'flex', alignItems: 'center', gap: 4 },
   navLink: {
@@ -96,7 +95,11 @@ export default function Header() {
     <header style={styles.header}>
       <div style={styles.inner}>
         <a href={url("/")} style={{ ...styles.logo, fontSize: isMobile ? 16 : 20 }} aria-label="RoofCalc — Free Roofing Cost Estimator">
-          <span style={styles.logoIcon} aria-hidden="true">🏠</span>
+          <span style={styles.logoIcon} aria-hidden="true">
+            <svg width="19" height="19" viewBox="0 0 24 24" fill="white">
+              <path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z"/>
+            </svg>
+          </span>
           RoofCalc
         </a>
 

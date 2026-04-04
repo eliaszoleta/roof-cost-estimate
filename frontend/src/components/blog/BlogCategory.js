@@ -1,20 +1,22 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
+import { DollarSign, Layers, Wrench, RefreshCw, Shield, BookOpen, ChevronLeft } from 'lucide-react';
 import { getPostsByCategory } from '../../data/blogPosts';
 import { url } from '../../utils/routes';
 
 const CATEGORY_META = {
-  'roofing-costs':    { label: 'Roofing Costs',       emoji: '💰', desc: 'Understand what you should pay for any roofing project.' },
-  'roof-materials':   { label: 'Roof Materials',       emoji: '🏗️', desc: 'Compare shingles, metal, tile, and more.' },
-  'roof-repair':      { label: 'Roof Repair',          emoji: '🔧', desc: 'Fix leaks, damaged shingles, and extend your roof\'s life.' },
-  'roof-replacement': { label: 'Roof Replacement',     emoji: '🏠', desc: 'Everything you need to know about replacing your roof.' },
-  'roofing-insurance':{ label: 'Roofing Insurance',    emoji: '🛡️', desc: 'Navigate insurance claims and coverage for roof damage.' },
-  'roofing-basics':   { label: 'Roofing Basics',       emoji: '📚', desc: 'Foundational knowledge every homeowner should have.' },
+  'roofing-costs':    { label: 'Roofing Costs',    Icon: DollarSign, desc: 'Understand what you should pay for any roofing project.' },
+  'roof-materials':   { label: 'Roof Materials',   Icon: Layers,     desc: 'Compare shingles, metal, tile, and more.' },
+  'roof-repair':      { label: 'Roof Repair',      Icon: Wrench,     desc: 'Fix leaks, damaged shingles, and extend your roof\'s life.' },
+  'roof-replacement': { label: 'Roof Replacement', Icon: RefreshCw,  desc: 'Everything you need to know about replacing your roof.' },
+  'roofing-insurance':{ label: 'Roofing Insurance',Icon: Shield,     desc: 'Navigate insurance claims and coverage for roof damage.' },
+  'roofing-basics':   { label: 'Roofing Basics',   Icon: BookOpen,   desc: 'Foundational knowledge every homeowner should have.' },
 };
 
 export default function BlogCategory({ category }) {
   const posts = getPostsByCategory(category);
-  const meta = CATEGORY_META[category] || { label: category, emoji: '📄', desc: '' };
+  const meta = CATEGORY_META[category] || { label: category, Icon: BookOpen, desc: '' };
+  const MetaIcon = meta.Icon;
 
   return (
     <>
@@ -25,9 +27,13 @@ export default function BlogCategory({ category }) {
       </Helmet>
       <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '48px 24px 64px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <a href={url('/blog')} style={{ fontSize: 13, color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 5, marginBottom: 28 }}>← All Articles</a>
+          <a href={url('/blog')} style={{ fontSize: 13, color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 5, marginBottom: 28 }}>
+            <ChevronLeft size={14} /> All Articles
+          </a>
           <div style={{ marginBottom: 40 }}>
-            <div style={{ fontSize: 32, marginBottom: 10 }}>{meta.emoji}</div>
+            <div style={{ width: 52, height: 52, borderRadius: 14, background: '#fff7ed', border: '1.5px solid #fed7aa', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
+              <MetaIcon size={26} color="#ea580c" strokeWidth={1.75} />
+            </div>
             <h1 style={{ fontSize: 'clamp(24px,4vw,34px)', fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>{meta.label}</h1>
             <p style={{ fontSize: 16, color: '#64748b' }}>{meta.desc}</p>
           </div>
