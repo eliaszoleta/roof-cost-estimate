@@ -62,7 +62,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
   const sqft = SIZE_TO_SQFT[roofSize] || 1750;
 
   const handleNext = () => {
-    const base = { stories: Number(stories), pitch, addons: [] };
+    const base = { roofSize, stories: Number(stories), pitch, addOns };
     if (isFlat) {
       onNext({ ...base, buildingFootprint: sqft, flatMaterial: flatType });
     } else if (isMetal) {

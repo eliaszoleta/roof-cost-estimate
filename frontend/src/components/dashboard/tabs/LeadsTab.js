@@ -22,16 +22,35 @@ function fmt(iso) {
 function fmtPrice(n) { return n != null ? '$' + Number(n).toLocaleString() : '—'; }
 function cap(s) { return (s || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
 
+const ROOF_SIZE_LABELS = {
+  under_1000: '<1,000 sq ft', '1000_1500': '1,000–1,500', '1500_2000': '1,500–2,000',
+  '2000_2500': '2,000–2,500', '2500_3000': '2,500–3,000', over_3000: '3,000+ sq ft',
+};
+const PITCH_LABELS = { low: 'Low (≤4:12)', medium: 'Medium (4–8:12)', steep: 'Steep (8:12+)' };
+const ADDON_LABELS = {
+  new_decking: 'New Decking', ice_water_shield: 'Ice & Water Shield',
+  ridge_ventilation: 'Ridge Vent', gutter_replacement: 'Gutters',
+};
+function fmtSize(v)    { return ROOF_SIZE_LABELS[v] || (v ? cap(v) : '—'); }
+function fmtPitch(v)   { return PITCH_LABELS[v] || (v ? cap(v) : '—'); }
+function fmtStories(v) { return v ? `${v} ${v === 1 ? 'story' : 'stories'}` : '—'; }
+function fmtAddOns(arr) {
+  if (!arr || arr.length === 0) return '—';
+  return arr.map(a => ADDON_LABELS[a] || cap(a)).join(', ');
+}
+
 function loadTrash() {
   try { return JSON.parse(localStorage.getItem('rc_leads_trash')) || []; } catch { return []; }
 }
 function saveTrash(t) { localStorage.setItem('rc_leads_trash', JSON.stringify(t)); }
 
 function exportCSV(leads) {
-  const headers = ['Name','Email','Phone','ZIP','State','Service','Est Low','Est High','Timeline','Status','Date'];
+  const headers = ['Name','Email','Phone','ZIP','State','Service','Roof Size','Stories','Pitch','Add-ons','Est Low','Est High','Timeline','Status','Date'];
   const rows = leads.map(l => [
     l.name, l.email, l.phone, l.zip || '', l.state,
-    serviceTypeLabel(l.service), fmtPrice(l.estimateLow), fmtPrice(l.estimateHigh),
+    serviceTypeLabel(l.service), fmtSize(l.roofSize), fmtStories(l.stories),
+    fmtPitch(l.pitch), fmtAddOns(l.addOns),
+    fmtPrice(l.estimateLow), fmtPrice(l.estimateHigh),
     cap(l.timeline), l.status, fmt(l.createdAt),
   ]);
   const csv = [headers, ...rows].map(r => r.map(v => `"${String(v).replace(/"/g,'""')}"`).join(',')).join('\n');
@@ -75,6 +94,22 @@ function DetailPanel({ lead, onClose, onStatusChange, onArchive }) {
         <Row label="Phone"    val={lead.phone}  href={`tel:${lead.phone}`} />
         <Row label="Location" val={`${lead.zip ? lead.zip + ' · ' : ''}${lead.state}`} />
         <Row label="Service"  val={serviceTypeLabel(lead.service)} />
+        <Row label="Roof Size" val={fmtSize(lead.roofSize)} />
+        <Row label="Stories"   val={fmtStories(lead.stories)} />
+        <Row label="Pitch"     val={fmtPitch(lead.pitch)} />
+        {lead.addOns && lead.addOns.length > 0 && (
+          <div style={{ padding: '8px 0', borderBottom: '1px solid #f1f5f9' }}>
+            <div style={{ fontSize: 13, color: '#94a3b8', marginBottom: 5 }}>Add-ons</div>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: 5 }}>
+              {lead.addOns.map(a => (
+                <span key={a} style={{ background: '#fff7ed', color: '#c2410c', fontSize: 11.5, fontWeight: 600, padding: '2px 8px', borderRadius: 6, border: '1px solid #fed7aa' }}>
+                  {ADDON_LABELS[a] || cap(a)}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
+        {(!lead.addOns || lead.addOns.length === 0) && <Row label="Add-ons" val="None" />}
         <Row label="Estimate" val={`${fmtPrice(lead.estimateLow)} – ${fmtPrice(lead.estimateHigh)}`} />
         <Row label="Timeline" val={cap(lead.timeline)} />
 
@@ -312,20 +347,20 @@ export default function LeadsTab({ leads, setLeads }) {
 
         {/* Scrollable table */}
         <div style={{ background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', overflowX: 'auto' }}>
-          <table style={{ borderCollapse: 'collapse', minWidth: 700, width: '100%' }}>
+          <table style={{ borderCollapse: 'collapse', minWidth: 1100, width: '100%' }}>
             <thead>
               <tr>
                 <th style={{ ...TH, width: 40, padding: '11px 12px' }}>
                   <input type="checkbox" checked={allChecked} onChange={toggleAll} style={{ cursor: 'pointer' }} />
                 </th>
-                {['NAME','EMAIL','PHONE','LOCATION','SERVICE','ESTIMATE','TIMELINE','DATE'].map(h => (
+                {['NAME','EMAIL','PHONE','LOCATION','SERVICE','ROOF SIZE','STORIES','PITCH','ADD-ONS','ESTIMATE','TIMELINE','DATE'].map(h => (
                   <th key={h} style={TH}>{h}</th>
                 ))}
               </tr>
             </thead>
             <tbody>
               {filtered.length === 0 ? (
-                <tr><td colSpan={9} style={{ padding: '44px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
+                <tr><td colSpan={13} style={{ padding: '44px 24px', textAlign: 'center', color: '#94a3b8', fontSize: 14 }}>
                   {leads.length === 0 ? 'No leads yet. Embed your calculator to start capturing.' : 'No leads match your search.'}
                 </td></tr>
               ) : filtered.map((lead, i) => {
@@ -347,6 +382,14 @@ export default function LeadsTab({ leads, setLeads }) {
                       <span style={{ background: '#f1f5f9', color: '#475569', fontWeight: 600, fontSize: 12, padding: '2px 7px', borderRadius: 5 }}>{lead.state}</span>
                     </td>
                     <td style={{ ...TD, color: '#374151', borderBottom: '1px solid #f8fafc', maxWidth: 130, overflow: 'hidden', textOverflow: 'ellipsis' }}>{serviceTypeLabel(lead.service)}</td>
+                    <td style={{ ...TD, color: '#374151', borderBottom: '1px solid #f8fafc' }}>{fmtSize(lead.roofSize)}</td>
+                    <td style={{ ...TD, color: '#374151', borderBottom: '1px solid #f8fafc' }}>{fmtStories(lead.stories)}</td>
+                    <td style={{ ...TD, color: '#374151', borderBottom: '1px solid #f8fafc' }}>{fmtPitch(lead.pitch)}</td>
+                    <td style={{ ...TD, borderBottom: '1px solid #f8fafc', maxWidth: 160, overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                      {lead.addOns && lead.addOns.length > 0
+                        ? lead.addOns.map(a => ADDON_LABELS[a] || cap(a)).join(', ')
+                        : <span style={{ color: '#cbd5e1' }}>—</span>}
+                    </td>
                     <td style={{ ...TD, borderBottom: '1px solid #f8fafc', fontWeight: 600 }}>
                       <span style={{ color: '#16a34a' }}>{fmtPrice(lead.estimateLow)} – {fmtPrice(lead.estimateHigh)}</span>
                     </td>
