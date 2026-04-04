@@ -213,7 +213,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
 
           <div style={{ padding: embedded ? '20px 16px' : isMobile ? '20px 16px' : '32px 40px' }}>
             {currentStep === 'service' && (
-              <ServiceSelect onSelect={handleServiceSelect} primaryColor={primaryColor} companyName={companyName} />
+              <ServiceSelect onSelect={handleServiceSelect} primaryColor={primaryColor} companyName={companyName} companyConfig={companyConfig} />
             )}
             {currentStep === 'location' && (
               <LocationStep

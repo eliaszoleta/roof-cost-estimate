@@ -11,8 +11,11 @@ const SERVICES = [
   { id: 'gutter_replacement',  label: 'Gutters',         Icon: Droplets,    desc: 'New gutters + guards' },
 ];
 
-export default function ServiceSelect({ onSelect, primaryColor = '#ea580c', companyName = null }) {
+export default function ServiceSelect({ onSelect, primaryColor = '#ea580c', companyName = null, companyConfig = null }) {
   const [hovered, setHovered] = React.useState(null);
+  const enabled = companyConfig?.enabledServices;
+  const visible = enabled ? SERVICES.filter(s => enabled.includes(s.id)) : SERVICES;
+
   return (
     <div>
       <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', marginBottom: 4, letterSpacing: '-0.3px' }}>
@@ -20,7 +23,7 @@ export default function ServiceSelect({ onSelect, primaryColor = '#ea580c', comp
       </h2>
       <p style={{ color: '#64748b', fontSize: 13.5, marginBottom: 18 }}>Tap a service to get your free, instant estimate.</p>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
-        {SERVICES.map(({ id, label, Icon, desc }) => (
+        {visible.map(({ id, label, Icon, desc }) => (
           <button
             key={id}
             onClick={() => onSelect(id)}

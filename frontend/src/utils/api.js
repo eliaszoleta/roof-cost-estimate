@@ -23,6 +23,27 @@ export async function postCalculate(payload) {
 }
 
 export async function getCompanyPublic(companyId) {
+  // No backend: read roofer's saved settings from localStorage (demo / same-browser preview)
+  if (!API_URL) {
+    try {
+      const branding      = JSON.parse(localStorage.getItem('rc_branding'))       || {};
+      const questionConfig= JSON.parse(localStorage.getItem('rc_question_config'))|| {};
+      const enabledServices = JSON.parse(localStorage.getItem('rc_services'))     || null;
+      return {
+        success: true,
+        data: {
+          companyName:    branding.companyName  || null,
+          primaryColor:   branding.primaryColor || '#ea580c',
+          logoUrl:        branding.logoUrl      || null,
+          ctaPhone:       branding.phone        || null,
+          ctaButtonText:  branding.ctaText      || 'Get a Free Quote',
+          ctaButtonUrl:   branding.ctaUrl       || null,
+          questionConfig,
+          enabledServices,
+        },
+      };
+    } catch { return { success: true, data: null }; }
+  }
   return apiFetch(`/api/company/${companyId}/public`);
 }
 
