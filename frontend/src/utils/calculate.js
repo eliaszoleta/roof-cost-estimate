@@ -32,17 +32,18 @@ const COMPLEXITY_LABOR = { simple:1.00, moderate:1.18, complex:1.40 };
 const COMPLEXITY_WASTE = { simple:1.08, moderate:1.13, complex:1.20 }; // extra material waste
 
 // Shingle grade: installed $/sqft range (materials + labor combined)
+// Spread kept to ~25% — structural variation handled by state/complexity/pitch/story multipliers
 const SHINGLE_GRADE = {
-  standard:      { pLow: 3.50, pHigh: 5.50, label: '3-Tab shingles' },
-  architectural: { pLow: 5.00, pHigh: 7.50, label: 'Architectural shingles' },
-  designer:      { pLow: 8.00, pHigh: 13.00, label: 'Designer/premium shingles' },
+  standard:      { pLow: 4.00, pHigh: 5.20,  label: '3-Tab shingles' },
+  architectural: { pLow: 5.50, pHigh: 7.00,  label: 'Architectural shingles' },
+  designer:      { pLow: 9.00, pHigh: 11.50, label: 'Designer/premium shingles' },
 };
 
-// Extra cost per sqft for 2nd layer tear-off
-const EXTRA_LAYER_COST = { one:[0,0], two:[0.65,1.10], unknown:[0.30,0.75] };
+// Extra cost per sqft for 2nd layer tear-off — tightened spread
+const EXTRA_LAYER_COST = { one:[0,0], two:[0.60,0.85], unknown:[0.25,0.55] };
 
 // Penetration flashing costs (chimneys, skylights, pipe boots)
-const PENETRATION_COST = { none:[0,0], low:[400,800], medium:[900,1800], high:[2000,3800] };
+const PENETRATION_COST = { none:[0,0], low:[400,650], medium:[800,1300], high:[1800,2800] };
 
 function resolveState(state, zip) {
   if (state && STATE_MULT[state.toUpperCase()]) return state.toUpperCase();
@@ -102,17 +103,17 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
     const shingleLow  = gradeData.pLow  * roofArea * laborMult;
     const shingleHigh = gradeData.pHigh * roofArea * laborMult;
 
-    // 2. Tear-off existing shingles
-    const tearoffLow  = roofArea * 0.55 * stm;
-    const tearoffHigh = roofArea * 0.95 * stm;
+    // 2. Tear-off existing shingles (~$0.60–0.80/sqft — tight, standardized labor task)
+    const tearoffLow  = roofArea * 0.60 * stm;
+    const tearoffHigh = roofArea * 0.80 * stm;
 
     // 3. Extra layer tear-off cost (if 2 layers or unknown)
     const extraLayerCostLow  = extraLayerLow  * roofArea;
     const extraLayerCostHigh = extraLayerHigh * roofArea;
 
-    // 4. Underlayment, drip edge, flashing, ridge cap
-    const underlayLow  = roofArea * 0.40;
-    const underlayHigh = roofArea * 0.75;
+    // 4. Underlayment, drip edge, flashing, ridge cap (~$0.45–0.60/sqft — standardized materials)
+    const underlayLow  = roofArea * 0.45;
+    const underlayHigh = roofArea * 0.60;
 
     // 5. Penetration flashing (already state-neutral — varies by local trade rates)
     const penCostLow  = penLow;
@@ -194,11 +195,11 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
     const metalType = serviceDetails.metalType || 'standing_seam';
     const roofArea  = Math.round(sqft * pm * cWasteM);
     const laborMult = stm * cLaborM;
-    const [pLow, pHigh] = metalType === 'standing_seam' ? [10, 17] : metalType === 'corrugated' ? [5, 9] : [7, 12];
+    const [pLow, pHigh] = metalType === 'standing_seam' ? [12, 16] : metalType === 'corrugated' ? [5.50, 7.50] : [8, 11];
     const matLow  = pLow  * roofArea * laborMult;
     const matHigh = pHigh * roofArea * laborMult;
-    const tearoffLow  = roofArea * 0.55 * stm;
-    const tearoffHigh = roofArea * 1.00 * stm;
+    const tearoffLow  = roofArea * 0.60 * stm;
+    const tearoffHigh = roofArea * 0.80 * stm;
     const extraLayerCostLow  = extraLayerLow  * roofArea;
     const extraLayerCostHigh = extraLayerHigh * roofArea;
     adjustments = [
@@ -226,11 +227,11 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
     const tileType = serviceDetails.tileType || 'concrete_tile';
     const roofArea = Math.round(sqft * pm * cWasteM);
     const laborMult = stm * cLaborM;
-    const [pLow, pHigh] = tileType === 'slate' ? [15, 28] : tileType === 'clay_tile' ? [12, 22] : [9, 16];
+    const [pLow, pHigh] = tileType === 'slate' ? [18, 24] : tileType === 'clay_tile' ? [14, 18] : [10, 14];
     const matLow  = pLow  * roofArea * laborMult;
     const matHigh = pHigh * roofArea * laborMult;
     const tearoffLow  = roofArea * 0.75 * stm;
-    const tearoffHigh = roofArea * 1.30 * stm;
+    const tearoffHigh = roofArea * 1.00 * stm;
     const extraLayerCostLow  = extraLayerLow  * roofArea;
     const extraLayerCostHigh = extraLayerHigh * roofArea;
     adjustments = [
@@ -252,7 +253,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
     const mat  = serviceDetails.flatMaterial || 'tpo';
     const complexity_ = serviceDetails.complexity || 'simple';
     const cM = COMPLEXITY_LABOR[complexity_] || 1.00;
-    const [pLow, pHigh] = mat === 'epdm' ? [4.5, 7.5] : mat === 'modified_bitumen' ? [5, 9] : [5.5, 9.5];
+    const [pLow, pHigh] = mat === 'epdm' ? [5.00, 6.50] : mat === 'modified_bitumen' ? [5.50, 7.00] : [6.00, 7.50];
     const matLow  = pLow  * area * cM;
     const matHigh = pHigh * area * cM;
     const tearoffLow  = area * 0.45;
@@ -271,7 +272,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
 
   } else if (serviceType === 'roof_repair') {
     const size = serviceDetails.repairSize || 'small';
-    const costs = { minor:[150,400], small:[350,800], medium:[700,1800], large:[1500,3500], emergency:[900,2800] };
+    const costs = { minor:[175,300], small:[400,650], medium:[800,1400], large:[1600,2800], emergency:[1000,2200] };
     const [cl, ch] = costs[size] || costs.small;
     adjustments = [{ label: `Roof repair — ${size}`, low: cl, high: ch }];
     totalLow  = r(cl * sm);
@@ -286,7 +287,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
 
   } else if (serviceType === 'roof_inspection') {
     const type = serviceDetails.inspectionType || 'standard';
-    const costs = { standard:[125,325], drone:[175,425], post_storm:[200,400], thermal:[325,650] };
+    const costs = { standard:[150,250], drone:[200,325], post_storm:[200,325], thermal:[375,550] };
     const [cl, ch] = costs[type] || costs.standard;
     adjustments = [{ label: `Roof inspection — ${type.replace(/_/g,' ')}`, low: cl, high: ch }];
     totalLow  = r(cl * sm);
@@ -298,7 +299,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
   } else if (serviceType === 'gutter_replacement') {
     const lf  = Number(serviceDetails.linearFeet) || 150;
     const mat = serviceDetails.gutterMaterial || 'aluminum';
-    const costs = { vinyl:[3,6], aluminum:[6,12], steel:[8,15], copper:[22,45] };
+    const costs = { vinyl:[3.50,4.50], aluminum:[7,9], steel:[9,12], copper:[25,35] };
     const [pLow, pHigh] = costs[mat] || costs.aluminum;
     const gutterLow  = pLow  * lf;
     const gutterHigh = pHigh * lf;
