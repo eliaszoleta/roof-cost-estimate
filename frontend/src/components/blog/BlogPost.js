@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getPostBySlug, getRelatedPosts } from '../../data/blogPosts';
+import { url } from '../../utils/routes';
 
 const CATEGORY_LABELS = {
   'roofing-costs':'Roofing Costs','roof-materials':'Roof Materials',
@@ -40,7 +41,7 @@ export default function BlogPost({ slug }) {
   if (!post) return (
     <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
       <h2 style={{ color: '#0f172a' }}>Article not found</h2>
-      <a href="/blog" style={{ color: '#ea580c', fontWeight: 600 }}>← Back to blog</a>
+      <a href={url('/blog')} style={{ color: '#ea580c', fontWeight: 600 }}>← Back to blog</a>
     </div>
   );
 
@@ -85,11 +86,11 @@ export default function BlogPost({ slug }) {
 
           {/* Breadcrumb */}
           <div style={{ display: 'flex', gap: 6, fontSize: 13, color: '#94a3b8', marginBottom: 28, flexWrap: 'wrap' }}>
-            <a href="/" style={{ color: '#64748b', textDecoration: 'none' }}>Home</a>
+            <a href={url('/')} style={{ color: '#64748b', textDecoration: 'none' }}>Home</a>
             <span>›</span>
-            <a href="/blog" style={{ color: '#64748b', textDecoration: 'none' }}>Blog</a>
+            <a href={url('/blog')} style={{ color: '#64748b', textDecoration: 'none' }}>Blog</a>
             <span>›</span>
-            <a href={`/blog/category/${post.category}`} style={{ color: '#64748b', textDecoration: 'none' }}>{CATEGORY_LABELS[post.category] || post.category}</a>
+            <a href={url(`/blog/category/${post.category}`)} style={{ color: '#64748b', textDecoration: 'none' }}>{CATEGORY_LABELS[post.category] || post.category}</a>
             <span>›</span>
             <span style={{ color: '#0f172a' }}>{post.title}</span>
           </div>
@@ -113,7 +114,7 @@ export default function BlogPost({ slug }) {
               <div style={{ fontWeight: 700, fontSize: 15 }}>Get an instant estimate for your roof</div>
               <div style={{ fontSize: 13, opacity: 0.9 }}>Free · No signup · ZIP-code accurate</div>
             </div>
-            <a href="/" style={{ background: 'white', color: '#ea580c', padding: '10px 20px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' }}>
+            <a href={url('/')} style={{ background: 'white', color: '#ea580c', padding: '10px 20px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' }}>
               Calculate Now →
             </a>
           </div>
@@ -147,7 +148,7 @@ export default function BlogPost({ slug }) {
           <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '24px 28px', marginBottom: 32, textAlign: 'center' }}>
             <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a', marginBottom: 6 }}>Ready to get an accurate estimate?</div>
             <p style={{ fontSize: 14, color: '#64748b', marginBottom: 16 }}>Use our free calculator for a ZIP-code accurate roofing cost estimate in under 60 seconds.</p>
-            <a href="/" style={{ background: '#ea580c', color: 'white', padding: '12px 28px', borderRadius: 9, textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
+            <a href={url('/')} style={{ background: '#ea580c', color: 'white', padding: '12px 28px', borderRadius: 9, textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
               Get My Free Estimate →
             </a>
           </div>
@@ -158,7 +159,7 @@ export default function BlogPost({ slug }) {
               <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.07em', marginBottom: 16 }}>Related Articles</div>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: 14 }}>
                 {related.map(r => (
-                  <a key={r.slug} href={`/blog/${r.slug}`} style={{ textDecoration: 'none' }}>
+                  <a key={r.slug} href={url(`/blog/${r.slug}`)} style={{ textDecoration: 'none' }}>
                     <div style={{ background: 'white', borderRadius: 10, border: '1px solid #e2e8f0', padding: '16px 18px', transition: 'box-shadow 0.15s' }}
                       onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.08)'; }}
                       onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}

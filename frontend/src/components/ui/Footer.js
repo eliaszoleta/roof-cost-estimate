@@ -1,4 +1,5 @@
 import React from 'react';
+import { url } from '../../utils/routes';
 
 export default function Footer() {
   const year = new Date().getFullYear();
@@ -20,13 +21,13 @@ export default function Footer() {
           <div>
             <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Estimates</div>
             {[
-              ['Asphalt Shingle Roof', '/?service=asphalt_shingle'],
-              ['Metal Roof', '/?service=metal'],
-              ['Tile Roof', '/?service=tile'],
-              ['Flat / TPO Roof', '/?service=flat_tpo'],
-              ['Roof Repair', '/?service=repair'],
-              ['Roof Inspection', '/?service=inspection'],
-              ['Gutter Installation', '/?service=gutter'],
+              ['Asphalt Shingle Roof', url('/?service=asphalt_shingle')],
+              ['Metal Roof', url('/?service=metal')],
+              ['Tile Roof', url('/?service=tile')],
+              ['Flat / TPO Roof', url('/?service=flat_tpo')],
+              ['Roof Repair', url('/?service=repair')],
+              ['Roof Inspection', url('/?service=inspection')],
+              ['Gutter Installation', url('/?service=gutter')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7, lineHeight: 1.5 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}
@@ -39,10 +40,10 @@ export default function Footer() {
           <div>
             <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Company</div>
             {[
-              ['About', '/about'],
-              ['Contact', '/contact'],
-              ['For Contractors', '/for-companies'],
-              ['Contractor Login', '/company'],
+              ['About', url('/about')],
+              ['Contact', url('/contact')],
+              ['For Contractors', url('/for-companies')],
+              ['Contractor Login', url('/company')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}
@@ -55,8 +56,8 @@ export default function Footer() {
           <div>
             <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Legal</div>
             {[
-              ['Privacy Policy', '/privacy-policy'],
-              ['Terms of Service', '/terms-of-service'],
+              ['Privacy Policy', url('/privacy-policy')],
+              ['Terms of Service', url('/terms-of-service')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}

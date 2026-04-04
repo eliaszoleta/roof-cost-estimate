@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getPostsByCategory } from '../../data/blogPosts';
+import { url } from '../../utils/routes';
 
 const CATEGORY_META = {
   'roofing-costs':    { label: 'Roofing Costs',       emoji: '💰', desc: 'Understand what you should pay for any roofing project.' },
@@ -24,7 +25,7 @@ export default function BlogCategory({ category }) {
       </Helmet>
       <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '48px 24px 64px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
-          <a href="/blog" style={{ fontSize: 13, color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 5, marginBottom: 28 }}>← All Articles</a>
+          <a href={url('/blog')} style={{ fontSize: 13, color: '#64748b', textDecoration: 'none', display: 'inline-flex', alignItems: 'center', gap: 5, marginBottom: 28 }}>← All Articles</a>
           <div style={{ marginBottom: 40 }}>
             <div style={{ fontSize: 32, marginBottom: 10 }}>{meta.emoji}</div>
             <h1 style={{ fontSize: 'clamp(24px,4vw,34px)', fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>{meta.label}</h1>
@@ -32,7 +33,7 @@ export default function BlogCategory({ category }) {
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
             {posts.map(post => (
-              <a key={post.slug} href={`/blog/${post.slug}`} style={{ textDecoration: 'none' }}>
+              <a key={post.slug} href={url(`/blog/${post.slug}`)} style={{ textDecoration: 'none' }}>
                 <div style={{ background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', padding: '22px 26px', display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 16, transition: 'box-shadow 0.15s' }}
                   onMouseEnter={e => { e.currentTarget.style.boxShadow = '0 4px 16px rgba(0,0,0,0.08)'; }}
                   onMouseLeave={e => { e.currentTarget.style.boxShadow = 'none'; }}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { getAllPosts, getCategories } from '../../data/blogPosts';
+import { url } from '../../utils/routes';
 
 const CATEGORY_LABELS = {
   'roofing-costs':    { label: 'Roofing Costs',       emoji: '💰' },
@@ -14,7 +15,7 @@ const CATEGORY_LABELS = {
 function PostCard({ post, featured = false }) {
   const cat = CATEGORY_LABELS[post.category] || { label: post.category, emoji: '📄' };
   return (
-    <a href={`/blog/${post.slug}`} style={{ textDecoration: 'none', display: 'block' }}>
+    <a href={url(`/blog/${post.slug}`)} style={{ textDecoration: 'none', display: 'block' }}>
       <div style={{
         background: 'white', borderRadius: 12, border: '1px solid #e2e8f0',
         padding: featured ? '28px 32px' : '20px 24px',
@@ -72,7 +73,7 @@ export default function BlogIndex() {
               {categories.map(cat => {
                 const info = CATEGORY_LABELS[cat] || { label: cat, emoji: '📄' };
                 return (
-                  <a key={cat} href={`/blog/category/${cat}`}
+                  <a key={cat} href={url(`/blog/category/${cat}`)}
                     style={{ display: 'inline-flex', alignItems: 'center', gap: 7, padding: '9px 16px', borderRadius: 24, background: 'white', border: '1.5px solid #e2e8f0', textDecoration: 'none', fontSize: 13.5, fontWeight: 600, color: '#374151', transition: 'all 0.15s' }}
                     onMouseEnter={e => { e.currentTarget.style.borderColor = '#ea580c'; e.currentTarget.style.color = '#ea580c'; }}
                     onMouseLeave={e => { e.currentTarget.style.borderColor = '#e2e8f0'; e.currentTarget.style.color = '#374151'; }}

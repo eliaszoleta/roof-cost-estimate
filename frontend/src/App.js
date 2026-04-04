@@ -14,9 +14,10 @@ import Contact from './components/pages/Contact';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsOfService from './components/pages/TermsOfService';
 import EmbedWrapper from './components/EmbedWrapper';
+import { getPathname, url } from './utils/routes';
 import './App.css';
 
-const pathname = window.location.pathname.replace(/\/$/, '') || '/';
+const pathname = getPathname();
 const searchParams = new URLSearchParams(window.location.search);
 
 const isEmbed        = pathname.startsWith('/embed');
@@ -41,7 +42,7 @@ function ResultsPage() {
 
   if (!data) return (
     <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#64748b' }}>
-      Report not found. <a href="/" style={{ marginLeft: 8, color: '#ea580c' }}>Start a new estimate →</a>
+      Report not found. <a href={url('/')} style={{ marginLeft: 8, color: '#ea580c' }}>Start a new estimate →</a>
     </div>
   );
 

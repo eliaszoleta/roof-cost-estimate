@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { url } from '../../utils/routes';
 
 const styles = {
   header: {
@@ -76,9 +77,9 @@ const styles = {
 };
 
 const navItems = [
-  { label: 'Calculator', href: '/' },
-  { label: 'Blog', href: '/blog' },
-  { label: 'About', href: '/about' },
+  { label: 'Calculator', href: url('/') },
+  { label: 'Blog', href: url('/blog') },
+  { label: 'About', href: url('/about') },
 ];
 
 export default function Header() {
@@ -94,7 +95,7 @@ export default function Header() {
   return (
     <header style={styles.header}>
       <div style={styles.inner}>
-        <a href="/" style={{ ...styles.logo, fontSize: isMobile ? 16 : 20 }} aria-label="RoofCalc — Free Roofing Cost Estimator">
+        <a href={url("/")} style={{ ...styles.logo, fontSize: isMobile ? 16 : 20 }} aria-label="RoofCalc — Free Roofing Cost Estimator">
           <span style={styles.logoIcon} aria-hidden="true">🏠</span>
           RoofCalc
         </a>
@@ -102,7 +103,7 @@ export default function Header() {
         {isMobile ? (
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <a
-              href="/for-companies"
+              href={url("/for-companies")}
               style={styles.ctaMobile}
               onMouseEnter={e => { e.currentTarget.style.background = '#c2410c'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#ea580c'; }}
@@ -131,7 +132,7 @@ export default function Header() {
               </a>
             ))}
             <a
-              href="/for-companies"
+              href={url("/for-companies")}
               style={styles.navLink}
               onMouseEnter={e => { e.target.style.color = '#0f172a'; e.target.style.background = '#f8fafc'; }}
               onMouseLeave={e => { e.target.style.color = '#475569'; e.target.style.background = 'transparent'; }}
@@ -139,7 +140,7 @@ export default function Header() {
               For Contractors
             </a>
             <a
-              href="/company"
+              href={url("/company")}
               style={styles.cta}
               onMouseEnter={e => { e.currentTarget.style.background = '#c2410c'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#ea580c'; }}
@@ -157,7 +158,7 @@ export default function Header() {
               {n.label}
             </a>
           ))}
-          <a href="/company" style={{ ...styles.cta, display: 'block', textAlign: 'center', marginLeft: 0, marginTop: 8 }}>
+          <a href={url("/company")} style={{ ...styles.cta, display: 'block', textAlign: 'center', marginLeft: 0, marginTop: 8 }}>
             Contractor Login →
           </a>
         </div>
