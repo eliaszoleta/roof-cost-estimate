@@ -1,6 +1,15 @@
 import React from 'react';
 import { url } from '../../utils/routes';
 
+const BLOG_CATEGORIES = [
+  { slug: 'roofing-costs',       label: 'Roofing Costs'       },
+  { slug: 'roof-materials',      label: 'Roof Materials'       },
+  { slug: 'roof-repair',         label: 'Roof Repair'          },
+  { slug: 'roof-replacement',    label: 'Roof Replacement'     },
+  { slug: 'roofing-insurance',   label: 'Roofing & Insurance'  },
+  { slug: 'roofing-basics',      label: 'Roofing Basics'       },
+];
+
 export default function Footer() {
   const year = new Date().getFullYear();
   return (
@@ -34,6 +43,17 @@ export default function Footer() {
               ['Gutter Installation', url('/?service=gutter')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7, lineHeight: 1.5 }}
+                onMouseEnter={e => { e.target.style.color = 'white'; }}
+                onMouseLeave={e => { e.target.style.color = '#94a3b8'; }}>
+                {label}
+              </a>
+            ))}
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Blog Categories</div>
+            {BLOG_CATEGORIES.map(({ slug, label }) => (
+              <a key={slug} href={url(`/blog/category/${slug}`)} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7, lineHeight: 1.5 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}
                 onMouseLeave={e => { e.target.style.color = '#94a3b8'; }}>
                 {label}
