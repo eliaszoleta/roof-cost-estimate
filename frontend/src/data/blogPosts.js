@@ -227,6 +227,307 @@ const POSTS = [
     ],
   },
 
+  // ─── CATEGORY 2: roof-materials ─────────────────────────────────────────────
+
+  {
+    slug: 'asphalt-shingles-vs-metal-roofing',
+    title: 'Asphalt Shingles vs Metal Roofing: Which Is Right for You?',
+    seoTitle: 'Asphalt Shingles vs Metal Roofing 2026 | RoofCalc',
+    metaDescription: 'Comparing asphalt shingles vs metal roofing? Asphalt costs $4–6/sqft with 25-year life. Metal costs $10–16/sqft but lasts 50+ years. Full comparison inside.',
+    category: 'roof-materials',
+    publishedDate: '2026-02-01',
+    readTime: '8 min read',
+    tags: ['asphalt shingles', 'metal roof', 'roofing materials', 'roof comparison'],
+    relatedSlugs: ['roof-replacement-cost-by-material', 'metal-roofing-cost-pros-cons', 'how-much-does-a-new-roof-cost'],
+    sections: [
+      {
+        h2: 'The Core Tradeoff: Upfront Cost vs Lifetime Value',
+        paragraphs: [
+          'Asphalt shingles cost $4–6 per square foot installed and last 25–30 years. Metal roofing costs $10–16 per square foot installed but lasts 50–70 years. On a 1,800 sq ft roof, that\'s roughly $8,000 for asphalt vs $20,000 for standing seam metal.',
+          'Over 60 years, you\'d replace an asphalt roof twice (two replacement cycles) vs zero additional replacements for metal. Factor in inflation and the metal roof often wins on lifetime cost — but only if you plan to stay in the home long enough to realize that value.',
+        ],
+        table: [
+          ['Factor', 'Asphalt Architectural', 'Metal (Standing Seam)'],
+          ['Cost per sq ft installed', '$4.50–$6.50', '$10–$16'],
+          ['Lifespan', '25–30 years', '50–70 years'],
+          ['Maintenance', 'Moderate', 'Very low'],
+          ['Energy savings', 'Minimal', '10–25% cooling reduction'],
+          ['Wind resistance', 'Up to 130 mph', 'Up to 160+ mph'],
+          ['Noise (rain)', 'Quiet', 'Quiet with proper underlayment'],
+          ['Recyclable', 'Partially', 'Fully'],
+        ],
+      },
+      {
+        h2: 'Where Asphalt Wins',
+        paragraphs: [
+          'Asphalt is the right call if you\'re planning to sell within 10 years, working with a tight budget, or living in a climate without extreme heat or heavy snow. It\'s also the easier material to repair — any roofer can match and replace asphalt shingles, while metal repairs require more specialized skills.',
+          'Architectural shingles have improved dramatically. Modern products from GAF, CertainTeed, and Owens Corning carry 30-year warranties and look genuinely attractive. For most homeowners in most markets, 30-year architectural asphalt is still the value sweet spot.',
+        ],
+      },
+      {
+        h2: 'Where Metal Wins',
+        paragraphs: [
+          'Metal roofing makes compelling economic sense if you plan to stay 20+ years, live in a high-wind or high-snow area, or want to minimize long-term maintenance. Metal handles hail better, sheds snow more effectively, and never rots, cracks, or needs granule replacement.',
+          'In hot climates, metal\'s reflectivity can meaningfully cut cooling bills. Many metal products qualify for energy tax credits. And for modern, farmhouse, or mountain home aesthetics, metal simply looks better than asphalt.',
+        ],
+      },
+      {
+        h2: 'The Decision Framework',
+        paragraphs: [
+          'Ask yourself three questions: How long will I stay in this home? What is my budget? What does my climate demand? If you\'re staying 15+ years and can absorb the upfront cost, metal is worth serious consideration. If you\'re budget-constrained or planning to sell, quality asphalt is the smart, proven choice.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'best-roofing-materials-guide',
+    title: 'Best Roofing Materials Guide for 2026',
+    seoTitle: 'Best Roofing Materials Guide 2026 | RoofCalc',
+    metaDescription: 'The best roofing material depends on your climate, budget, and home style. Compare asphalt, metal, tile, slate, and flat roofing systems in this complete 2026 guide.',
+    category: 'roof-materials',
+    publishedDate: '2026-02-08',
+    readTime: '9 min read',
+    tags: ['roofing materials', 'best roof', 'roof types', 'home improvement'],
+    relatedSlugs: ['asphalt-shingles-vs-metal-roofing', 'roof-replacement-cost-by-material', 'roof-replacement-process-timeline'],
+    sections: [
+      {
+        h2: 'How to Choose the Right Roofing Material',
+        paragraphs: [
+          'The "best" roofing material is the one that balances your budget, climate, home style, and how long you plan to stay. There is no universal answer — a slate roof makes sense on a historic New England home but would be overkill on a starter home in the Midwest.',
+          'Four factors should drive your decision: upfront cost, expected lifespan, maintenance requirements, and climate suitability. We\'ll walk through each major material type with that lens.',
+        ],
+      },
+      {
+        h2: 'Best for Most Homeowners: Architectural Asphalt',
+        paragraphs: [
+          'Architectural (dimensional) asphalt shingles hit the sweet spot for the majority of homeowners. At $4.50–$6.50/sq ft installed with a 25–30 year lifespan, they deliver reliable performance without breaking the budget. They\'re available in dozens of colors, widely supported by contractors, and easy to repair.',
+          'Top picks: GAF Timberline HDZ, CertainTeed Landmark Pro, Owens Corning Duration. All carry strong warranties and are widely available. Look for Class 4 impact resistance if you\'re in a hail-prone area — it can lower your insurance premium.',
+        ],
+      },
+      {
+        h2: 'Best for Longevity: Standing Seam Metal',
+        paragraphs: [
+          'If you want to roof your home once and never think about it again, standing seam metal is the answer. At $10–16/sq ft installed with a 50–70 year lifespan, it\'s the highest-performing mainstream option. No granule loss, no moss growth, minimal maintenance, and superior wind/snow performance.',
+          'The hidden cost: metal requires skilled installers and costs more to repair. But for the right homeowner — long-term stayer, higher budget, modern or mountain aesthetic — it\'s the best product on the market.',
+        ],
+      },
+      {
+        h2: 'Best for Hot Climates: Concrete or Clay Tile',
+        paragraphs: [
+          'In Florida, Arizona, California, and Texas, tile roofing dominates for good reason. Concrete tile ($9–15/sq ft) and clay tile ($12–20/sq ft) handle intense heat beautifully, last 40–100 years, and are the architectural standard in those markets. Their weight requires proper structural support, so always verify your framing can handle it.',
+        ],
+      },
+      {
+        h2: 'Best for Flat Roofs: TPO',
+        paragraphs: [
+          'For low-slope and flat roofs, TPO (thermoplastic polyolefin) is the current industry standard. White, heat-reflective, weld-sealed at seams, and lasting 20–30 years at $4.50–$8/sq ft — it outperforms older EPDM and modified bitumen in most applications. Proper drainage design is critical regardless of material.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'metal-roofing-cost-pros-cons',
+    title: 'Metal Roofing Cost, Pros & Cons (2026)',
+    seoTitle: 'Metal Roofing Cost, Pros & Cons 2026 | RoofCalc',
+    metaDescription: 'Metal roofing costs $5–16 per sq ft installed. Learn the real pros and cons, which metal type fits your home, and whether the investment pays off long-term.',
+    category: 'roof-materials',
+    publishedDate: '2026-02-15',
+    readTime: '7 min read',
+    tags: ['metal roof cost', 'standing seam', 'metal roofing pros cons', 'roof materials'],
+    relatedSlugs: ['asphalt-shingles-vs-metal-roofing', 'roof-replacement-cost-by-material', 'how-much-does-a-new-roof-cost'],
+    sections: [
+      {
+        h2: 'Metal Roofing Cost by Type',
+        paragraphs: [
+          'Metal roofing spans a wide price range depending on the panel style and metal used. Corrugated and ribbed panels are the most affordable; standing seam is the premium option.',
+        ],
+        table: [
+          ['Type', 'Cost per Sq Ft', 'Lifespan', 'Notes'],
+          ['Corrugated steel', '$5–$9', '40–70 years', 'Exposed fasteners, great for rural/modern'],
+          ['Ribbed steel panels', '$6–$10', '40–60 years', 'Exposed fasteners, widely available'],
+          ['Standing seam steel', '$10–$14', '50–70 years', 'Hidden fasteners, premium residential'],
+          ['Standing seam aluminum', '$11–$16', '50–70 years', 'Rust-proof, ideal for coastal areas'],
+          ['Galvalume steel', '$8–$13', '50–60 years', 'Corrosion-resistant, great value'],
+          ['Copper', '$20–$35', '70–100+ years', 'Premium, develops patina, architectural'],
+        ],
+      },
+      {
+        h2: 'The Real Pros of Metal Roofing',
+        paragraphs: [
+          'Longevity is the headline: a properly installed standing seam roof routinely lasts 50–70 years with minimal maintenance. You\'re essentially buying a lifetime roof. Metal also handles extreme weather better than asphalt — high winds, heavy snow, hail, and fire all meet stronger resistance from metal.',
+          'Energy efficiency is a genuine benefit in hot climates. Metal reflects solar radiation rather than absorbing it, reducing attic temperatures and cooling loads by 10–25%. Many metal products qualify for federal energy tax credits. Insurance companies in some markets offer discounts for metal roofing.',
+        ],
+      },
+      {
+        h2: 'The Real Cons of Metal Roofing',
+        paragraphs: [
+          'Upfront cost is the biggest barrier. A metal roof costs 2–3× as much as architectural asphalt. If you\'re selling within 10 years, you\'re unlikely to recover the premium in resale value. Metal also requires specialized installers — not every roofing contractor works with metal, and quality installation is critical.',
+          'Denting from large hail is a concern with softer metals (aluminum). Steel and Galvalume are more hail-resistant. Expansion and contraction with temperature changes can loosen exposed fasteners over time — another reason standing seam (hidden fasteners) is preferred for residential applications.',
+          'The noise myth: metal roofs are NOT noisier than asphalt when properly installed with solid sheathing and underlayment. This is a common misconception. A well-installed metal roof in a rainstorm is quiet.',
+        ],
+      },
+      {
+        h2: 'Is Metal Roofing Worth It?',
+        paragraphs: [
+          'For homeowners planning to stay 20+ years, yes — metal frequently wins on total lifetime cost when you account for not replacing the roof again. For those staying under 15 years, the math rarely works out. Run the numbers for your specific situation, and get quotes from both metal and asphalt contractors before deciding.',
+        ],
+      },
+    ],
+  },
+
+  // ─── CATEGORY 3: roof-repair ────────────────────────────────────────────────
+
+  {
+    slug: 'how-to-fix-a-leaking-roof',
+    title: 'How to Fix a Leaking Roof: Step-by-Step Guide',
+    seoTitle: 'How to Fix a Leaking Roof (Step-by-Step) 2026 | RoofCalc',
+    metaDescription: 'Roof leaking? Learn how to find the source, make emergency repairs, and know when to call a professional. Step-by-step guide with costs and safety tips.',
+    category: 'roof-repair',
+    publishedDate: '2026-02-20',
+    readTime: '8 min read',
+    tags: ['roof leak', 'fix roof', 'roof repair', 'DIY roofing'],
+    relatedSlugs: ['roof-repair-cost-guide', 'roof-maintenance-checklist', 'when-to-repair-vs-replace-roof'],
+    sections: [
+      {
+        h2: 'Step 1: Find the Actual Source of the Leak',
+        paragraphs: [
+          'The most important — and most misunderstood — step in fixing a roof leak is finding where it actually originates. Water entering your attic almost never drips through directly above the ceiling stain you see inside. It enters at a failure point and travels along rafters, sheathing, or insulation before dripping down.',
+          'Go into your attic on a rainy day with a flashlight and look for wet wood, staining, or active drips. Trace the water path uphill (toward the ridge) to find the entry point. Mark it. Common culprits: failed flashing around chimneys, vents, and skylights; cracked or missing shingles; open valleys; and deteriorated pipe boot seals.',
+        ],
+      },
+      {
+        h2: 'Emergency Tarping: Stop the Damage Now',
+        paragraphs: [
+          'If you can\'t get a contractor immediately and water is actively entering, a tarp is your best short-term solution. Use a heavy-duty poly tarp (6 mil or thicker) that extends at least 4 feet past the leak area on all sides, up and over the ridge if possible. Secure with 2×4 boards and screws — never use nails that will create new penetrations.',
+          'Emergency tarping by a professional costs $200–$500. If you\'re comfortable on a roof and have proper safety equipment (harness, non-slip boots, stabilizer ladder), DIY tarping is straightforward. If not, the professional cost is absolutely worth it — falls from roofs are one of the leading causes of home improvement injuries.',
+        ],
+      },
+      {
+        h2: 'Common Repairs You Can DIY',
+        paragraphs: [
+          'Replacing a few missing or cracked asphalt shingles is within reach for a handy homeowner. You\'ll need matching shingles (bring an old one to the supply house), a pry bar, roofing nails, a hammer, and roofing caulk. Slide the new shingle under the one above, nail at the top edge, and seal nail heads with caulk.',
+          'Resealing pipe boots (the rubber collar around plumbing vents) is another approachable DIY fix. The rubber degrades over 10–15 years. A replacement boot costs $10–$20 at any hardware store and slides over the existing pipe. Apply roofing caulk around the base.',
+          'Resealing flashing with roofing caulk or flashing cement is a temporary fix for minor separations. Use Henry\'s or similar product. This buys time but isn\'t a permanent solution — properly reflashing requires removing shingles.',
+        ],
+      },
+      {
+        h2: 'When to Call a Professional',
+        paragraphs: [
+          'Call a professional when: you can\'t locate the leak source, the repair involves flashing removal, there\'s any sign of structural damage or rot, the roof pitch is steep enough to be dangerous, or the repair area is large. A professional leak diagnosis costs $150–$300 and is money well spent if you\'ve been unable to find the source.',
+          'Get repairs done promptly — delayed leak repairs are the #1 cause of expensive decking and structural damage. A $400 flashing repair ignored for a year can become a $3,000 decking replacement.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'roof-maintenance-checklist',
+    title: 'Annual Roof Maintenance Checklist for Homeowners',
+    seoTitle: 'Annual Roof Maintenance Checklist 2026 | RoofCalc',
+    metaDescription: 'Keep your roof in top shape with this annual maintenance checklist. Covers gutters, flashing, shingles, attic inspection, and seasonal tasks to extend roof life.',
+    category: 'roof-repair',
+    publishedDate: '2026-02-27',
+    readTime: '7 min read',
+    tags: ['roof maintenance', 'roof inspection', 'gutter cleaning', 'home maintenance'],
+    relatedSlugs: ['how-to-fix-a-leaking-roof', 'when-to-repair-vs-replace-roof', 'roof-repair-cost-guide'],
+    sections: [
+      {
+        h2: 'Why Regular Maintenance Matters',
+        paragraphs: [
+          'A well-maintained roof lasts 20–30% longer than a neglected one. The math is compelling: spending $200–$500 per year on maintenance can delay a $10,000 replacement by 5–10 years. Most roofing problems — clogged gutters causing ice dams, minor flashing separations, missing caulk — are cheap to fix early and expensive to fix late.',
+          'Aim to inspect your roof twice a year: once in spring after winter weather, and once in fall before winter sets in. After any major storm with high winds or hail, do an additional walkthrough.',
+        ],
+      },
+      {
+        h2: 'Gutter and Drainage Check',
+        paragraphs: [
+          'Clean gutters every fall (and spring if you have overhanging trees). Clogged gutters cause water to back up under shingles, accelerate fascia rot, and in cold climates, create ice dams that force water under shingles. This is the single most neglected maintenance task and one of the most important.',
+          'Check that all downspouts flow freely and discharge at least 6 feet from the foundation. Verify that gutters slope toward downspouts (no pooling). Look for rust, holes, separated joints, or gutters pulling away from the fascia — all signs the gutters need repair or replacement.',
+        ],
+      },
+      {
+        h2: 'Shingle and Surface Inspection',
+        paragraphs: [
+          'From the ground (use binoculars if needed), scan for: missing or lifted shingles, curling or cupping at shingle edges, widespread granule loss (bald spots on shingles), cracked or broken shingles, dark streaking (algae), and moss or lichen growth.',
+          'A few missing shingles after a windstorm is a normal maintenance item ($150–$300 to fix). Widespread granule loss or curling across large sections signals the roof is nearing end of life. Document any damage with photos and date them.',
+        ],
+      },
+      {
+        h2: 'Flashing and Penetration Check',
+        paragraphs: [
+          'Inspect all roof penetrations: chimney, plumbing vents, exhaust fans, skylights. Look for separated flashing, missing caulk, rust staining, or visible gaps. Check that pipe boot collars (the rubber sleeves around plumbing vents) are intact — they typically last 10–15 years and are a common leak source.',
+          'Look at ridge caps and hip caps — these high-exposure areas wear faster than field shingles. Check valleys (the V-shaped channels where two roof planes meet) for worn or open metal flashing.',
+        ],
+      },
+      {
+        h2: 'Attic Inspection',
+        paragraphs: [
+          'A healthy attic tells you a lot about your roof\'s condition. Look for: daylight coming through the roof deck (serious), water stains or wet insulation, frost on the underside of sheathing in winter (ventilation problem), and signs of pest entry. Check that soffit vents and ridge vents are clear and unblocked.',
+          'Proper attic ventilation is critical for roof longevity. An overheated attic in summer accelerates shingle aging from below. Ice dams in cold climates are usually caused by inadequate insulation and ventilation, not roof failure.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'when-to-repair-vs-replace-roof',
+    title: 'Repair vs Replace Your Roof: How to Decide',
+    seoTitle: 'Repair vs Replace Roof: How to Decide in 2026 | RoofCalc',
+    metaDescription: 'Should you repair or replace your roof? Use our decision framework based on roof age, damage extent, and repair cost to make the right call and avoid overpaying.',
+    category: 'roof-repair',
+    publishedDate: '2026-03-05',
+    readTime: '7 min read',
+    tags: ['roof repair vs replace', 'roof replacement decision', 'roof age', 'roofing advice'],
+    relatedSlugs: ['roof-repair-cost-guide', 'how-much-does-a-new-roof-cost', 'signs-you-need-a-new-roof'],
+    sections: [
+      {
+        h2: 'The Simple Decision Framework',
+        paragraphs: [
+          'The repair-vs-replace decision comes down to three factors: your roof\'s age, the extent of damage, and repair cost relative to replacement. Here\'s the framework most roofing professionals use.',
+        ],
+        table: [
+          ['Roof Age', 'Damage Extent', 'Recommendation'],
+          ['Under 10 years', 'Any level', 'Repair — roof has life left'],
+          ['10–15 years', 'Isolated/minor', 'Repair — good ROI'],
+          ['10–15 years', 'Widespread', 'Get replacement quote too'],
+          ['15–20 years', 'Minor', 'Repair + plan for replacement soon'],
+          ['15–20 years', 'Moderate/major', 'Replace'],
+          ['Over 20 years', 'Any level', 'Strongly consider replacing'],
+        ],
+      },
+      {
+        h2: 'The 30% Rule',
+        paragraphs: [
+          'A widely used rule of thumb: if repairs would cost more than 30% of a full replacement, replace the roof instead. At that price point, you\'re getting limited additional life from the repaired roof while spending meaningful money. A new roof resets your warranty clock and eliminates the ongoing uncertainty.',
+          'Example: if a full replacement costs $9,000 and repairs are quoted at $3,200 — that\'s 35% of replacement cost. In most cases, replacing makes more financial sense, especially if the roof is over 15 years old.',
+        ],
+      },
+      {
+        h2: 'When Repair Is Clearly Right',
+        paragraphs: [
+          'Repair is the obvious choice when: the roof is under 15 years old, damage is isolated to a small area (one section, one penetration, one valley), the underlying decking and structure are sound, and the repair cost is reasonable relative to the roof\'s remaining expected life.',
+          'Storm damage to an otherwise healthy roof is a prime repair scenario. If a hailstorm knocked off 20 shingles on a 5-year-old roof, repair those shingles. Don\'t let a contractor talk you into a full replacement on a young, otherwise sound roof.',
+        ],
+      },
+      {
+        h2: 'When Replacement Is Clearly Right',
+        paragraphs: [
+          'Replace when: the roof is over 20 years old, you\'re seeing widespread granule loss or curling across large sections, there have been multiple repairs in recent years, structural damage or widespread decking rot is found, or you\'re planning a major renovation.',
+          'Also consider replacement if you\'re planning to sell in the next 2–5 years. A new roof is one of the highest-ROI improvements for resale — buyers and home inspectors flag aging roofs, and a new roof removes a major negotiating point for buyers.',
+        ],
+      },
+      {
+        h2: 'Get Multiple Opinions',
+        paragraphs: [
+          'Be skeptical of any contractor who immediately recommends full replacement without thoroughly explaining why repair won\'t work. Some contractors push replacement because the margins are higher. Get at least two opinions on any repair-vs-replace situation, and don\'t feel pressured to decide on the spot.',
+          'A reputable inspector or public adjuster (for insurance claims) can give you an unbiased assessment. The $200–$400 you spend on an independent inspection can save thousands in unnecessary replacement costs.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
