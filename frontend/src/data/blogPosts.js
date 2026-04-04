@@ -528,6 +528,403 @@ const POSTS = [
     ],
   },
 
+  // ─── CATEGORY 4: roof-replacement ───────────────────────────────────────────
+
+  {
+    slug: 'roof-replacement-process-timeline',
+    title: 'Roof Replacement Process: What to Expect Day by Day',
+    seoTitle: 'Roof Replacement Process & Timeline 2026 | RoofCalc',
+    metaDescription: 'A full roof replacement takes 1–3 days for most homes. Here\'s exactly what happens each day, what questions to ask your contractor, and how to prepare.',
+    category: 'roof-replacement',
+    publishedDate: '2026-03-10',
+    readTime: '8 min read',
+    tags: ['roof replacement', 'roof installation', 'roofing process', 'new roof'],
+    relatedSlugs: ['how-much-does-a-new-roof-cost', 'how-long-does-a-roof-last', 'signs-you-need-a-new-roof'],
+    sections: [
+      {
+        h2: 'Before Work Begins: Preparation',
+        paragraphs: [
+          'A week or two before your replacement date, your contractor should pull the necessary permits (required in most jurisdictions). You\'ll need to clear the driveway for the dumpster and material delivery. Move vehicles out of the garage if possible — vibration from tear-off can shake things loose. Cover anything in the attic you don\'t want dusty.',
+          'Materials are typically delivered 1–2 days before work starts. You\'ll see a large stack of shingle bundles and underlayment rolls appear in your driveway or yard. This is normal.',
+        ],
+      },
+      {
+        h2: 'Day 1: Tear-Off and Decking Inspection',
+        paragraphs: [
+          'The crew arrives early — often 7am. They\'ll set up a dumpster, lay tarps around the perimeter to catch debris, and begin tearing off the old roofing. For a 2,000 sq ft roof, tear-off typically takes 2–4 hours with a crew of 4–6.',
+          'Once shingles are off, your contractor inspects the decking (plywood or OSB beneath). This is when surprises happen — rotted sections need replacement before new roofing goes down. A good contractor calls you before doing any additional work and explains the extra cost. Expect $1.50–$3.00/sq ft for decking replacement.',
+          'After decking is repaired, underlayment (synthetic felt or ice-and-water shield in vulnerable areas) goes down. By end of day 1, your home should be watertight even if shingles aren\'t fully installed.',
+        ],
+      },
+      {
+        h2: 'Day 2: Shingle Installation',
+        paragraphs: [
+          'Most residential roofs are fully shingled on day 2. The crew works from the bottom edge up, staggering joints between rows. Ridge caps go on last, sealing the peak. Flashing around chimneys, vents, and skylights is installed as they work.',
+          'A good crew will run a magnetic roller around the perimeter at the end of each day to collect fallen nails. Ask about this specifically — it protects your family, pets, and vehicle tires.',
+        ],
+      },
+      {
+        h2: 'Final Inspection and Cleanup',
+        paragraphs: [
+          'Your contractor should do a final walkthrough with you when complete. Check that all penetrations are properly flashed, ridge caps are secure, gutters are clear of debris, and the magnetic sweep has been completed. Ask for your warranty documentation — manufacturer warranty on materials and contractor warranty on labor (typically 1–10 years depending on the company).',
+          'The dumpster is typically picked up within a few days of completion. Your permit should be closed out by your municipality — ask your contractor to confirm this.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'how-long-does-a-roof-last',
+    title: 'How Long Does a Roof Last? Lifespan by Material',
+    seoTitle: 'How Long Does a Roof Last? Lifespan by Material 2026 | RoofCalc',
+    metaDescription: 'Asphalt roofs last 20–30 years. Metal 50–70. Tile 40–100. Learn what affects roof lifespan, warning signs it\'s ending, and how to maximize your roof\'s life.',
+    category: 'roof-replacement',
+    publishedDate: '2026-03-17',
+    readTime: '7 min read',
+    tags: ['roof lifespan', 'how long does a roof last', 'roof age', 'roofing materials'],
+    relatedSlugs: ['signs-you-need-a-new-roof', 'roof-replacement-cost-by-material', 'roof-maintenance-checklist'],
+    sections: [
+      {
+        h2: 'Roof Lifespan by Material',
+        paragraphs: [
+          'Material choice is the biggest determinant of how long your roof lasts — but installation quality, climate, ventilation, and maintenance all play meaningful roles.',
+        ],
+        table: [
+          ['Material', 'Expected Lifespan', 'Factors That Shorten It'],
+          ['Asphalt 3-tab', '15–20 years', 'Poor ventilation, harsh climate'],
+          ['Asphalt architectural', '25–30 years', 'Improper installation, algae'],
+          ['Metal (corrugated)', '40–70 years', 'Exposed fastener failure'],
+          ['Metal (standing seam)', '50–70 years', 'Very few — excellent durability'],
+          ['Concrete tile', '40–50 years', 'Freeze-thaw cycles, cracking'],
+          ['Clay tile', '50–100 years', 'Impact damage, underlayment failure'],
+          ['Natural slate', '75–150 years', 'Impact, flashing failure'],
+          ['TPO flat', '20–30 years', 'Pooling water, membrane damage'],
+          ['Wood shake', '20–30 years', 'Moisture, lack of maintenance'],
+        ],
+      },
+      {
+        h2: 'What Shortens a Roof\'s Life',
+        paragraphs: [
+          'Poor attic ventilation is the #1 killer of asphalt roofs. Heat buildup in an under-ventilated attic bakes shingles from below, accelerating granule loss and cracking. The fix is ensuring adequate soffit and ridge ventilation — a job for a roofing professional.',
+          'Ice dams in cold climates form when heat escapes through the roof deck, melts snow, and the water refreezes at the cold eave. The resulting ice forces water under shingles and into the attic. Proper insulation and ventilation prevent ice dams.',
+          'Algae and moss growth accelerates shingle deterioration. Black streaking (Gloeocapsa magma algae) is cosmetic initially but damages shingles over time. Zinc or copper strips at the ridge inhibit growth. Algae-resistant shingles are worth the small premium in humid climates.',
+        ],
+      },
+      {
+        h2: 'How to Maximize Your Roof\'s Lifespan',
+        paragraphs: [
+          'Keep gutters clean so water drains properly. Trim overhanging tree branches that deposit debris and shade (shaded areas stay damp, promoting moss). Inspect twice yearly and after major storms. Address small repairs immediately before they become large ones.',
+          'Have your attic\'s ventilation assessed if your roof is aging faster than expected. The investment in improved ventilation pays back many times over in extended shingle life.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'signs-you-need-a-new-roof',
+    title: '10 Signs You Need a New Roof (Don\'t Ignore These)',
+    seoTitle: '10 Signs You Need a New Roof in 2026 | RoofCalc',
+    metaDescription: 'Missing shingles, granules in gutters, sagging, and light in the attic are warning signs you need a new roof. Learn all 10 signs and what to do next.',
+    category: 'roof-replacement',
+    publishedDate: '2026-03-24',
+    readTime: '7 min read',
+    tags: ['signs new roof needed', 'roof replacement', 'roof inspection', 'roof age'],
+    relatedSlugs: ['when-to-repair-vs-replace-roof', 'how-long-does-a-roof-last', 'how-much-does-a-new-roof-cost'],
+    sections: [
+      {
+        h2: 'The 10 Warning Signs',
+        paragraphs: [
+          'Your roof doesn\'t fail overnight — it gives you warnings. Here are the 10 signs that mean it\'s time to get a replacement quote.',
+        ],
+        table: [
+          ['Sign', 'Urgency', 'What It Means'],
+          ['Shingles are 20+ years old', 'Plan ahead', 'Approaching end of design life'],
+          ['Granules in gutters', 'Medium', 'Shingles losing protective coating'],
+          ['Curling or cupping shingles', 'Medium-High', 'Heat/moisture damage, aging'],
+          ['Missing shingles', 'High', 'Exposed decking, leak risk'],
+          ['Sagging roof deck', 'Urgent', 'Structural/decking failure'],
+          ['Daylight in attic', 'Urgent', 'Holes in roof deck or shingles'],
+          ['Multiple leaks', 'High', 'Widespread failure'],
+          ['Moss/lichen growth', 'Medium', 'Moisture retention, root damage'],
+          ['Dark staining across sections', 'Medium', 'Algae, moisture damage'],
+          ['High energy bills', 'Low-Medium', 'Failed insulation/ventilation'],
+        ],
+      },
+      {
+        h2: 'Age: The Clearest Indicator',
+        paragraphs: [
+          'If your asphalt roof is 20+ years old, start planning for replacement even if it looks okay from the ground. Most architectural shingle warranties are for 25–30 years, but that\'s under ideal conditions. Real-world performance varies, and a proactive replacement on your schedule is far less disruptive than an emergency replacement after a bad storm.',
+        ],
+      },
+      {
+        h2: 'What to Do If You See These Signs',
+        paragraphs: [
+          'Get a professional inspection. Many roofing companies offer free inspections — take advantage of them. Get 2–3 quotes and ask each contractor to specify exactly what they\'re seeing and why they\'re recommending repair vs. replacement.',
+          'If you\'re seeing signs 5 or 6 (sagging deck or daylight in attic), don\'t delay. These indicate structural issues that worsen rapidly and can become safety hazards. Call a contractor immediately.',
+        ],
+      },
+    ],
+  },
+
+  // ─── CATEGORY 5: roofing-insurance ──────────────────────────────────────────
+
+  {
+    slug: 'does-homeowners-insurance-cover-roof',
+    title: 'Does Homeowners Insurance Cover Roof Replacement?',
+    seoTitle: 'Does Homeowners Insurance Cover Your Roof? 2026 | RoofCalc',
+    metaDescription: 'Homeowners insurance covers storm and hail damage but not wear and tear. Learn what\'s covered, what\'s excluded, and how to maximize your claim.',
+    category: 'roofing-insurance',
+    publishedDate: '2026-03-28',
+    readTime: '8 min read',
+    tags: ['roof insurance', 'homeowners insurance', 'roof claim', 'storm damage'],
+    relatedSlugs: ['how-to-file-roof-insurance-claim', 'hail-damage-roof-insurance-guide', 'roof-repair-cost-guide'],
+    sections: [
+      {
+        h2: 'What Homeowners Insurance Covers',
+        paragraphs: [
+          'Standard homeowners insurance (HO-3 policy) covers sudden, accidental damage from specific perils — most commonly wind, hail, falling trees, and fire. If a hailstorm damages your shingles or a windstorm tears off a section of your roof, that\'s a covered claim in most policies.',
+          'The key word is "sudden." Insurance covers damage that happens in a specific event, not gradual deterioration. This distinction matters enormously for roof claims.',
+        ],
+      },
+      {
+        h2: 'What Insurance Does NOT Cover',
+        paragraphs: [
+          'Wear and tear — the normal aging of roofing materials — is excluded from virtually every homeowners policy. A 25-year-old asphalt roof that\'s just worn out is your expense, not your insurer\'s. Similarly, poor maintenance, improper installation, and pre-existing damage are all excluded.',
+          'Cosmetic damage (hail dents that don\'t compromise the roof\'s function) is increasingly excluded by many insurers, particularly in hail-prone states. Read your policy carefully or ask your agent specifically about cosmetic damage exclusions.',
+        ],
+      },
+      {
+        h2: 'ACV vs RCV: The Policy Detail That Matters Most',
+        paragraphs: [
+          'This is the most important policy distinction for roof claims. ACV (Actual Cash Value) policies pay the depreciated value of your roof — what it\'s worth today, accounting for age and wear. On a 20-year-old asphalt roof, that might be 20–30% of replacement cost.',
+          'RCV (Replacement Cost Value) policies pay the full cost to replace with a similar material, regardless of age. RCV policies cost more in premiums but pay dramatically more on claims. Check which type you have — and if you have ACV, consider upgrading.',
+        ],
+      },
+      {
+        h2: 'The Claims Process Overview',
+        paragraphs: [
+          'File promptly after storm damage — most policies require timely reporting. Your insurer will send an adjuster to inspect the damage. The adjuster\'s assessment determines your payout. If you disagree with the assessment, you can hire a public adjuster or invoke appraisal.',
+          'Get a roofing contractor\'s assessment before (or alongside) the insurance adjuster visit. Having a documented contractor assessment strengthens your claim and gives you a baseline if you need to dispute the insurer\'s findings.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'how-to-file-roof-insurance-claim',
+    title: 'How to File a Roof Insurance Claim: Step-by-Step',
+    seoTitle: 'How to File a Roof Insurance Claim 2026 | RoofCalc',
+    metaDescription: 'Filing a roof insurance claim? Follow these steps: document damage, contact your insurer, meet the adjuster, review the estimate, and hire a contractor. Full guide.',
+    category: 'roofing-insurance',
+    publishedDate: '2026-04-02',
+    readTime: '8 min read',
+    tags: ['roof insurance claim', 'file insurance claim', 'storm damage', 'roof repair'],
+    relatedSlugs: ['does-homeowners-insurance-cover-roof', 'hail-damage-roof-insurance-guide', 'roof-repair-cost-guide'],
+    sections: [
+      {
+        h2: 'Step 1: Document the Damage Immediately',
+        paragraphs: [
+          'Before anything else, photograph everything. Date-stamped photos are your strongest evidence. Photograph your roof from the ground, all interior water staining or damage, any damaged gutters or siding, and fallen debris. If safe, photograph from closer up — but never get on a damaged roof.',
+          'Check the date of the storm against weather records (weather.com or NOAA archives will confirm storm events by zip code and date). Insurance companies use this data, and you should have it too.',
+        ],
+      },
+      {
+        h2: 'Step 2: Make Emergency Repairs to Prevent Further Damage',
+        paragraphs: [
+          'Your policy likely requires you to take reasonable steps to prevent further damage. This means tarping active leaks or covering broken areas. Save all receipts — these emergency repair costs are typically reimbursable under your policy.',
+          'Do not do permanent repairs before the insurance adjuster inspects. Repairing the roof before inspection can make it harder to document the full extent of damage.',
+        ],
+      },
+      {
+        h2: 'Step 3: Contact Your Insurance Company',
+        paragraphs: [
+          'Call your insurer and open a claim. They\'ll assign a claim number and schedule an adjuster inspection, typically within 1–2 weeks. Ask the rep specifically: Is this a covered peril? What is my deductible? Is my policy ACV or RCV?',
+          'Consider having a roofing contractor present during the adjuster visit. An experienced contractor can point out damage the adjuster might miss and advocate for a fair assessment.',
+        ],
+      },
+      {
+        h2: 'Step 4: Review the Insurance Estimate',
+        paragraphs: [
+          'You\'ll receive a claim estimate (scope of loss) from your insurer. Review it carefully against your contractor\'s estimate. Common adjuster oversights: missed damaged areas, incorrect measurement of roof size, failure to include code upgrade requirements (O&L — overhead and profit for general contractors).',
+          'If the insurance estimate is significantly lower than your contractor\'s quote, you can negotiate. Provide your contractor\'s estimate and ask the adjuster to reconsider specific line items. If still unresolved, invoke the appraisal clause in your policy or hire a public adjuster.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'hail-damage-roof-insurance-guide',
+    title: 'Hail Damage and Roof Insurance: Complete Guide',
+    seoTitle: 'Hail Damage Roof Insurance Guide 2026 | RoofCalc',
+    metaDescription: 'Hail can total your roof without visible leaks. Learn how to identify hail damage, file a successful claim, and avoid storm chaser scams after a hailstorm.',
+    category: 'roofing-insurance',
+    publishedDate: '2026-04-08',
+    readTime: '8 min read',
+    tags: ['hail damage roof', 'hail insurance claim', 'storm damage', 'roof inspection'],
+    relatedSlugs: ['does-homeowners-insurance-cover-roof', 'how-to-file-roof-insurance-claim', 'signs-you-need-a-new-roof'],
+    sections: [
+      {
+        h2: 'How Hail Damages Roofs',
+        paragraphs: [
+          'Hail damages asphalt shingles by knocking off granules — the sand-like particles that protect the underlying asphalt mat from UV degradation. Even hail that doesn\'t immediately cause leaks can remove enough granules to shorten your roof\'s remaining life by 5–10 years. This is why hail claims are legitimate even when there\'s no visible leak.',
+          'Hail damage appears as dark circular or irregular spots where granules have been knocked off, soft spots you can feel with your hand (bruising of the asphalt mat), dented metal (gutters, flashing, vents, AC units) — these are excellent indicators of impact force — and cracked or split shingles from larger hailstones.',
+        ],
+      },
+      {
+        h2: 'Getting a Professional Hail Damage Inspection',
+        paragraphs: [
+          'After a significant hailstorm (1"+ hailstones), have your roof professionally inspected even if you see no obvious damage from the ground. Look for roofers with certifications in storm damage assessment. Ask them to document findings in writing with photos.',
+          'Insurance adjusters may underestimate hail damage — they\'re looking at dozens of roofs after a storm and may be less thorough than a dedicated inspector. Having your own documented assessment gives you a basis to appeal if their estimate seems low.',
+        ],
+      },
+      {
+        h2: 'Avoiding Storm Chaser Scams',
+        paragraphs: [
+          'After major hailstorms, out-of-state roofing companies flood affected areas offering free inspections and promises to "work with your insurance." Many are legitimate, but storm chasers are known for poor quality work and disappearing after the check clears.',
+          'Protect yourself: use a local contractor with verifiable references and physical address, never sign an Assignment of Benefits (AOB) form (it gives the contractor control of your insurance claim), get everything in writing before work begins, and never pay the full amount upfront. A reputable contractor takes a deposit (10–30%) and the balance on completion.',
+        ],
+      },
+    ],
+  },
+
+  // ─── CATEGORY 6: roofing-basics ─────────────────────────────────────────────
+
+  {
+    slug: 'how-long-does-roof-installation-take',
+    title: 'How Long Does Roof Installation Take?',
+    seoTitle: 'How Long Does Roof Installation Take? 2026 | RoofCalc',
+    metaDescription: 'Most residential roofs are replaced in 1–3 days. Learn what affects the timeline, how to prepare, and what causes delays so you can plan accordingly.',
+    category: 'roofing-basics',
+    publishedDate: '2026-04-10',
+    readTime: '6 min read',
+    tags: ['roof installation time', 'how long roof replacement', 'roofing timeline'],
+    relatedSlugs: ['roof-replacement-process-timeline', 'how-much-does-a-new-roof-cost', 'how-to-choose-a-roofing-contractor'],
+    sections: [
+      {
+        h2: 'Typical Timeline by Roof Size',
+        paragraphs: [
+          'For most residential homes, a full roof replacement takes 1–3 days from start to finish. The timeline depends on roof size, complexity, pitch, and crew size. A straightforward ranch home with a simple gable roof can often be done in a single long day. A large two-story with multiple valleys, dormers, and skylights might take 3 days.',
+        ],
+        table: [
+          ['Roof Size', 'Simple Roof', 'Complex Roof'],
+          ['Under 1,500 sq ft', '1 day', '1–2 days'],
+          ['1,500–2,500 sq ft', '1–2 days', '2–3 days'],
+          ['2,500–3,500 sq ft', '2 days', '3–4 days'],
+          ['Over 3,500 sq ft', '2–3 days', '4–5 days'],
+        ],
+      },
+      {
+        h2: 'What Can Delay Your Project',
+        paragraphs: [
+          'Weather is the biggest wildcard. Rain or high winds will pause installation — wet shingles and underlayment don\'t seal properly. Your contractor should have a plan for weather delays and communicate proactively.',
+          'Unexpected decking damage adds time. When the old shingles come off and the crew finds rotted plywood, those sections need to be replaced before new roofing goes down. A good contractor calls you immediately when this happens and gets your approval before proceeding.',
+          'Material delivery delays can push start dates. If the shingle color or style you chose is backordered, your project may wait. Confirm material availability when you book.',
+        ],
+      },
+      {
+        h2: 'How to Prepare for Installation Day',
+        paragraphs: [
+          'Clear the driveway for the dumpster and material delivery. Move vehicles away from the work area. Let your neighbors know — the crew starts early and tear-off is noisy. Remove wall hangings and fragile items from interior walls (vibration is real). Cover attic items you don\'t want dusty.',
+          'Arrange for pets to be away from the home during installation. The noise and activity can be very stressful for animals, and open doors during material loading are a risk.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'how-to-choose-a-roofing-contractor',
+    title: 'How to Choose a Roofing Contractor: 8 Must-Ask Questions',
+    seoTitle: 'How to Choose a Roofing Contractor 2026 | RoofCalc',
+    metaDescription: 'Choosing the wrong roofer is the #1 cause of premature roof failure. Use these 8 questions to vet any contractor before signing a contract.',
+    category: 'roofing-basics',
+    publishedDate: '2026-04-15',
+    readTime: '7 min read',
+    tags: ['roofing contractor', 'choose roofer', 'roofing scams', 'hire contractor'],
+    relatedSlugs: ['how-much-does-a-new-roof-cost', 'roof-replacement-process-timeline', 'roofing-terms-glossary'],
+    sections: [
+      {
+        h2: 'Why Contractor Selection Matters as Much as Material',
+        paragraphs: [
+          'A premium shingle installed incorrectly will fail prematurely. A budget shingle installed properly will outperform its spec. The installer is at least as important as the material — and roofing fraud is one of the most common home improvement scams.',
+        ],
+      },
+      {
+        h2: 'The 8 Questions to Ask Every Contractor',
+        paragraphs: [
+          '1. Are you licensed in this state? Licensing requirements vary — some states require roofing-specific licenses, others just general contractor licenses. Ask for the license number and verify it with your state licensing board.',
+          '2. Do you carry liability and workers\' comp insurance? Get the certificate of insurance directly from their insurer, not just a copy from the contractor. If a worker is injured on your property without workers\' comp, you can be liable.',
+          '3. Are you a local company with a physical address? Out-of-town storm chasers disappear after the check clears. A local company has reputation and accountability.',
+          '4. What specific shingle product are you installing? Get the brand and product line in writing. "Architectural shingles" is too vague — you want GAF Timberline HDZ or CertainTeed Landmark Pro, not a generic equivalent.',
+          '5. What does your warranty cover and for how long? There are two warranties: manufacturer (on materials, typically 25–50 years) and contractor (on labor, typically 1–10 years). Understand both.',
+          '6. Will you handle permits? Reputable contractors pull permits. If a contractor suggests skipping permits, walk away.',
+          '7. How do you handle unexpected decking damage? You want to hear: "We\'ll stop, show you the damage, give you a price, and get your approval before continuing."',
+          '8. Can you provide local references from the past 12 months? Call them. Ask about cleanup, communication, timeline, and whether they\'d hire the contractor again.',
+        ],
+      },
+      {
+        h2: 'Red Flags to Walk Away From',
+        paragraphs: [
+          'Demands full payment upfront. Pressures you to sign immediately. Can\'t provide insurance certificates. Has no local references. Significantly underbids all other quotes. Suggests skipping permits. Knocks on your door after a storm offering a "free inspection" and immediate repair.',
+          'The low-bid trap is real: a contractor who bids 30% below everyone else is either cutting corners on materials, skipping steps in installation, or planning to do substandard work. Get three quotes and be skeptical of outliers on either end.',
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'roofing-terms-glossary',
+    title: 'Roofing Terms Glossary: 40+ Terms Every Homeowner Should Know',
+    seoTitle: 'Roofing Terms Glossary 2026 — 40+ Definitions | RoofCalc',
+    metaDescription: 'Confused by roofing jargon? This glossary defines 40+ roofing terms — from decking and flashing to squares and valleys — in plain English for homeowners.',
+    category: 'roofing-basics',
+    publishedDate: '2026-04-20',
+    readTime: '8 min read',
+    tags: ['roofing terms', 'roofing glossary', 'roofing definitions', 'roofing basics'],
+    relatedSlugs: ['how-to-choose-a-roofing-contractor', 'roof-replacement-process-timeline', 'best-roofing-materials-guide'],
+    sections: [
+      {
+        h2: 'Measurement and Sizing Terms',
+        paragraphs: [
+          'Square: The standard roofing unit of measurement. One square equals 100 square feet of roof surface. A 2,000 sq ft roof has 20 squares. All roofing material quantities are calculated in squares.',
+          'Pitch: The steepness of a roof, expressed as rise over run (e.g., 6:12 means the roof rises 6 inches for every 12 inches of horizontal run). Low pitch = 2:12–4:12. Medium = 4:12–8:12. Steep = 8:12+.',
+          'Roof deck / sheathing: The plywood or OSB panels nailed to your rafters that form the structural surface of your roof. Everything else — underlayment, shingles — sits on top of this.',
+        ],
+      },
+      {
+        h2: 'Material Terms',
+        paragraphs: [
+          'Underlayment: A water-resistant or waterproof layer installed directly on the roof deck, beneath the shingles. Felt paper (15 or 30 lb) is traditional. Synthetic underlayment is stronger and more durable. Ice-and-water shield is a self-adhering waterproof membrane used in vulnerable areas.',
+          'Architectural shingles: Also called dimensional or laminate shingles. A multi-layer asphalt shingle that\'s thicker and more durable than 3-tab, with a dimensional appearance. The current residential standard.',
+          'TPO: Thermoplastic polyolefin. A heat-weldable flat roofing membrane that\'s the current industry standard for low-slope roofs. White, reflective, and durable.',
+          'Drip edge: A metal flashing installed along roof edges that directs water away from the fascia and into gutters. Required by most building codes.',
+        ],
+      },
+      {
+        h2: 'Structural and Installation Terms',
+        paragraphs: [
+          'Flashing: Sheet metal (usually aluminum or galvanized steel) used to seal roof transitions — around chimneys, vents, skylights, and where the roof meets a wall. The most common source of roof leaks.',
+          'Valley: The V-shaped channel formed where two roof planes meet. Valleys concentrate water flow and are a common leak point. Open metal valleys and closed-cut valleys are the two main styles.',
+          'Ridge: The horizontal peak where two sloping roof planes meet. Ridge caps cover this area and are a high-wear location.',
+          'Hip: A sloping edge of a roof where two planes meet at an angle (as opposed to a gable, where the wall extends up to the ridge). Hip roofs are more wind-resistant than gable roofs.',
+          'Soffit: The underside of the roof overhang. Perforated soffits provide attic ventilation. Rotted soffits are a sign of water damage or poor ventilation.',
+          'Fascia: The vertical board running along the eave where gutters are attached. Often the first thing to show water damage from clogged or failing gutters.',
+          'Ice dam: A ridge of ice that forms at the eave when heat escapes through the roof deck, melts snow, and the meltwater refreezes at the cold edge. Forces water under shingles.',
+          'Starter strip: A row of roofing material installed at the eave before the first course of shingles, providing a waterproof base at the most vulnerable edge.',
+        ],
+      },
+      {
+        h2: 'Contract and Warranty Terms',
+        paragraphs: [
+          'ACV (Actual Cash Value): Insurance term. Pays the depreciated value of your roof, accounting for age and wear. Lower payout than RCV.',
+          'RCV (Replacement Cost Value): Insurance term. Pays the full cost to replace your roof with like materials regardless of age. Better coverage, higher premiums.',
+          'Manufacturer warranty: Covers defects in roofing materials. Typically 25–50 years for architectural shingles. Often requires professional installation and registration.',
+          'Workmanship warranty: Covers the contractor\'s installation quality. Varies widely — 1 year to lifetime depending on the contractor. Get it in writing.',
+          'Tear-off: Removing the existing roofing material before installing new. Adds cost ($0.50–$2.00/sq ft) but is required when adding layers would exceed building code limits or when the deck needs inspection.',
+        ],
+      },
+    ],
+  },
+
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
