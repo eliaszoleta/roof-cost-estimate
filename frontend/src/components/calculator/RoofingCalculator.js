@@ -231,6 +231,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
                 onNext={handleDetailsNext}
                 primaryColor={primaryColor}
                 location={location}
+                companyConfig={companyConfig}
               />
             )}
             {currentStep === 'lead' && (

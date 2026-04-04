@@ -30,13 +30,15 @@ export default function BrandingTab() {
   };
 
   // Map form fields to the companyConfig shape RoofingCalculator expects
+  const questionConfig = (() => { try { return JSON.parse(localStorage.getItem('rc_question_config')) || {}; } catch { return {}; } })();
   const previewConfig = {
-    companyName:   form.companyName  || null,
-    primaryColor:  form.primaryColor || '#ea580c',
-    logoUrl:       form.logoUrl      || null,
-    ctaPhone:      form.phone        || null,
-    ctaButtonText: form.ctaText      || 'Get a Free Quote',
-    ctaButtonUrl:  form.ctaUrl       || null,
+    companyName:    form.companyName  || null,
+    primaryColor:   form.primaryColor || '#ea580c',
+    logoUrl:        form.logoUrl      || null,
+    ctaPhone:       form.phone        || null,
+    ctaButtonText:  form.ctaText      || 'Get a Free Quote',
+    ctaButtonUrl:   form.ctaUrl       || null,
+    questionConfig,
   };
 
   const inputStyle = {

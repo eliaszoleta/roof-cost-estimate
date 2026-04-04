@@ -117,7 +117,9 @@ const SIZE_TO_SQFT = {
   '2000_2500': 2250, '2500_3000': 2750, over_3000: 3500,
 };
 
-export default function RoofDetailsStep({ value, serviceType, onBack, onNext, primaryColor = '#ea580c' }) {
+export default function RoofDetailsStep({ value, serviceType, onBack, onNext, primaryColor = '#ea580c', companyConfig = null }) {
+  // qc = question config; missing key = enabled (default true)
+  const qc = companyConfig?.questionConfig || {};
   const [roofSize,      setRoofSize]      = useState(value.roofSize      || '');
   const [stories,       setStories]       = useState(value.stories       || '');
   const [pitch,         setPitch]         = useState(value.pitch         || '');
@@ -140,24 +142,55 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
 
   const sqft = SIZE_TO_SQFT[roofSize] || 1750;
 
+  // A field is "needed" only when it's shown (not disabled) and not auto-filled
+  const showStories      = qc.showStories      !== false;
+  const showPitch        = qc.showPitch        !== false;
+  const showShingleGrade = qc.showShingleGrade !== false;
+  const showMaterialType = qc.showMaterialType !== false;
+  const showComplexity   = qc.showComplexity   !== false;
+  const showLayers       = qc.showLayers       !== false;
+  const showPenetrations = qc.showPenetrations !== false;
+  const showAddOns       = qc.showAddOns       !== false;
+
   const canNext =
-    !!roofSize && !!stories && (isFlat || !!pitch) &&
-    (isAsphalt ? !!shingleGrade : true) &&
-    (isMetal   ? !!metalType   : true) &&
-    (isTile    ? !!tileType    : true) &&
-    (isFlat    ? !!flatType    : true) &&
-    (isReplacement ? (!!complexity && !!existingLayers) : true);
+    !!roofSize &&
+    (showStories  ? !!stories  : true) &&
+    (showPitch && !isFlat ? !!pitch : true) &&
+    (isAsphalt && showShingleGrade  ? !!shingleGrade : true) &&
+    (isMetal   && showMaterialType  ? !!metalType    : true) &&
+    (isTile    && showMaterialType  ? !!tileType     : true) &&
+    (isFlat    && showMaterialType  ? !!flatType     : true) &&
+    (isReplacement && showComplexity ? !!complexity   : true) &&
+    (isReplacement && showLayers     ? !!existingLayers : true);
 
   const handleNext = () => {
-    const base = { roofSize, stories: Number(stories), pitch, addOns, complexity, existingLayers, penetrations };
+    // Defaults for disabled questions — chosen to avoid underquoting
+    const resolvedStories      = showStories      ? Number(stories) : 1;
+    const resolvedPitch        = showPitch        ? pitch           : 'medium';
+    const resolvedShingleGrade = showShingleGrade ? shingleGrade    : 'architectural';
+    const resolvedComplexity   = showComplexity   ? complexity      : 'moderate';
+    const resolvedLayers       = showLayers       ? existingLayers  : 'one';
+    const resolvedPenetrations = showPenetrations ? penetrations    : 'none';
+    const resolvedAddOns       = showAddOns       ? addOns          : [];
+
+    const base = {
+      roofSize,
+      stories:       resolvedStories,
+      pitch:         resolvedPitch,
+      addOns:        resolvedAddOns,
+      complexity:    resolvedComplexity,
+      existingLayers:resolvedLayers,
+      penetrations:  resolvedPenetrations,
+    };
+
     if (isFlat) {
-      onNext({ ...base, buildingFootprint: sqft, flatMaterial: flatType });
+      onNext({ ...base, buildingFootprint: sqft, flatMaterial: showMaterialType ? flatType  : 'tpo'          });
     } else if (isMetal) {
-      onNext({ ...base, houseSqft: sqft, metalType, shingleGrade: null });
+      onNext({ ...base, houseSqft: sqft,          metalType:   showMaterialType ? metalType : 'standing_seam' });
     } else if (isTile) {
-      onNext({ ...base, houseSqft: sqft, tileType, shingleGrade: null });
+      onNext({ ...base, houseSqft: sqft,          tileType:    showMaterialType ? tileType  : 'concrete_tile' });
     } else {
-      onNext({ ...base, houseSqft: sqft, shingleGrade, shingleType: 'architectural' });
+      onNext({ ...base, houseSqft: sqft, shingleGrade: resolvedShingleGrade });
     }
   };
 
@@ -182,13 +215,15 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       </div>
 
       {/* Stories */}
-      <div style={fieldWrap}>
-        <label style={fieldLabel}>Number of stories</label>
-        <Chips options={STORY_OPTIONS} value={stories} onChange={setStories} primaryColor={primaryColor} />
-      </div>
+      {showStories && (
+        <div style={fieldWrap}>
+          <label style={fieldLabel}>Number of stories</label>
+          <Chips options={STORY_OPTIONS} value={stories} onChange={setStories} primaryColor={primaryColor} />
+        </div>
+      )}
 
       {/* Pitch */}
-      {!isFlat && (
+      {showPitch && !isFlat && (
         <div style={fieldWrap}>
           <label style={fieldLabel}>Roof pitch</label>
           <Chips options={PITCH_OPTIONS} value={pitch} onChange={setPitch} primaryColor={primaryColor} />
@@ -196,7 +231,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       )}
 
       {/* ── Asphalt-specific ── */}
-      {isAsphalt && (
+      {isAsphalt && showShingleGrade && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Shingle grade</label>
           <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, marginBottom: 2 }}>This is the single biggest price variable — choose what fits your budget.</div>
@@ -205,7 +240,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       )}
 
       {/* ── Metal type ── */}
-      {isMetal && (
+      {isMetal && showMaterialType && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Metal roof type</label>
           <Chips options={METAL_TYPES} value={metalType} onChange={setMetalType} primaryColor={primaryColor} />
@@ -213,7 +248,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       )}
 
       {/* ── Tile type ── */}
-      {isTile && (
+      {isTile && showMaterialType && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Tile material</label>
           <Chips options={TILE_TYPES} value={tileType} onChange={setTileType} primaryColor={primaryColor} />
@@ -221,7 +256,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       )}
 
       {/* ── Flat system ── */}
-      {isFlat && (
+      {isFlat && showMaterialType && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Flat roof system</label>
           <Chips options={FLAT_TYPES} value={flatType} onChange={setFlatType} primaryColor={primaryColor} />
@@ -229,30 +264,36 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       )}
 
       {/* ── Replacement-universal questions ── */}
-      {isReplacement && (
+      {isReplacement && (showComplexity || showLayers || showPenetrations) && (
         <>
-          <div style={{ ...fieldWrap, ...divider }}>
-            <label style={fieldLabel}>Roof shape / complexity</label>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, marginBottom: 2 }}>More angles and valleys = more labor and material waste.</div>
-            <ComplexityCards value={complexity} onChange={setComplexity} primaryColor={primaryColor} />
-          </div>
+          {showComplexity && (
+            <div style={{ ...fieldWrap, ...divider }}>
+              <label style={fieldLabel}>Roof shape / complexity</label>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, marginBottom: 2 }}>More angles and valleys = more labor and material waste.</div>
+              <ComplexityCards value={complexity} onChange={setComplexity} primaryColor={primaryColor} />
+            </div>
+          )}
 
-          <div style={fieldWrap}>
-            <label style={fieldLabel}>How many existing shingle layers?</label>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, marginBottom: 2 }}>A second layer doubles tear-off cost and disposal fees.</div>
-            <Chips options={LAYERS_OPTIONS} value={existingLayers} onChange={setExistingLayers} primaryColor={primaryColor} />
-          </div>
+          {showLayers && (
+            <div style={showComplexity ? fieldWrap : { ...fieldWrap, ...divider }}>
+              <label style={fieldLabel}>How many existing shingle layers?</label>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, marginBottom: 2 }}>A second layer doubles tear-off cost and disposal fees.</div>
+              <Chips options={LAYERS_OPTIONS} value={existingLayers} onChange={setExistingLayers} primaryColor={primaryColor} />
+            </div>
+          )}
 
-          <div style={fieldWrap}>
-            <label style={fieldLabel}>Penetrations — chimneys, skylights, pipe boots</label>
-            <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, marginBottom: 2 }}>Each one requires custom flashing work.</div>
-            <Chips options={PENETRATION_OPTIONS} value={penetrations} onChange={setPenetrations} primaryColor={primaryColor} />
-          </div>
+          {showPenetrations && (
+            <div style={fieldWrap}>
+              <label style={fieldLabel}>Penetrations — chimneys, skylights, pipe boots</label>
+              <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2, marginBottom: 2 }}>Each one requires custom flashing work.</div>
+              <Chips options={PENETRATION_OPTIONS} value={penetrations} onChange={setPenetrations} primaryColor={primaryColor} />
+            </div>
+          )}
         </>
       )}
 
       {/* ── Asphalt add-ons ── */}
-      {isAsphalt && (
+      {isAsphalt && showAddOns && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={{ ...fieldLabel, marginBottom: 8 }}>Add-ons <span style={{ color: '#94a3b8', fontWeight: 400 }}>(optional)</span></label>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
