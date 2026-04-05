@@ -59,6 +59,23 @@ router.put('/:id', async (req, res) => {
   }
 });
 
+// PATCH /api/company/:id/question-config
+router.patch('/:id/question-config', async (req, res) => {
+  const { id } = req.params;
+  if (req.user.id !== id) return res.status(403).json({ success: false, error: 'Forbidden' });
+  const { questionConfig, enabledServices } = req.body;
+  try {
+    const existing = (await getCompanyConfig(id)) || { ...DEFAULT_COMPANY_CONFIG };
+    if (questionConfig  !== undefined) existing.questionConfig  = questionConfig;
+    if (enabledServices !== undefined) existing.enabledServices = enabledServices;
+    await saveCompanyConfig(id, existing);
+    res.json({ success: true, data: { questionConfig: existing.questionConfig, enabledServices: existing.enabledServices } });
+  } catch (err) {
+    console.error('PATCH question-config error:', err.message);
+    res.status(500).json({ success: false, error: 'Failed to save question config' });
+  }
+});
+
 // PATCH /api/company/:id/services
 router.patch('/:id/services', async (req, res) => {
   const { id } = req.params;

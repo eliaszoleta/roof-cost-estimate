@@ -85,6 +85,19 @@ export async function getCompanyLeads(token) {
   return apiFetch('/api/leads/company', { headers: { Authorization: `Bearer ${token}` } });
 }
 
+export async function patchQuestionConfig(token, companyId, questionConfig, enabledServices) {
+  if (!API_URL) {
+    localStorage.setItem('rc_question_config', JSON.stringify(questionConfig));
+    if (enabledServices !== undefined) localStorage.setItem('rc_services', JSON.stringify(enabledServices));
+    return { success: true };
+  }
+  return apiFetch(`/api/company/${companyId}/question-config`, {
+    method: 'PATCH',
+    headers: { Authorization: `Bearer ${token}` },
+    body: JSON.stringify({ questionConfig, enabledServices }),
+  });
+}
+
 export async function patchLead(token, leadId, updates) {
   return apiFetch(`/api/leads/company/${leadId}`, {
     method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(updates),
