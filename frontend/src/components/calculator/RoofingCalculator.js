@@ -8,17 +8,17 @@ import RoofDetailsStep from './steps/RoofDetailsStep';
 import RepairStep from './steps/RepairStep';
 import InspectionStep from './steps/InspectionStep';
 import GutterStep from './steps/GutterStep';
+import LeadCaptureStep from './steps/LeadCaptureStep';
 import ResultsScreen from './ResultsScreen';
 
-// Lead capture moved to results screen (inline) — no separate lead step
 const SERVICE_STEPS = {
-  shingle_replacement: ['service', 'location', 'details',    'results'],
-  metal_roofing:       ['service', 'location', 'details',    'results'],
-  tile_roofing:        ['service', 'location', 'details',    'results'],
-  flat_roof:           ['service', 'location', 'details',    'results'],
-  roof_repair:         ['service', 'location', 'repair',     'results'],
-  roof_inspection:     ['service', 'location', 'inspection', 'results'],
-  gutter_replacement:  ['service', 'location', 'gutter',     'results'],
+  shingle_replacement: ['service', 'location', 'details',    'lead', 'results'],
+  metal_roofing:       ['service', 'location', 'details',    'lead', 'results'],
+  tile_roofing:        ['service', 'location', 'details',    'lead', 'results'],
+  flat_roof:           ['service', 'location', 'details',    'lead', 'results'],
+  roof_repair:         ['service', 'location', 'repair',     'lead', 'results'],
+  roof_inspection:     ['service', 'location', 'inspection', 'lead', 'results'],
+  gutter_replacement:  ['service', 'location', 'gutter',     'lead', 'results'],
 };
 
 const DETAIL_STEP_COMPONENT = {
@@ -28,7 +28,7 @@ const DETAIL_STEP_COMPONENT = {
   gutter:     GutterStep,
 };
 
-const PROGRESS_LABELS = ['Service', 'Location', 'Details', 'Results'];
+const PROGRESS_LABELS = ['Service', 'Location', 'Details', 'Your Info', 'Results'];
 
 export default function RoofingCalculator({ companyConfig = null, embedded = false }) {
   const cardRef = useRef(null);
@@ -41,7 +41,6 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
-  const [calcPayload, setCalcPayload] = useState(null); // stored for lead re-submit
 
   const steps = serviceType ? SERVICE_STEPS[serviceType] : ['service'];
   const currentStep = steps[stepIndex];
@@ -83,20 +82,24 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
     goNext();
   };
 
-  const handleDetailsNext = async (details) => {
+  const handleDetailsNext = (details) => {
     setServiceDetails(details);
+    goNext();
+  };
+
+  const handleLeadNext = async (lead) => {
+    setLeadInfo(lead);
     setError(null);
     setLoading(true);
-    const payload = {
-      serviceType,
-      zip: location.zip || null,
-      state: location.state || null,
-      serviceDetails: details,
-      companyId: companyConfig?.companyId || null,
-    };
-    setCalcPayload(payload);
     try {
-      const res = await postCalculate(payload);
+      const res = await postCalculate({
+        serviceType,
+        zip: location.zip || null,
+        state: location.state || null,
+        serviceDetails,
+        companyId: companyConfig?.companyId || null,
+        leadInfo: lead?.email ? lead : null,
+      });
       setResult(res.data);
       goNext();
     } catch (err) {
@@ -114,12 +117,15 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
     setLeadInfo(null);
     setResult(null);
     setError(null);
-    setCalcPayload(null);
   };
 
   const primaryColor = companyConfig?.primaryColor || '#ea580c';
   const companyName = companyConfig?.companyName || null;
-  const progressStep = Math.min(stepIndex, steps.length - 1);
+  const enableLead = companyConfig?.enableLeadCapture !== false;
+  const customQuestions = companyConfig?.customLeadQuestions || [];
+
+  const effectiveSteps = !enableLead ? steps.filter(s => s !== 'lead') : steps;
+  const progressStep = Math.min(stepIndex, 4);
 
   if (currentStep === 'results' && result) {
     return (
@@ -129,7 +135,6 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
         companyConfig={companyConfig}
         embedded={embedded}
         onReset={handleReset}
-        calcPayload={calcPayload}
       />
     );
   }
@@ -179,7 +184,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
           {currentStep !== 'service' && currentStep !== 'results' && (
             <div style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '16px 24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                {PROGRESS_LABELS.slice(0, steps.length).map((label, i) => (
+                {PROGRESS_LABELS.slice(0, effectiveSteps.length).map((label, i) => (
                   <span key={label} style={{
                     fontSize: 12, fontWeight: 600,
                     color: i <= progressStep ? primaryColor : '#94a3b8',
@@ -191,7 +196,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
               <div style={{ height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
-                  width: `${(progressStep / (steps.length - 1)) * 100}%`,
+                  width: `${(progressStep / (effectiveSteps.length - 1)) * 100}%`,
                   background: primaryColor,
                   borderRadius: 2,
                   transition: 'width 0.3s ease',
@@ -227,7 +232,16 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
                 primaryColor={primaryColor}
                 location={location}
                 companyConfig={companyConfig}
+              />
+            )}
+            {currentStep === 'lead' && (
+              <LeadCaptureStep
+                onBack={goBack}
+                onNext={handleLeadNext}
                 loading={loading}
+                primaryColor={primaryColor}
+                customQuestions={customQuestions}
+                companyConfig={companyConfig}
               />
             )}
           </div>

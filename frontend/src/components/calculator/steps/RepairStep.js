@@ -45,7 +45,7 @@ function Chips({ options, value, onChange, primaryColor }) {
   );
 }
 
-export default function RepairStep({ value, onBack, onNext, primaryColor = '#ea580c', loading = false }) {
+export default function RepairStep({ value, onBack, onNext, primaryColor = '#ea580c' }) {
   const [repairType, setRepairType] = useState(value.repairType || '');
   const [damageSize, setDamageSize] = useState(value.damageSize || '');
   const [stories, setStories]       = useState(value.stories || '');
@@ -64,8 +64,6 @@ export default function RepairStep({ value, onBack, onNext, primaryColor = '#ea5
       onBack={onBack}
       onNext={() => onNext({ repairSize: damageSize, repairType, stories, roofAge })}
       canNext={canNext}
-      loading={loading}
-      nextLabel={loading ? 'Calculating…' : 'Get My Estimate →'}
       primaryColor={primaryColor}
     >
       <div style={fieldWrap}>

@@ -37,7 +37,7 @@ function Chips({ options, value, onChange, primaryColor }) {
   );
 }
 
-export default function GutterStep({ value, onBack, onNext, primaryColor = '#ea580c', loading = false }) {
+export default function GutterStep({ value, onBack, onNext, primaryColor = '#ea580c' }) {
   const [linearFeet, setLinearFeet]     = useState(value.linearFeet || '');
   const [gutterMaterial, setMaterial]   = useState(value.gutterMaterial || '');
   const [stories, setStories]           = useState(value.stories || '');
@@ -72,8 +72,6 @@ export default function GutterStep({ value, onBack, onNext, primaryColor = '#ea5
         });
       }}
       canNext={canNext}
-      loading={loading}
-      nextLabel={loading ? 'Calculating…' : 'Get My Estimate →'}
       primaryColor={primaryColor}
     >
       <div style={fieldWrap}>

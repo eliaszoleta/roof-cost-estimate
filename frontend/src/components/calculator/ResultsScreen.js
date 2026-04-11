@@ -1,17 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { MapPin, AlertTriangle, Zap, Phone, Share2, Printer, Check, ArrowLeft, CheckCircle2, XCircle, AlertCircle, Mail, Loader2 } from 'lucide-react';
+import { MapPin, AlertTriangle, Zap, Phone, Share2, Printer, Check, ArrowLeft, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { formatPrice, formatPriceRange, serviceTypeLabel, urgencyColor } from '../../utils/formatters';
-import { postCalculate } from '../../utils/api';
 
-export default function ResultsScreen({ result, serviceDetails, companyConfig, embedded, onReset, calcPayload }) {
+export default function ResultsScreen({ result, serviceDetails, companyConfig, embedded, onReset }) {
   const [shared, setShared] = useState(false);
-  const [leadName, setLeadName]     = useState('');
-  const [leadEmail, setLeadEmail]   = useState('');
-  const [leadPhone, setLeadPhone]   = useState('');
-  const [leadSending, setLeadSending] = useState(false);
-  const [leadSent, setLeadSent]     = useState(false);
-  const [leadError, setLeadError]   = useState(null);
 
   useEffect(() => { window.scrollTo({ top: 0, behavior: 'smooth' }); }, []);
 
@@ -32,38 +25,6 @@ export default function ResultsScreen({ result, serviceDetails, companyConfig, e
   const urgColor = urgencyColor(urgencyLevel);
   const isHighState = stateMultiplier >= 1.15;
   const isLowState = stateMultiplier <= 0.85;
-
-  const emailValid = !leadEmail || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(leadEmail);
-
-  const handleLeadSubmit = async (e) => {
-    e.preventDefault();
-    if (!leadEmail || !emailValid) return;
-    setLeadSending(true);
-    setLeadError(null);
-    try {
-      if (calcPayload) {
-        await postCalculate({ ...calcPayload, leadInfo: { name: leadName || null, email: leadEmail, phone: leadPhone || null } });
-      } else {
-        // No-backend: save to localStorage
-        try {
-          const leads = JSON.parse(localStorage.getItem('rc_leads') || '[]');
-          leads.unshift({
-            id: Date.now().toString(),
-            name: leadName || null, email: leadEmail, phone: leadPhone || null,
-            service_type: result.serviceType,
-            estimated_price_low: result.totalLow, estimated_price_high: result.totalHigh,
-            created_at: new Date().toISOString(),
-          });
-          localStorage.setItem('rc_leads', JSON.stringify(leads.slice(0, 1000)));
-        } catch {}
-      }
-      setLeadSent(true);
-    } catch (err) {
-      setLeadError('Could not send — please try again.');
-    } finally {
-      setLeadSending(false);
-    }
-  };
 
   const handleShare = async () => {
     const payload = { r: result, d: serviceDetails };
@@ -246,45 +207,6 @@ export default function ResultsScreen({ result, serviceDetails, companyConfig, e
                   )}
                 </div>
               </div>
-            </div>
-          </div>
-
-          {/* Email this estimate */}
-          <div style={{ background: 'white', borderRadius: 16, overflow: 'hidden', boxShadow: embedded ? 'none' : '0 2px 12px rgba(0,0,0,0.07)', border: embedded ? 'none' : '1px solid #e2e8f0', marginBottom: 12 }}>
-            <div style={{ padding: '18px 24px', borderBottom: '1px solid #f1f5f9', display: 'flex', alignItems: 'center', gap: 10 }}>
-              <div style={{ width: 34, height: 34, borderRadius: 9, background: '#eff6ff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                <Mail size={16} color="#2563eb" />
-              </div>
-              <div>
-                <div style={{ fontWeight: 700, fontSize: 14.5, color: '#0f172a' }}>Email this estimate to yourself</div>
-                <div style={{ fontSize: 12, color: '#64748b' }}>Optional — get a copy in your inbox. No spam, ever.</div>
-              </div>
-            </div>
-            <div style={{ padding: '16px 24px' }}>
-              {leadSent ? (
-                <div style={{ display: 'flex', alignItems: 'center', gap: 8, color: '#16a34a', fontWeight: 600, fontSize: 14 }}>
-                  <CheckCircle2 size={18} /> Estimate sent to {leadEmail}
-                </div>
-              ) : (
-                <form onSubmit={handleLeadSubmit}>
-                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginBottom: 10 }}>
-                    <input type="text" placeholder="Your name (optional)" value={leadName} onChange={e => setLeadName(e.target.value)}
-                      style={{ padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', color: '#0f172a' }} />
-                    <input type="tel" placeholder="Phone (optional)" value={leadPhone} onChange={e => setLeadPhone(e.target.value)}
-                      style={{ padding: '10px 12px', border: '1.5px solid #e2e8f0', borderRadius: 8, fontSize: 13, outline: 'none', color: '#0f172a' }} />
-                  </div>
-                  <div style={{ display: 'flex', gap: 8 }}>
-                    <input type="email" placeholder="Email address *" value={leadEmail} onChange={e => setLeadEmail(e.target.value)}
-                      style={{ flex: 1, padding: '10px 12px', border: `1.5px solid ${leadEmail && !emailValid ? '#dc2626' : '#e2e8f0'}`, borderRadius: 8, fontSize: 13, outline: 'none', color: '#0f172a' }} />
-                    <button type="submit" disabled={!leadEmail || !emailValid || leadSending}
-                      style={{ padding: '10px 18px', borderRadius: 8, border: 'none', background: leadEmail && emailValid ? '#2563eb' : '#cbd5e1', color: 'white', fontWeight: 700, fontSize: 13, cursor: leadEmail && emailValid ? 'pointer' : 'not-allowed', display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap' }}>
-                      {leadSending ? <><Loader2 size={13} className="spin" /> Sending…</> : 'Send →'}
-                    </button>
-                  </div>
-                  {leadError && <div style={{ color: '#dc2626', fontSize: 12, marginTop: 6 }}>{leadError}</div>}
-                  {leadEmail && !emailValid && <div style={{ color: '#dc2626', fontSize: 12, marginTop: 4 }}>Please enter a valid email.</div>}
-                </form>
-              )}
             </div>
           </div>
 
