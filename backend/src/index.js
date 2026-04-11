@@ -79,6 +79,7 @@ app.get('/api/company/:id/public', async (req, res) => {
       companyName, logo, primaryColor, accentColor, fontFamily,
       ctaHeadline, ctaSubtext, ctaButtonText, ctaPhone, ctaButtonUrl,
       serviceStates, frameHeight, borderRadius, services,
+      questionConfig, enabledServices,
     } = config;
     res.json({
       success: true,
@@ -86,6 +87,8 @@ app.get('/api/company/:id/public', async (req, res) => {
         companyName, logo, primaryColor, accentColor, fontFamily,
         ctaHeadline, ctaSubtext, ctaButtonText, ctaPhone, ctaButtonUrl,
         serviceStates, frameHeight, borderRadius, services,
+        questionConfig:  questionConfig  || {},
+        enabledServices: enabledServices || null,
         paused: !sub.active,
         trialDaysLeft: sub.daysLeft,
       },
