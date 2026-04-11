@@ -42,26 +42,8 @@ const SHINGLE_GRADE = {
 // Extra cost per sqft for 2nd layer tear-off — tightened spread
 const EXTRA_LAYER_COST = { one:[0,0], two:[0.60,0.85], unknown:[0.25,0.55] };
 
-// Penetration flashing costs — legacy string format
+// Penetration flashing costs (chimneys, skylights, pipe boots)
 const PENETRATION_COST = { none:[0,0], low:[400,650], medium:[800,1300], high:[1800,2800] };
-
-// New per-unit penetration costs
-const PEN_CHIMNEY = [400, 600];   // each
-const PEN_SKYLIGHT = [280, 430];  // each
-const PEN_OTHER    = [140, 270];  // pipe boots, vents, dormers
-
-function calcPenetrations(pen) {
-  if (typeof pen === 'object' && pen !== null) {
-    const c = Math.max(0, Number(pen.chimneys) || 0);
-    const s = Math.max(0, Number(pen.skylights) || 0);
-    const o = Math.max(0, Number(pen.other)     || 0);
-    return [
-      c * PEN_CHIMNEY[0] + s * PEN_SKYLIGHT[0] + o * PEN_OTHER[0],
-      c * PEN_CHIMNEY[1] + s * PEN_SKYLIGHT[1] + o * PEN_OTHER[1],
-    ];
-  }
-  return PENETRATION_COST[pen] || [0, 0];
-}
 
 function resolveState(state, zip) {
   if (state && STATE_MULT[state.toUpperCase()]) return state.toUpperCase();
@@ -101,7 +83,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
   const penetrations   = serviceDetails.penetrations   || 'none';
   const cLaborM = COMPLEXITY_LABOR[complexity] || 1.18;
   const cWasteM = COMPLEXITY_WASTE[complexity] || 1.13;
-  const [penLow, penHigh] = calcPenetrations(penetrations);
+  const [penLow, penHigh] = PENETRATION_COST[penetrations] || [0, 0];
   const [extraLayerLow, extraLayerHigh] = EXTRA_LAYER_COST[existingLayers] || [0, 0];
 
   let totalLow, totalHigh, adjustments = [], keyFactors = [], disclaimer, urgencyLevel = 'normal', unit = 'total';
@@ -113,11 +95,8 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
     const gradeData   = SHINGLE_GRADE[grade] || SHINGLE_GRADE.architectural;
     const addOns      = serviceDetails.addOns || [];
 
-    // roofSqft = user-provided actual roof area (already pitch-adjusted); skip pitch mult
-    // houseSqft = footprint; apply pitch factor
-    const roofArea = serviceDetails.roofSqft
-      ? Math.round(Number(serviceDetails.roofSqft) * cWasteM)
-      : Math.round(sqft * pm * cWasteM);
+    // Roof surface area = footprint × pitch factor × waste factor
+    const roofArea    = Math.round(sqft * pm * cWasteM);
     const laborMult   = stm * cLaborM;
 
     // 1. Shingles (materials + labor)
@@ -192,14 +171,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
       { label: 'Stories',         impact: `${stories}` },
     ];
     if (existingLayers !== 'one') keyFactors.push({ label: 'Existing layers', impact: existingLayers === 'two' ? '2 layers' : 'Unknown' });
-    if (penetrations && penetrations !== 'none') {
-      if (typeof penetrations === 'object') {
-        const total = (Number(penetrations.chimneys)||0) + (Number(penetrations.skylights)||0) + (Number(penetrations.other)||0);
-        if (total > 0) keyFactors.push({ label: 'Penetrations', impact: `${total} total` });
-      } else {
-        keyFactors.push({ label: 'Penetrations', impact: penetrations === 'low' ? '1–2' : penetrations === 'medium' ? '3–4' : '5+' });
-      }
-    }
+    if (penetrations !== 'none') keyFactors.push({ label: 'Penetrations', impact: penetrations === 'low' ? '1–2' : penetrations === 'medium' ? '3–4' : '5+' });
 
     included = [
       'Full tear-off of existing shingles',
@@ -221,7 +193,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
   } else if (serviceType === 'metal_roofing') {
     const sqft      = Number(serviceDetails.houseSqft) || 1750;
     const metalType = serviceDetails.metalType || 'standing_seam';
-    const roofArea  = serviceDetails.roofSqft ? Math.round(Number(serviceDetails.roofSqft) * cWasteM) : Math.round(sqft * pm * cWasteM);
+    const roofArea  = Math.round(sqft * pm * cWasteM);
     const laborMult = stm * cLaborM;
     const [pLow, pHigh] = metalType === 'standing_seam' ? [12, 16] : metalType === 'corrugated' ? [5.50, 7.50] : [8, 11];
     const matLow  = pLow  * roofArea * laborMult;
@@ -253,7 +225,7 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
   } else if (serviceType === 'tile_roofing') {
     const sqft     = Number(serviceDetails.houseSqft) || 1750;
     const tileType = serviceDetails.tileType || 'concrete_tile';
-    const roofArea = serviceDetails.roofSqft ? Math.round(Number(serviceDetails.roofSqft) * cWasteM) : Math.round(sqft * pm * cWasteM);
+    const roofArea = Math.round(sqft * pm * cWasteM);
     const laborMult = stm * cLaborM;
     const [pLow, pHigh] = tileType === 'slate' ? [18, 24] : tileType === 'clay_tile' ? [14, 18] : [10, 14];
     const matLow  = pLow  * roofArea * laborMult;
