@@ -17,7 +17,28 @@ async function apiFetch(path, options = {}) {
 export async function postCalculate(payload) {
   // If no backend configured, run calculation client-side
   if (!API_URL) {
-    return clientCalculate(payload);
+    const result = clientCalculate(payload);
+    // Save lead to localStorage if email provided
+    if (payload.leadInfo?.email) {
+      try {
+        const leads = JSON.parse(localStorage.getItem('rc_leads') || '[]');
+        leads.unshift({
+          id: Date.now().toString(),
+          name:  payload.leadInfo.name  || null,
+          email: payload.leadInfo.email,
+          phone: payload.leadInfo.phone || null,
+          service_type: payload.serviceType,
+          zip:   payload.zip   || null,
+          state: payload.state || null,
+          estimated_price_low:  result.data?.totalLow  || null,
+          estimated_price_high: result.data?.totalHigh || null,
+          service_details: payload.serviceDetails || {},
+          created_at: new Date().toISOString(),
+        });
+        localStorage.setItem('rc_leads', JSON.stringify(leads.slice(0, 1000)));
+      } catch {}
+    }
+    return result;
   }
   return apiFetch('/api/calculate', { method: 'POST', body: JSON.stringify(payload) });
 }

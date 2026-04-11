@@ -42,7 +42,7 @@ function Chips({ options, value, onChange, primaryColor }) {
   );
 }
 
-export default function InspectionStep({ value, onBack, onNext, primaryColor = '#ea580c' }) {
+export default function InspectionStep({ value, onBack, onNext, primaryColor = '#ea580c', loading = false }) {
   const [propertyType, setPropertyType] = useState(value.propertyType || '');
   const [stories, setStories]           = useState(value.stories || '');
   const [roofAge, setRoofAge]           = useState(value.roofAge || '');
@@ -64,6 +64,8 @@ export default function InspectionStep({ value, onBack, onNext, primaryColor = '
         propertyType, stories, roofAge, reason,
       })}
       canNext={canNext}
+      loading={loading}
+      nextLabel={loading ? 'Calculating…' : 'Get My Estimate →'}
       primaryColor={primaryColor}
     >
       <div style={fieldWrap}>
