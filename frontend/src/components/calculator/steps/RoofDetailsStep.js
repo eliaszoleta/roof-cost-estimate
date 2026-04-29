@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import { Home, Check } from 'lucide-react';
 import StepWrapper from './StepWrapper';
+import {
+  IllustPitchLow, IllustPitchMedium, IllustPitchSteep,
+  IllustShapeSimple, IllustShapeModerate, IllustShapeComplex,
+  IllustMetalStandingSeam, IllustMetalCorrugated, IllustMetalRibbed,
+  IllustShingleStandard, IllustShingleArchitectural, IllustShingleDesigner,
+  IllustTileClay, IllustTileConcrete, IllustTileSlate,
+  IllustFlatTPO, IllustFlatEPDM, IllustFlatModBitumen,
+} from './RoofIllustrations';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
 const METAL_TYPES   = [['standing_seam','Standing Seam'],['corrugated','Corrugated'],['ribbed','Ribbed / R-Panel']];
@@ -38,122 +46,47 @@ const SIZE_TO_SQFT = {
   '2000_2500': 2250, '2500_3000': 2750, over_3000: 3500,
 };
 
-// ── Photo card data ────────────────────────────────────────────────────────────
-// Unsplash CDN — permanent photo IDs, crop to 400×220, quality 80
-const U = (id) => `https://images.unsplash.com/photo-${id}?w=400&h=220&fit=crop&q=80&auto=format`;
-
+// ── Illustration card data (SVG components replace Unsplash photos) ────────────
 const PITCH_CARDS = [
-  {
-    id: 'low',
-    label: 'Low',
-    sub: 'Flat to 4:12',
-    desc: 'Ranch, flat, or low-slope',
-    img: U('1572120360610-d971b9d7767c'),
-    fallback: 'linear-gradient(160deg,#c9d6e3 0%,#a0b4c8 100%)',
-  },
-  {
-    id: 'medium',
-    label: 'Medium',
-    sub: '4:12 to 8:12',
-    desc: 'Most common US residential',
-    img: U('1580587771525-78b9dba3b914'),
-    fallback: 'linear-gradient(160deg,#d4c9b0 0%,#b8a888 100%)',
-  },
-  {
-    id: 'steep',
-    label: 'Steep',
-    sub: '8:12 and up',
-    desc: 'Cape Cod, Victorian, A-frame',
-    img: U('1568605117036-5fe5e7bab0b7'),
-    fallback: 'linear-gradient(160deg,#b8c4cf 0%,#8fa0b0 100%)',
-  },
+  { id: 'low',    label: 'Low',    sub: 'Flat to 4:12',  desc: 'Ranch, flat, or low-slope',       Illust: IllustPitchLow },
+  { id: 'medium', label: 'Medium', sub: '4:12 to 8:12',  desc: 'Most common US residential',      Illust: IllustPitchMedium },
+  { id: 'steep',  label: 'Steep',  sub: '8:12 and up',   desc: 'Cape Cod, Victorian, A-frame',    Illust: IllustPitchSteep },
 ];
 
 const COMPLEXITY_CARDS = [
-  {
-    id: 'simple',
-    label: 'Simple',
-    sub: 'Gable / shed / lean-to',
-    desc: 'Basic triangle ridge, few cuts — lowest labor cost',
-    img: U('1564013799919-ab600027ffc6'),
-    fallback: 'linear-gradient(160deg,#c8dce8 0%,#9eb8cc 100%)',
-    badge: { label: 'Lowest cost', color: '#16a34a' },
-  },
-  {
-    id: 'moderate',
-    label: 'Moderate',
-    sub: 'Hip / gambrel / hip-and-valley',
-    desc: 'Slopes on all 4 sides, some angles and valleys',
-    img: U('1568605114967-8130f3a36994'),
-    fallback: 'linear-gradient(160deg,#ddd0c0 0%,#c0a880 100%)',
-    badge: { label: 'Most common', color: '#d97706' },
-  },
-  {
-    id: 'complex',
-    label: 'Complex',
-    sub: 'Dormers / multiple peaks',
-    desc: 'Many angles, intersecting ridges, dormers, skylight cuts',
-    img: U('1519643381401-22c77e60520e'),
-    fallback: 'linear-gradient(160deg,#b8c4d0 0%,#8896a8 100%)',
-    badge: { label: 'Higher labor', color: '#7c3aed' },
-  },
+  { id: 'simple',   label: 'Simple',   sub: 'Gable / shed / lean-to',        desc: 'Basic triangle ridge, few cuts — lowest labor cost',          Illust: IllustShapeSimple,   badge: { label: 'Lowest cost', color: '#16a34a' } },
+  { id: 'moderate', label: 'Moderate', sub: 'Hip / gambrel / hip-and-valley', desc: 'Slopes on all 4 sides, some angles and valleys',              Illust: IllustShapeModerate, badge: { label: 'Most common', color: '#d97706' } },
+  { id: 'complex',  label: 'Complex',  sub: 'Dormers / multiple peaks',       desc: 'Many angles, intersecting ridges, dormers, skylight cuts',    Illust: IllustShapeComplex,  badge: { label: 'Higher labor', color: '#7c3aed' } },
 ];
 
-// Shingle grade — fabric/texture swatches
 const GRADE_CARDS = [
-  {
-    id: 'standard',
-    label: '3-Tab / Standard',
-    price: '$',
-    desc: '20–25 yr warranty, basic protection',
-    img: U('1600566753151-384129cf4e3e'),
-    fallback: 'linear-gradient(160deg,#9ca3af 0%,#6b7280 100%)',
-    priceColor: '#64748b',
-  },
-  {
-    id: 'architectural',
-    label: 'Architectural',
-    price: '$$',
-    desc: 'Most popular, 30 yr warranty',
-    img: U('1558618666-fcd25c85cd64'),
-    fallback: 'linear-gradient(160deg,#78716c 0%,#57534e 100%)',
-    priceColor: '#d97706',
-  },
-  {
-    id: 'designer',
-    label: 'Designer / Premium',
-    price: '$$$',
-    desc: 'Impact-resistant, 50 yr warranty',
-    img: U('1541888946425-d81bb19240f5'),
-    fallback: 'linear-gradient(160deg,#44403c 0%,#292524 100%)',
-    priceColor: '#7c3aed',
-  },
+  { id: 'standard',      label: '3-Tab / Standard',   price: '$',   desc: '20–25 yr warranty, basic protection', Illust: IllustShingleStandard,      priceColor: '#64748b' },
+  { id: 'architectural', label: 'Architectural',       price: '$$',  desc: 'Most popular, 30 yr warranty',       Illust: IllustShingleArchitectural, priceColor: '#d97706' },
+  { id: 'designer',      label: 'Designer / Premium',  price: '$$$', desc: 'Impact-resistant, 50 yr warranty',   Illust: IllustShingleDesigner,      priceColor: '#7c3aed' },
 ];
 
-// Tile / Metal / Flat material photo cards
 const TILE_CARDS = [
-  { id: 'clay_tile',     label: 'Clay Tile',     desc: 'Classic, 50+ yr life', img: U('1600585152915-d208bec867a1'), fallback: 'linear-gradient(160deg,#c2713a 0%,#a05a28 100%)' },
-  { id: 'concrete_tile', label: 'Concrete Tile', desc: 'Budget-friendly, 30 yr', img: U('1570129477492-45c003edd2be'), fallback: 'linear-gradient(160deg,#9ca3af 0%,#6b7280 100%)' },
-  { id: 'slate',         label: 'Slate',         desc: 'Natural stone, 100+ yr',  img: U('1572120360610-d971b9d7767c'), fallback: 'linear-gradient(160deg,#475569 0%,#334155 100%)' },
+  { id: 'clay_tile',     label: 'Clay Tile',     desc: 'Classic, 50+ yr life',      Illust: IllustTileClay },
+  { id: 'concrete_tile', label: 'Concrete Tile', desc: 'Budget-friendly, 30 yr',    Illust: IllustTileConcrete },
+  { id: 'slate',         label: 'Slate',         desc: 'Natural stone, 100+ yr',    Illust: IllustTileSlate },
 ];
 
 const METAL_CARDS = [
-  { id: 'standing_seam', label: 'Standing Seam', desc: 'Modern, 50 yr warranty', img: U('1608231387042-66d1773d3400'), fallback: 'linear-gradient(160deg,#b8c4cf 0%,#8fa0b0 100%)' },
-  { id: 'corrugated',    label: 'Corrugated',    desc: 'Classic wave profile',   img: U('1558618666-fcd25c85cd64'), fallback: 'linear-gradient(160deg,#94a3b8 0%,#64748b 100%)' },
-  { id: 'ribbed',        label: 'Ribbed / R-Panel',desc: 'Strong, commercial-grade',img: U('1600566753376-12c8621abebe'), fallback: 'linear-gradient(160deg,#64748b 0%,#475569 100%)' },
+  { id: 'standing_seam', label: 'Standing Seam',    desc: 'Modern, 50 yr warranty',    Illust: IllustMetalStandingSeam },
+  { id: 'corrugated',    label: 'Corrugated',        desc: 'Classic wave profile',      Illust: IllustMetalCorrugated },
+  { id: 'ribbed',        label: 'Ribbed / R-Panel',  desc: 'Strong, commercial-grade',  Illust: IllustMetalRibbed },
 ];
 
 const FLAT_CARDS = [
-  { id: 'tpo',              label: 'TPO Membrane',      desc: 'White reflective, most popular', img: U('1589939705384-5185137a7f0f'), fallback: 'linear-gradient(160deg,#e2e8f0 0%,#cbd5e1 100%)' },
-  { id: 'epdm',             label: 'EPDM (Rubber)',     desc: 'Durable, 20–25 yr',              img: U('1486325212027-8081e485255e'), fallback: 'linear-gradient(160deg,#334155 0%,#1e293b 100%)' },
-  { id: 'modified_bitumen', label: 'Modified Bitumen',  desc: 'Torch-down, commercial-grade',   img: U('1572120360610-d971b9d7767c'), fallback: 'linear-gradient(160deg,#44403c 0%,#292524 100%)' },
+  { id: 'tpo',              label: 'TPO Membrane',     desc: 'White reflective, most popular', Illust: IllustFlatTPO },
+  { id: 'epdm',             label: 'EPDM (Rubber)',    desc: 'Durable, 20–25 yr',              Illust: IllustFlatEPDM },
+  { id: 'modified_bitumen', label: 'Modified Bitumen', desc: 'Torch-down, commercial-grade',   Illust: IllustFlatModBitumen },
 ];
 
-// ── Reusable photo card ────────────────────────────────────────────────────────
-function PhotoCard({ item, value, onChange, primaryColor, showCheck = false }) {
-  const [imgLoaded, setImgLoaded] = useState(false);
-  const [imgErr,    setImgErr]    = useState(false);
+// ── Illustration card (SVG replaces Unsplash photo) ──────────────────────────
+function IllustrationCard({ item, value, onChange, primaryColor }) {
   const active = value === item.id;
+  const { Illust } = item;
 
   return (
     <button
@@ -168,23 +101,9 @@ function PhotoCard({ item, value, onChange, primaryColor, showCheck = false }) {
         position: 'relative',
       }}
     >
-      {/* Photo area */}
-      <div style={{
-        height: 110, overflow: 'hidden', position: 'relative',
-        background: imgErr || !imgLoaded ? (item.fallback || '#e2e8f0') : 'transparent',
-      }}>
-        {!imgErr && (
-          <img
-            src={item.img}
-            alt={item.label}
-            onLoad={() => setImgLoaded(true)}
-            onError={() => setImgErr(true)}
-            style={{
-              width: '100%', height: '100%', objectFit: 'cover', display: 'block',
-              opacity: imgLoaded ? 1 : 0, transition: 'opacity 0.3s',
-            }}
-          />
-        )}
+      {/* Illustration area */}
+      <div style={{ height: 110, overflow: 'hidden', position: 'relative' }}>
+        <Illust />
         {/* Active checkmark */}
         {active && (
           <div style={{
@@ -211,7 +130,7 @@ function PhotoCard({ item, value, onChange, primaryColor, showCheck = false }) {
           <div style={{
             position: 'absolute', bottom: 7, left: 7, padding: '3px 9px', borderRadius: 6,
             background: 'rgba(0,0,0,0.55)', backdropFilter: 'blur(4px)',
-            color: 'white', fontSize: 13, fontWeight: 800, letterSpacing: '0.02em',
+            color: item.priceColor || 'white', fontSize: 13, fontWeight: 800, letterSpacing: '0.02em',
           }}>
             {item.price}
           </div>
@@ -240,7 +159,7 @@ function PhotoCard({ item, value, onChange, primaryColor, showCheck = false }) {
   );
 }
 
-function PhotoGrid({ items, value, onChange, primaryColor, cols = 3 }) {
+function IllustrationGrid({ items, value, onChange, primaryColor, cols = 3 }) {
   return (
     <div style={{
       display: 'grid',
@@ -249,7 +168,7 @@ function PhotoGrid({ items, value, onChange, primaryColor, cols = 3 }) {
       marginTop: 8,
     }}>
       {items.map(item => (
-        <PhotoCard
+        <IllustrationCard
           key={item.id}
           item={item}
           value={value}
@@ -380,7 +299,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
         <div style={fieldWrap}>
           <label style={fieldLabel}>Roof pitch</label>
           <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>How steep is the slope? Steeper = more surface area and tougher labor.</div>
-          <PhotoGrid items={PITCH_CARDS} value={pitch} onChange={setPitch} primaryColor={primaryColor} cols={3} />
+          <IllustrationGrid items={PITCH_CARDS} value={pitch} onChange={setPitch} primaryColor={primaryColor} cols={3} />
         </div>
       )}
 
@@ -397,7 +316,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Shingle grade</label>
           <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>The single biggest price variable. Choose what fits your budget and longevity needs.</div>
-          <PhotoGrid items={GRADE_CARDS} value={shingleGrade} onChange={setShingleGrade} primaryColor={primaryColor} cols={3} />
+          <IllustrationGrid items={GRADE_CARDS} value={shingleGrade} onChange={setShingleGrade} primaryColor={primaryColor} cols={3} />
         </div>
       )}
 
@@ -405,7 +324,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       {isMetal && showMaterialType && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Metal roof type</label>
-          <PhotoGrid items={METAL_CARDS} value={metalType} onChange={setMetalType} primaryColor={primaryColor} cols={3} />
+          <IllustrationGrid items={METAL_CARDS} value={metalType} onChange={setMetalType} primaryColor={primaryColor} cols={3} />
         </div>
       )}
 
@@ -413,7 +332,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       {isTile && showMaterialType && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Tile material</label>
-          <PhotoGrid items={TILE_CARDS} value={tileType} onChange={setTileType} primaryColor={primaryColor} cols={3} />
+          <IllustrationGrid items={TILE_CARDS} value={tileType} onChange={setTileType} primaryColor={primaryColor} cols={3} />
         </div>
       )}
 
@@ -421,7 +340,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       {isFlat && showMaterialType && (
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Flat roof system</label>
-          <PhotoGrid items={FLAT_CARDS} value={flatType} onChange={setFlatType} primaryColor={primaryColor} cols={3} />
+          <IllustrationGrid items={FLAT_CARDS} value={flatType} onChange={setFlatType} primaryColor={primaryColor} cols={3} />
         </div>
       )}
 
@@ -430,7 +349,7 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
         <div style={{ ...fieldWrap, ...divider }}>
           <label style={fieldLabel}>Roof shape / complexity</label>
           <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>More angles, valleys, and dormers = higher labor cost and more material waste.</div>
-          <PhotoGrid items={COMPLEXITY_CARDS} value={complexity} onChange={setComplexity} primaryColor={primaryColor} cols={3} />
+          <IllustrationGrid items={COMPLEXITY_CARDS} value={complexity} onChange={setComplexity} primaryColor={primaryColor} cols={3} />
         </div>
       )}
 
