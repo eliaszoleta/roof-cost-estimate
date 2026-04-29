@@ -561,3 +561,145 @@ export function IllustFlatModBitumen() {
     </svg>
   );
 }
+
+// ═══════════════════════════════════════════════════════════════════════════════
+// GUTTER MATERIAL ILLUSTRATIONS
+// Each shows a 3D isometric section of gutter hung from a fascia board.
+// K-style for aluminum/vinyl/steel; half-round for copper.
+// ═══════════════════════════════════════════════════════════════════════════════
+
+// Shared gutter scene: fascia board + gutter body + end cap
+// bodyColor=front face, topColor=open interior, capColor=end cross-section
+function GutterScene({ bodyColor, topColor, capColor, fasciaColor = '#d1d5db', accent = null, profile = 'k', label }) {
+  // Gutter runs left→right. Depth vector (+12, −14) gives the 3D feel.
+  // Front face of gutter:
+  const FL = [22, 78], FR = [158, 78];   // front-left / front-right top edge
+  const BL = [34, 64], BR = [170, 64];   // back-left  / back-right  top edge (depth offset)
+  const FLb = [22, 98], FRb = [158, 98]; // front bottom edge
+  const BLb = [34, 84], BRb = [170, 84]; // back bottom edge
+
+  // Fascia board (vertical siding strip above gutter)
+  const fasciaTop = [[34, 34], [170, 34], BR, BL];
+
+  // K-style front face lip: the decorative curved front sits below FL→FR
+  // We simulate it with a subtle outward offset at the bottom.
+  const kLip = profile === 'k'
+    ? [[18, 98], [162, 98], [158, 94], [22, 94]]   // small outward K lip
+    : null;
+
+  return (
+    <svg viewBox="0 0 200 130" xmlns="http://www.w3.org/2000/svg"
+      style={{ width: '100%', height: '100%', display: 'block' }}>
+      <rect width="200" height="130" fill="#f1f5f9" />
+
+      {/* ── fascia / house wall ── */}
+      <polygon points={p(fasciaTop)} fill={fasciaColor} />
+      {/* siding shadow line */}
+      <line x1={BL[0]} y1={BL[1]} x2={BR[0]} y2={BR[1]}
+        stroke="#9ca3af" strokeWidth="0.8" opacity="0.5" />
+
+      {/* ── gutter top opening (interior) ── */}
+      <polygon points={p([BL, BR, FR, FL])} fill={topColor} />
+
+      {/* ── gutter front face ── */}
+      <polygon points={p([FL, FR, FRb, FLb])} fill={bodyColor} />
+
+      {/* ── K-style outward lip (aluminum/vinyl/steel) ── */}
+      {kLip && <polygon points={p(kLip)} fill={capColor} opacity="0.6" />}
+
+      {/* ── half-round belly curve (copper only) ── */}
+      {profile === 'half' && (
+        <path
+          d={`M ${FLb[0]},${FLb[1]} Q 90,115 ${FRb[0]},${FRb[1]} L ${FR[0]},${FR[1]} L ${FL[0]},${FL[1]} Z`}
+          fill={bodyColor} />
+      )}
+
+      {/* ── right end cap (cross-section) ── */}
+      <polygon points={p([FR, BR, BRb, FRb])} fill={capColor} />
+
+      {/* ── front face highlight (top edge catch-light) ── */}
+      <line x1={FL[0]} y1={FL[1]} x2={FR[0]} y2={FR[1]}
+        stroke="white" strokeWidth="1.2" opacity="0.35" />
+
+      {/* ── bottom shadow ── */}
+      <line x1={FLb[0]} y1={FLb[1]} x2={FRb[0]} y2={FRb[1]}
+        stroke="#1e293b" strokeWidth="0.8" opacity="0.15" />
+
+      {/* ── optional accent (e.g. rivet dots for steel, patina for copper) ── */}
+      {accent}
+
+      {/* ── label ── */}
+      <text x="100" y="122" textAnchor="middle" fontSize="9" fill="#64748b"
+        fontFamily="sans-serif">{label}</text>
+    </svg>
+  );
+}
+
+export function IllustGutterAluminum() {
+  return (
+    <GutterScene
+      bodyColor="#94a3b8"
+      topColor="#475569"
+      capColor="#64748b"
+      fasciaColor="#e2e8f0"
+      profile="k"
+      label="K-style · lightweight · 20–30 yr"
+    />
+  );
+}
+
+export function IllustGutterVinyl() {
+  // Vinyl accent: subtle seam line down the middle of front face
+  const seam = (
+    <line x1="90" y1="78" x2="90" y2="98"
+      stroke="#cbd5e1" strokeWidth="0.8" opacity="0.7" />
+  );
+  return (
+    <GutterScene
+      bodyColor="#f8fafc"
+      topColor="#cbd5e1"
+      capColor="#e2e8f0"
+      fasciaColor="#f1f5f9"
+      profile="k"
+      accent={seam}
+      label="K-style · lightweight plastic · 10–20 yr"
+    />
+  );
+}
+
+export function IllustGutterSteel() {
+  // Steel accent: rivet dots along the front face
+  const rivets = [40, 80, 120, 158].map((x, i) => (
+    <circle key={i} cx={x} cy={88} r="2" fill="#334155" opacity="0.5" />
+  ));
+  return (
+    <GutterScene
+      bodyColor="#64748b"
+      topColor="#334155"
+      capColor="#475569"
+      fasciaColor="#d1d5db"
+      profile="k"
+      accent={<>{rivets}</>}
+      label="K-style · heavy-duty · 20–50 yr"
+    />
+  );
+}
+
+export function IllustGutterCopper() {
+  // Copper accent: subtle patina streaks
+  const patina = [55, 100, 145].map((x, i) => (
+    <line key={i} x1={x} y1="78" x2={x - 3} y2="98"
+      stroke="#059669" strokeWidth="1" opacity="0.2" />
+  ));
+  return (
+    <GutterScene
+      bodyColor="#b45309"
+      topColor="#78350f"
+      capColor="#92400e"
+      fasciaColor="#fef3c7"
+      profile="half"
+      accent={<>{patina}</>}
+      label="Half-round · premium · 50+ yr"
+    />
+  );
+}
