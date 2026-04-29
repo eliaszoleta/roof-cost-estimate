@@ -248,34 +248,6 @@ export function IllustMetalRibbed() {
 // SHINGLE GRADE ILLUSTRATIONS
 // ═══════════════════════════════════════════════════════════════════════════════
 
-function ShingleRows({ rowH, tabW, color, shadowColor, stagger = true, shadowH = 5, extraDetail = null }) {
-  const rows = 5;
-  const cols = Math.ceil(190 / tabW) + 1;
-  return (
-    <svg viewBox="0 0 200 120" xmlns="http://www.w3.org/2000/svg"
-      style={{ width: '100%', height: '100%', display: 'block' }}>
-      <rect width="200" height="120" fill="#e5e7eb" />
-      {Array.from({ length: rows }).map((_, r) => {
-        const y = 10 + r * rowH;
-        const offset = stagger ? (r % 2 === 0 ? 0 : tabW / 2) : 0;
-        return Array.from({ length: cols }).map((_, c) => {
-          const x = -offset + c * tabW - 5;
-          return (
-            <g key={`${r}-${c}`}>
-              {/* shingle body */}
-              <rect x={x + 1} y={y} width={tabW - 2} height={rowH}
-                rx="0.5" fill={color} />
-              {/* bottom shadow band */}
-              <rect x={x + 1} y={y + rowH - shadowH} width={tabW - 2} height={shadowH}
-                rx="0" fill={shadowColor} opacity="0.45" />
-            </g>
-          );
-        });
-      })}
-      {extraDetail}
-    </svg>
-  );
-}
 
 export function IllustShingleStandard() {
   // 3-tab: uniform tabs with visible cutouts

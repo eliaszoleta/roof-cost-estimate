@@ -11,9 +11,6 @@ import {
 } from './RoofIllustrations';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const METAL_TYPES   = [['standing_seam','Standing Seam'],['corrugated','Corrugated'],['ribbed','Ribbed / R-Panel']];
-const TILE_TYPES    = [['clay_tile','Clay'],['concrete_tile','Concrete'],['slate','Slate']];
-const FLAT_TYPES    = [['tpo','TPO'],['epdm','EPDM'],['modified_bitumen','Modified Bitumen']];
 const STORY_OPTIONS = [['1','1 story'],['2','2 stories'],['3','3+ stories']];
 const SIZE_OPTIONS  = [
   ['under_1000','Under 1,000 sq ft'],
