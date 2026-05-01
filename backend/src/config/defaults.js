@@ -46,24 +46,34 @@ const STATE_AVERAGE_ROOF_COST_PER_SQFT = {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// PITCH MULTIPLIERS
-// Low-slope (< 4:12) is faster/safer; steep work requires special equipment
+// PITCH MULTIPLIERS  (single value — pitch is a known fact, not a range)
+// Applied once to roof area cost. Low-slope faster; steep requires equipment.
 // ─────────────────────────────────────────────────────────────────────────────
 const PITCH_MULTIPLIERS = {
-  flat:       { low: 0.92, high: 0.95 }, // < 2:12
-  low:        { low: 1.00, high: 1.00 }, // 2:12–4:12 (baseline)
-  medium:     { low: 1.10, high: 1.12 }, // 4:12–6:12
-  steep:      { low: 1.25, high: 1.30 }, // 6:12–9:12
-  very_steep: { low: 1.45, high: 1.55 }, // 9:12+
+  flat:       0.92,   // < 2:12  — easiest, walkable
+  low:        1.00,   // 2:12–4:12 — baseline
+  medium:     1.11,   // 4:12–6:12 — slight added labor
+  steep:      1.28,   // 6:12–9:12 — harness required
+  very_steep: 1.50,   // 9:12+  — major safety/equipment cost
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// STORY MULTIPLIERS
+// STORY MULTIPLIERS  (single value — stories is a known fact, not a range)
 // ─────────────────────────────────────────────────────────────────────────────
 const STORY_MULTIPLIERS = {
-  1:    { low: 1.00, high: 1.00 },
-  2:    { low: 1.10, high: 1.12 },
-  '3+': { low: 1.22, high: 1.28 },
+  1:    1.00,
+  2:    1.11,
+  '3+': 1.25,
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// COMPLEXITY MULTIPLIERS  (roof shape/cut complexity)
+// Simple = gable/shed; Moderate = hip/gambrel; Complex = dormers/multi-peak
+// ─────────────────────────────────────────────────────────────────────────────
+const COMPLEXITY_MULTIPLIERS = {
+  simple:   0.92,   // straight runs, minimal cuts
+  moderate: 1.00,   // baseline
+  complex:  1.20,   // many valleys, dormers, skylight cuts — more waste + labor
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -71,37 +81,50 @@ const STORY_MULTIPLIERS = {
 // ─────────────────────────────────────────────────────────────────────────────
 const TEAROFF_COSTS = {
   none:         { low: 0,    high: 0    },
-  single_layer: { low: 0.75, high: 1.25 },
-  double_layer: { low: 1.25, high: 2.00 },
-  triple_plus:  { low: 1.75, high: 2.50 },
+  single_layer: { low: 0.80, high: 1.20 },
+  double_layer: { low: 1.30, high: 1.90 },
+  triple_plus:  { low: 1.80, high: 2.50 },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // DECKING / SHEATHING REPLACEMENT (per sq ft)
-// Applied to the affected area only
 // ─────────────────────────────────────────────────────────────────────────────
 const DECKING_COSTS = {
   none:    { low: 0,    high: 0    },
-  partial: { low: 1.50, high: 3.00 }, // < 25% of deck area
-  full:    { low: 3.00, high: 5.00 },
+  partial: { low: 2.00, high: 3.50 }, // ~20% of deck area typically affected
+  full:    { low: 3.50, high: 5.50 },
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// PENETRATION COSTS — flat adder for chimneys, skylights, pipe boots
+// "low" = 1–2, "medium" = 3–4, "high" = 5+
+// Each penetration requires custom flashing: $200–$500 per opening
+// ─────────────────────────────────────────────────────────────────────────────
+const PENETRATION_COSTS = {
+  none:   { low: 0,    high: 0    },
+  low:    { low: 350,  high: 700  },   // 1–2 openings × ~$200–350 each
+  medium: { low: 700,  high: 1400 },   // 3–4 openings
+  high:   { low: 1200, high: 2200 },   // 5+ openings
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // SHINGLE REPLACEMENT — installed cost per sq ft (material + labor)
 // Source: HomeAdvisor 2024, Remodeling Magazine Cost vs. Value 2024
+// Keys include frontend aliases (standard → three_tab)
 // ─────────────────────────────────────────────────────────────────────────────
 const SHINGLE_COSTS_PER_SQFT = {
-  three_tab:        { low: 3.00, high: 4.50  }, // 3-tab / economy
-  architectural:    { low: 4.25, high: 6.75  }, // dimensional / laminated
-  premium:          { low: 6.00, high: 10.00 }, // impact-resistant / 50-yr
-  designer:         { low: 8.50, high: 14.00 }, // luxury / Class 4
+  three_tab:     { low: 3.25, high: 4.75  }, // economy 3-tab
+  standard:      { low: 3.25, high: 4.75  }, // frontend alias for three_tab
+  architectural: { low: 4.25, high: 6.25  }, // dimensional / laminated (most common)
+  premium:       { low: 6.00, high: 9.50  }, // impact-resistant / 50-yr
+  designer:      { low: 8.25, high: 12.50 }, // luxury / Class 4
 };
 
 // Underlayment upgrades (per sq ft) — standard felt is baseline ($0 addon)
 const UNDERLAYMENT_ADDONS = {
   standard_felt:    { low: 0,    high: 0    },
-  synthetic:        { low: 0.25, high: 0.50 },
-  ice_water_shield: { low: 0.50, high: 1.00 }, // full coverage
+  synthetic:        { low: 0.25, high: 0.45 },
+  ice_water_shield: { low: 0.55, high: 0.95 },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -109,103 +132,106 @@ const UNDERLAYMENT_ADDONS = {
 // Source: MetalRoofingAlliance.org, Angi 2024
 // ─────────────────────────────────────────────────────────────────────────────
 const METAL_COSTS_PER_SQFT = {
-  corrugated:       { low: 7.00,  high: 12.00 },
-  standing_seam:    { low: 14.00, high: 24.00 },
-  metal_shingle:    { low: 10.00, high: 17.00 },
-  stone_coated:     { low: 9.00,  high: 15.00 },
+  corrugated:    { low: 7.50,  high: 10.50 }, // corrugated panels
+  ribbed:        { low: 9.00,  high: 12.50 }, // R-panel / ribbed (between corrugated & standing seam)
+  metal_shingle: { low: 10.50, high: 15.00 },
+  stone_coated:  { low: 10.00, high: 14.50 },
+  standing_seam: { low: 15.00, high: 21.00 }, // premium concealed fastener
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // FLAT / LOW-SLOPE ROOFING — installed cost per sq ft
-// Source: NRCA, Sika Roofing, contractor surveys
 // ─────────────────────────────────────────────────────────────────────────────
 const FLAT_ROOF_COSTS_PER_SQFT = {
-  tpo:               { low: 5.50,  high: 9.50  },
-  epdm:              { low: 4.50,  high: 8.50  },
-  modified_bitumen:  { low: 4.00,  high: 7.00  },
-  built_up:          { low: 4.00,  high: 8.00  },
-  pvc:               { low: 6.00,  high: 10.00 },
+  tpo:              { low: 6.00, high: 8.50  },
+  epdm:             { low: 5.00, high: 7.50  },
+  modified_bitumen: { low: 4.50, high: 6.50  },
+  built_up:         { low: 4.50, high: 7.00  },
+  pvc:              { low: 6.50, high: 9.50  },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // TILE ROOFING — installed cost per sq ft
 // Source: RSMeans 2024, HomeAdvisor
+// Keys include frontend aliases (slate → natural_slate)
 // ─────────────────────────────────────────────────────────────────────────────
 const TILE_COSTS_PER_SQFT = {
-  concrete_tile:    { low: 10.00, high: 18.00 },
-  clay_tile:        { low: 15.00, high: 25.00 },
-  natural_slate:    { low: 20.00, high: 40.00 },
-  synthetic_slate:  { low: 10.00, high: 18.00 },
+  concrete_tile:   { low: 10.00, high: 16.00 },
+  clay_tile:       { low: 14.00, high: 22.00 },
+  slate:           { low: 22.00, high: 34.00 }, // frontend alias for natural_slate
+  natural_slate:   { low: 22.00, high: 34.00 },
+  synthetic_slate: { low: 10.00, high: 16.00 },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ROOF REPAIR — flat cost by damage size
 // ─────────────────────────────────────────────────────────────────────────────
 const REPAIR_COSTS = {
-  minor:   { low: 150,  high: 500   }, // < 50 sq ft, flashing, 1–5 shingles
-  small:   { low: 400,  high: 1200  }, // 50–200 sq ft
-  medium:  { low: 1000, high: 3000  }, // 200–500 sq ft
-  large:   { low: 2500, high: 7000  }, // 500+ sq ft
-  emergency: { low: 500, high: 2500 }, // emergency tarping / leak stop
+  minor:     { low: 150,  high: 450   }, // < 50 sq ft, flashing, 1–5 shingles
+  small:     { low: 400,  high: 1100  }, // 50–200 sq ft
+  medium:    { low: 1000, high: 2800  }, // 200–500 sq ft
+  large:     { low: 2500, high: 6500  }, // 500+ sq ft
+  emergency: { low: 450,  high: 2200  }, // emergency tarping / leak stop
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // ROOF INSPECTION
 // ─────────────────────────────────────────────────────────────────────────────
 const INSPECTION_COSTS = {
-  standard:       { low: 150, high: 350 },
-  drone:          { low: 200, high: 400 },
-  post_storm:     { low: 200, high: 500 },
-  thermal:        { low: 400, high: 800 },
+  standard:   { low: 150, high: 325 },
+  drone:      { low: 200, high: 400 },
+  post_storm: { low: 200, high: 475 },
+  thermal:    { low: 400, high: 750 },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
 // GUTTER REPLACEMENT — per linear foot installed
-// Source: HomeAdvisor 2024
 // ─────────────────────────────────────────────────────────────────────────────
 const GUTTER_COSTS_PER_LF = {
-  vinyl:          { low: 3.00, high: 5.00  },
-  aluminum:       { low: 5.00, high: 9.00  },
-  steel:          { low: 8.00, high: 12.00 },
-  copper:         { low: 20.00, high: 40.00 },
+  vinyl:     { low: 3.00,  high: 5.50  },
+  aluminum:  { low: 5.00,  high: 9.00  },
+  steel:     { low: 8.00,  high: 13.00 },
+  copper:    { low: 20.00, high: 38.00 },
 };
 
-// Downspouts per unit
-const DOWNSPOUT_COST = { low: 5, high: 10 }; // per linear foot
-// Gutter guards per linear foot
-const GUTTER_GUARD_COST = { low: 1.50, high: 5.00 };
+const DOWNSPOUT_COST      = { low: 5,    high: 9    }; // per linear foot
+const GUTTER_GUARD_COST   = { low: 1.50, high: 4.50 }; // per linear foot
 
 // ─────────────────────────────────────────────────────────────────────────────
-// FASCIA & SOFFIT — per square foot installed
+// FASCIA & SOFFIT
 // ─────────────────────────────────────────────────────────────────────────────
 const SOFFIT_COSTS_PER_SQFT = {
-  vinyl:     { low: 2.00, high: 5.00 },
-  aluminum:  { low: 3.00, high: 6.00 },
-  wood:      { low: 4.00, high: 8.00 },
+  vinyl:        { low: 2.00, high: 4.50 },
+  aluminum:     { low: 3.00, high: 6.00 },
+  wood:         { low: 4.00, high: 8.00 },
   fiber_cement: { low: 5.00, high: 9.00 },
 };
 
 const FASCIA_COSTS_PER_LF = {
-  vinyl:     { low: 4.00, high: 8.00  },
-  aluminum:  { low: 5.00, high: 10.00 },
-  wood:      { low: 6.00, high: 15.00 },
-  fiber_cement: { low: 7.00, high: 14.00 },
+  vinyl:        { low: 4.00, high: 8.00  },
+  aluminum:     { low: 5.00, high: 10.00 },
+  wood:         { low: 6.00, high: 14.00 },
+  fiber_cement: { low: 7.00, high: 13.00 },
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// COMMON ADD-ON COSTS (per-unit or per-linear-foot)
+// COMMON ADD-ON COSTS
 // ─────────────────────────────────────────────────────────────────────────────
 const ADDON_COSTS = {
-  ridge_cap_upgrade:      { low: 200,  high: 500  }, // flat per job
-  attic_vent_each:        { low: 150,  high: 350  }, // per vent
-  chimney_flashing:       { low: 200,  high: 500  }, // per chimney
-  skylight_flashing:      { low: 150,  high: 350  }, // per skylight
-  drip_edge_per_lf:       { low: 1.50, high: 3.00 }, // per linear foot
-  pipe_boot_each:         { low: 75,   high: 150  }, // per boot
-  ice_dam_prevention_lf:  { low: 2.50, high: 5.00 }, // heated cable per lf
-  solar_mount_prep:       { low: 500,  high: 1500 }, // reinforcement flat
-  roof_coating:           { low: 1.00, high: 3.50 }, // per sq ft
-  radiant_barrier:        { low: 0.50, high: 1.50 }, // per sq ft attic
+  ridge_cap_upgrade:     { low: 200,  high: 500  },
+  attic_vent_each:       { low: 150,  high: 325  },
+  chimney_flashing:      { low: 200,  high: 500  },
+  skylight_flashing:     { low: 150,  high: 350  },
+  drip_edge_per_lf:      { low: 1.50, high: 3.00 },
+  pipe_boot_each:        { low: 75,   high: 150  },
+  ice_dam_prevention_lf: { low: 2.50, high: 5.00 },
+  solar_mount_prep:      { low: 500,  high: 1500 },
+  roof_coating:          { low: 1.00, high: 3.50 },
+  radiant_barrier:       { low: 0.50, high: 1.50 },
+  // Frontend add-on aliases (flat costs per job)
+  new_decking:           { low: 0,    high: 0    }, // handled separately via deckingReplacement
+  ridge_ventilation:     { low: 400,  high: 900  }, // full ridge vent system
+  gutter_replacement:    { low: 0,    high: 0    }, // separate service — excluded from roofing calc
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -253,8 +279,10 @@ module.exports = {
   STATE_AVERAGE_ROOF_COST_PER_SQFT,
   PITCH_MULTIPLIERS,
   STORY_MULTIPLIERS,
+  COMPLEXITY_MULTIPLIERS,
   TEAROFF_COSTS,
   DECKING_COSTS,
+  PENETRATION_COSTS,
   SHINGLE_COSTS_PER_SQFT,
   UNDERLAYMENT_ADDONS,
   METAL_COSTS_PER_SQFT,

@@ -1,13 +1,14 @@
 // RoofCalc — Core roofing cost calculation engine
-// All pricing data lives in config/defaults.js
 
 const {
   STATE_PRICING_MULTIPLIERS,
   STATE_NAMES,
   PITCH_MULTIPLIERS,
   STORY_MULTIPLIERS,
+  COMPLEXITY_MULTIPLIERS,
   TEAROFF_COSTS,
   DECKING_COSTS,
+  PENETRATION_COSTS,
   SHINGLE_COSTS_PER_SQFT,
   UNDERLAYMENT_ADDONS,
   METAL_COSTS_PER_SQFT,
@@ -23,33 +24,88 @@ const {
   ADDON_COSTS,
 } = require('../config/defaults');
 
-// ─── Helpers ─────────────────────────────────────────────────────────────────────
+// ─── Helpers ──────────────────────────────────────────────────────────────────
 
-/** Apply a multiplier pair to a low/high cost object */
-function applyMult(cost, multLow, multHigh) {
-  return { low: cost.low * multLow, high: cost.high * multHigh };
-}
+function round(n) { return Math.round(n); }
 
-/** Apply state multiplier to both low and high */
-function applyState(cost, stateMult) {
-  return applyMult(cost, stateMult, stateMult);
-}
-
-/** Add two cost objects */
 function addCosts(a, b) {
   return { low: a.low + b.low, high: a.high + b.high };
 }
 
-/** Resolve state abbreviation from input */
+/** Apply a single scalar multiplier to a cost band */
+function applyMult(cost, mult) {
+  return { low: cost.low * mult, high: cost.high * mult };
+}
+
+/** Apply state multiplier + markup to a cost band */
+function applyFinal(cost, stateMult, markup) {
+  return { low: round(cost.low * stateMult * markup), high: round(cost.high * stateMult * markup) };
+}
+
+// ─── Input normalisers ────────────────────────────────────────────────────────
+// The frontend uses slightly different key names/values than the backend tables.
+// All mapping lives here so the calculators stay clean.
+
+/** existingLayers ('one'|'two'|'unknown') → tearoffLayers key */
+function normaliseLayers(existingLayers, tearoffLayers) {
+  if (tearoffLayers) return tearoffLayers;
+  const map = { one: 'single_layer', two: 'double_layer', unknown: 'double_layer' };
+  return map[existingLayers] || 'single_layer';
+}
+
+/** shingleGrade ('standard'|'architectural'|'designer') → SHINGLE_COSTS key */
+function normaliseShingleGrade(shingleGrade, shingleType) {
+  if (shingleType && SHINGLE_COSTS_PER_SQFT[shingleType]) return shingleType;
+  if (shingleGrade && SHINGLE_COSTS_PER_SQFT[shingleGrade]) return shingleGrade;
+  return 'architectural';
+}
+
+/** metalType from frontend ('ribbed') → METAL_COSTS key */
+function normaliseMetalType(metalType) {
+  if (metalType && METAL_COSTS_PER_SQFT[metalType]) return metalType;
+  // r_panel is an alias used by some callers
+  if (metalType === 'r_panel') return 'ribbed';
+  return 'standing_seam';
+}
+
+/** tileType ('slate') → TILE_COSTS key */
+function normaliseTileType(tileType) {
+  if (tileType && TILE_COSTS_PER_SQFT[tileType]) return tileType;
+  return 'concrete_tile';
+}
+
+/**
+ * Map frontend addOns string array to backend parameters.
+ * Returns { deckingReplacement, underlayment, extraAddons[] }
+ */
+function normaliseAddOns(addOnsArray = []) {
+  let deckingReplacement = 'none';
+  let underlayment = 'standard_felt';
+  const extraAddons = [];
+
+  for (const id of addOnsArray) {
+    if (id === 'new_decking') {
+      deckingReplacement = 'partial'; // assume ~20% deck replacement
+    } else if (id === 'ice_water_shield') {
+      underlayment = 'ice_water_shield';
+    } else if (id === 'ridge_ventilation') {
+      extraAddons.push({ type: 'ridge_ventilation', quantity: 1 });
+    }
+    // gutter_replacement is a separate service — skip in roofing calc
+  }
+  return { deckingReplacement, underlayment, extraAddons };
+}
+
+// ─── Resolve state from ZIP/state input ───────────────────────────────────────
+
 function resolveState(state, zip) {
   if (state && STATE_PRICING_MULTIPLIERS[state.toUpperCase()]) {
     return state.toUpperCase();
   }
-  // ZIP-to-state prefix lookup (basic)
   if (zip) {
     const prefix = parseInt(String(zip).substring(0, 3), 10);
     const zipMap = [
-      [[0, 2], 'MA'], [[3, 6], 'MA'], // rough groupings
+      [[0, 2], 'MA'], [[3, 6], 'MA'],
       [[10, 14], 'NY'], [[15, 19], 'PA'], [[20, 20], 'DC'],
       [[21, 21], 'MD'], [[22, 24], 'VA'], [[25, 26], 'WV'],
       [[27, 28], 'NC'], [[29, 29], 'SC'], [[30, 31], 'GA'],
@@ -74,8 +130,7 @@ function resolveState(state, zip) {
 
 /**
  * Estimate roof area from house footprint.
- * Roof area = footprint × pitch multiplier (called "roof factor").
- * A 4:12 pitch adds ~7.5% area; 6:12 ~20%; 9:12 ~50% etc.
+ * Roof area = footprint × pitch factor.
  */
 function estimateRoofArea(houseSqft, pitch) {
   const pitchFactors = {
@@ -84,306 +139,252 @@ function estimateRoofArea(houseSqft, pitch) {
   return Math.round(houseSqft * (pitchFactors[pitch] || 1.10));
 }
 
-/** Round to nearest dollar */
-function round(n) { return Math.round(n); }
+// ─── Per-service calculators ──────────────────────────────────────────────────
 
-// ─── Per-service calculators ────────────────────────────────────────────────────────────
-
-/**
- * SHINGLE REPLACEMENT
- * Inputs: roofArea (sq ft, or houseSqft to estimate from),
- *   shingleType (three_tab|architectural|premium|designer),
- *   tearoffLayers (none|single_layer|double_layer|triple_plus),
- *   deckingReplacement (none|partial|full),
- *   underlayment (standard_felt|synthetic|ice_water_shield),
- *   pitch (flat|low|medium|steep|very_steep),
- *   stories (1|2|3+),
- *   addons: array of { type, quantity }
- */
 function calcShingleReplacement(details, stateMult, markup) {
   const {
-    roofArea,
-    houseSqft,
-    shingleType = 'architectural',
-    tearoffLayers = 'single_layer',
-    deckingReplacement = 'none',
-    underlayment = 'standard_felt',
-    pitch = 'low',
+    roofArea, houseSqft,
+    pitch = 'medium',
     stories = 1,
-    addons = [],
+    complexity = 'moderate',
+    penetrations = 'none',
+    addOns = [],      // frontend string array
+    addons = [],      // backend object array (direct API calls)
   } = details;
 
-  // Determine roof area
-  const area = roofArea
-    ? Number(roofArea)
-    : houseSqft
-      ? estimateRoofArea(Number(houseSqft), pitch)
-      : 1800; // national avg residential default
+  const shingleKey   = normaliseShingleGrade(details.shingleGrade, details.shingleType);
+  const tearoffKey   = normaliseLayers(details.existingLayers, details.tearoffLayers);
+  const { deckingReplacement, underlayment, extraAddons } = normaliseAddOns(addOns);
 
-  const pitchMult = PITCH_MULTIPLIERS[pitch] || PITCH_MULTIPLIERS.low;
-  const storyMult = STORY_MULTIPLIERS[stories] || STORY_MULTIPLIERS[1];
-  const shingleCost = SHINGLE_COSTS_PER_SQFT[shingleType] || SHINGLE_COSTS_PER_SQFT.architectural;
+  const area       = roofArea ? Number(roofArea) : houseSqft ? estimateRoofArea(Number(houseSqft), pitch) : 1800;
+  const pitchMult  = PITCH_MULTIPLIERS[pitch]            || PITCH_MULTIPLIERS.medium;
+  const storyMult  = STORY_MULTIPLIERS[String(stories)]  || STORY_MULTIPLIERS[1];
+  const complexMult= COMPLEXITY_MULTIPLIERS[complexity]  || COMPLEXITY_MULTIPLIERS.moderate;
+  const combinedMult = pitchMult * storyMult * complexMult;
 
-  const breakdown = [];
+  const shingleCost = SHINGLE_COSTS_PER_SQFT[shingleKey] || SHINGLE_COSTS_PER_SQFT.architectural;
+  const breakdown   = [];
 
-  // Base shingle + labor
-  let baseLow = shingleCost.low * area * pitchMult.low * storyMult.low;
-  let baseHigh = shingleCost.high * area * pitchMult.high * storyMult.high;
-  breakdown.push({ label: `Shingle installation (${shingleType.replace(/_/g, ' ')}, ${area.toLocaleString()} sq ft)`, low: round(baseLow), high: round(baseHigh) });
+  // Base install (material + labor)
+  let total = applyMult(shingleCost, area * combinedMult);
+  breakdown.push({ label: `${shingleKey.replace(/_/g, ' ')} shingles — ${area.toLocaleString()} sq ft`, low: round(total.low), high: round(total.high) });
 
   // Tear-off
-  const tearoff = TEAROFF_COSTS[tearoffLayers] || TEAROFF_COSTS.none;
+  const tearoff = TEAROFF_COSTS[tearoffKey] || TEAROFF_COSTS.single_layer;
   if (tearoff.low > 0) {
-    const tLow = tearoff.low * area;
-    const tHigh = tearoff.high * area;
-    breakdown.push({ label: `Tear-off (${tearoffLayers.replace(/_/g, ' ')})`, low: round(tLow), high: round(tHigh) });
-    baseLow += tLow;
-    baseHigh += tHigh;
+    const t = applyMult(tearoff, area);
+    breakdown.push({ label: `Tear-off (${tearoffKey.replace(/_/g, ' ')})`, low: round(t.low), high: round(t.high) });
+    total = addCosts(total, t);
   }
 
   // Decking replacement
-  const decking = DECKING_COSTS[deckingReplacement] || DECKING_COSTS.none;
+  const deckingKey = details.deckingReplacement || deckingReplacement;
+  const decking    = DECKING_COSTS[deckingKey]  || DECKING_COSTS.none;
   if (decking.low > 0) {
-    // Partial = ~20% of area affected; full = full area
-    const deckArea = deckingReplacement === 'partial' ? area * 0.20 : area;
-    const dLow = decking.low * deckArea;
-    const dHigh = decking.high * deckArea;
-    breakdown.push({ label: `Decking replacement (${deckingReplacement})`, low: round(dLow), high: round(dHigh) });
-    baseLow += dLow;
-    baseHigh += dHigh;
+    const deckArea = deckingKey === 'partial' ? area * 0.20 : area;
+    const d = applyMult(decking, deckArea);
+    breakdown.push({ label: `Decking replacement (${deckingKey})`, low: round(d.low), high: round(d.high) });
+    total = addCosts(total, d);
   }
 
   // Underlayment upgrade
-  const undUpgrade = UNDERLAYMENT_ADDONS[underlayment] || UNDERLAYMENT_ADDONS.standard_felt;
-  if (undUpgrade.low > 0) {
-    const uLow = undUpgrade.low * area;
-    const uHigh = undUpgrade.high * area;
-    breakdown.push({ label: `Underlayment upgrade (${underlayment.replace(/_/g, ' ')})`, low: round(uLow), high: round(uHigh) });
-    baseLow += uLow;
-    baseHigh += uHigh;
+  const underlayKey  = details.underlayment || underlayment;
+  const underlayAddon = UNDERLAYMENT_ADDONS[underlayKey] || UNDERLAYMENT_ADDONS.standard_felt;
+  if (underlayAddon.low > 0) {
+    const u = applyMult(underlayAddon, area);
+    breakdown.push({ label: `Underlayment upgrade (${underlayKey.replace(/_/g, ' ')})`, low: round(u.low), high: round(u.high) });
+    total = addCosts(total, u);
   }
 
-  // Addons
-  let addonLow = 0, addonHigh = 0;
-  for (const addon of addons) {
+  // Penetrations (chimneys, skylights, pipe boots)
+  const penetrationCost = PENETRATION_COSTS[penetrations] || PENETRATION_COSTS.none;
+  if (penetrationCost.low > 0) {
+    breakdown.push({ label: `Penetration flashing (${penetrations})`, low: penetrationCost.low, high: penetrationCost.high });
+    total = addCosts(total, penetrationCost);
+  }
+
+  // Extra add-ons (from both frontend string array and direct addons)
+  const allAddons = [...extraAddons, ...addons];
+  for (const addon of allAddons) {
     const cost = ADDON_COSTS[addon.type];
-    if (!cost) continue;
+    if (!cost || cost.low === 0) continue;
     const qty = Number(addon.quantity) || 1;
-    addonLow += cost.low * qty;
-    addonHigh += cost.high * qty;
-    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(cost.low * qty), high: round(cost.high * qty) });
+    const a = applyMult(cost, qty);
+    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(a.low), high: round(a.high) });
+    total = addCosts(total, a);
   }
 
-  let totalLow = (baseLow + addonLow) * stateMult * markup;
-  let totalHigh = (baseHigh + addonHigh) * stateMult * markup;
-
-  return { breakdown, totalLow: round(totalLow), totalHigh: round(totalHigh), roofArea: area };
+  const final = applyFinal(total, stateMult, markup);
+  return { breakdown, totalLow: final.low, totalHigh: final.high, roofArea: area };
 }
 
-/**
- * METAL ROOFING
- * Inputs: roofArea / houseSqft, metalType, tearoffLayers, pitch, stories, addons
- */
 function calcMetalRoofing(details, stateMult, markup) {
   const {
     roofArea, houseSqft,
-    metalType = 'standing_seam',
-    tearoffLayers = 'single_layer',
-    pitch = 'low',
+    pitch = 'medium',
     stories = 1,
+    complexity = 'moderate',
+    penetrations = 'none',
     addons = [],
   } = details;
 
-  const area = roofArea ? Number(roofArea) : houseSqft ? estimateRoofArea(Number(houseSqft), pitch) : 1800;
-  const pitchMult = PITCH_MULTIPLIERS[pitch] || PITCH_MULTIPLIERS.low;
-  const storyMult = STORY_MULTIPLIERS[stories] || STORY_MULTIPLIERS[1];
-  const metalCost = METAL_COSTS_PER_SQFT[metalType] || METAL_COSTS_PER_SQFT.standing_seam;
+  const metalKey   = normaliseMetalType(details.metalType);
+  const tearoffKey = normaliseLayers(details.existingLayers, details.tearoffLayers);
 
+  const area        = roofArea ? Number(roofArea) : houseSqft ? estimateRoofArea(Number(houseSqft), pitch) : 1800;
+  const pitchMult   = PITCH_MULTIPLIERS[pitch]           || PITCH_MULTIPLIERS.medium;
+  const storyMult   = STORY_MULTIPLIERS[String(stories)] || STORY_MULTIPLIERS[1];
+  const complexMult = COMPLEXITY_MULTIPLIERS[complexity] || COMPLEXITY_MULTIPLIERS.moderate;
+  const combinedMult = pitchMult * storyMult * complexMult;
+
+  const metalCost = METAL_COSTS_PER_SQFT[metalKey] || METAL_COSTS_PER_SQFT.standing_seam;
   const breakdown = [];
 
-  let baseLow = metalCost.low * area * pitchMult.low * storyMult.low;
-  let baseHigh = metalCost.high * area * pitchMult.high * storyMult.high;
-  breakdown.push({ label: `Metal roofing (${metalType.replace(/_/g, ' ')}, ${area.toLocaleString()} sq ft)`, low: round(baseLow), high: round(baseHigh) });
+  let total = applyMult(metalCost, area * combinedMult);
+  breakdown.push({ label: `${metalKey.replace(/_/g, ' ')} metal roofing — ${area.toLocaleString()} sq ft`, low: round(total.low), high: round(total.high) });
 
-  // Tear-off
-  const tearoff = TEAROFF_COSTS[tearoffLayers] || TEAROFF_COSTS.none;
+  const tearoff = TEAROFF_COSTS[tearoffKey] || TEAROFF_COSTS.single_layer;
   if (tearoff.low > 0) {
-    const tLow = tearoff.low * area;
-    const tHigh = tearoff.high * area;
-    breakdown.push({ label: `Tear-off (${tearoffLayers.replace(/_/g, ' ')})`, low: round(tLow), high: round(tHigh) });
-    baseLow += tLow;
-    baseHigh += tHigh;
+    const t = applyMult(tearoff, area);
+    breakdown.push({ label: `Tear-off (${tearoffKey.replace(/_/g, ' ')})`, low: round(t.low), high: round(t.high) });
+    total = addCosts(total, t);
   }
 
-  let addonLow = 0, addonHigh = 0;
+  const penetrationCost = PENETRATION_COSTS[penetrations] || PENETRATION_COSTS.none;
+  if (penetrationCost.low > 0) {
+    breakdown.push({ label: `Penetration flashing (${penetrations})`, low: penetrationCost.low, high: penetrationCost.high });
+    total = addCosts(total, penetrationCost);
+  }
+
   for (const addon of addons) {
     const cost = ADDON_COSTS[addon.type];
-    if (!cost) continue;
+    if (!cost || cost.low === 0) continue;
     const qty = Number(addon.quantity) || 1;
-    addonLow += cost.low * qty;
-    addonHigh += cost.high * qty;
-    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(cost.low * qty), high: round(cost.high * qty) });
+    const a = applyMult(cost, qty);
+    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(a.low), high: round(a.high) });
+    total = addCosts(total, a);
   }
 
-  return {
-    breakdown,
-    totalLow: round((baseLow + addonLow) * stateMult * markup),
-    totalHigh: round((baseHigh + addonHigh) * stateMult * markup),
-    roofArea: area,
-  };
+  const final = applyFinal(total, stateMult, markup);
+  return { breakdown, totalLow: final.low, totalHigh: final.high, roofArea: area };
 }
 
-/**
- * FLAT ROOF
- * Inputs: roofArea / buildingFootprint, flatMaterial, tearoffLayers, addons
- */
 function calcFlatRoof(details, stateMult, markup) {
   const {
     roofArea, buildingFootprint,
     flatMaterial = 'tpo',
-    tearoffLayers = 'single_layer',
     addons = [],
   } = details;
 
-  // Flat roofs: area ≈ building footprint (pitch factor ≈ 1)
-  const area = roofArea ? Number(roofArea) : buildingFootprint ? Number(buildingFootprint) : 1500;
-  const flatCost = FLAT_ROOF_COSTS_PER_SQFT[flatMaterial] || FLAT_ROOF_COSTS_PER_SQFT.tpo;
+  const tearoffKey = normaliseLayers(details.existingLayers, details.tearoffLayers);
+  const area       = roofArea ? Number(roofArea) : buildingFootprint ? Number(buildingFootprint) : 1500;
+  const flatCost   = FLAT_ROOF_COSTS_PER_SQFT[flatMaterial] || FLAT_ROOF_COSTS_PER_SQFT.tpo;
+  const breakdown  = [];
 
-  const breakdown = [];
+  let total = applyMult(flatCost, area);
+  breakdown.push({ label: `${flatMaterial.toUpperCase()} membrane — ${area.toLocaleString()} sq ft`, low: round(total.low), high: round(total.high) });
 
-  let baseLow = flatCost.low * area;
-  let baseHigh = flatCost.high * area;
-  breakdown.push({ label: `Flat roof (${flatMaterial.toUpperCase()}, ${area.toLocaleString()} sq ft)`, low: round(baseLow), high: round(baseHigh) });
-
-  const tearoff = TEAROFF_COSTS[tearoffLayers] || TEAROFF_COSTS.none;
+  const tearoff = TEAROFF_COSTS[tearoffKey] || TEAROFF_COSTS.single_layer;
   if (tearoff.low > 0) {
-    const tLow = tearoff.low * area;
-    const tHigh = tearoff.high * area;
-    breakdown.push({ label: `Tear-off (${tearoffLayers.replace(/_/g, ' ')})`, low: round(tLow), high: round(tHigh) });
-    baseLow += tLow;
-    baseHigh += tHigh;
+    const t = applyMult(tearoff, area);
+    breakdown.push({ label: `Tear-off (${tearoffKey.replace(/_/g, ' ')})`, low: round(t.low), high: round(t.high) });
+    total = addCosts(total, t);
   }
 
-  let addonLow = 0, addonHigh = 0;
   for (const addon of addons) {
     const cost = ADDON_COSTS[addon.type];
-    if (!cost) continue;
+    if (!cost || cost.low === 0) continue;
     const qty = Number(addon.quantity) || 1;
-    addonLow += cost.low * qty;
-    addonHigh += cost.high * qty;
-    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(cost.low * qty), high: round(cost.high * qty) });
+    const a = applyMult(cost, qty);
+    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(a.low), high: round(a.high) });
+    total = addCosts(total, a);
   }
 
-  return {
-    breakdown,
-    totalLow: round((baseLow + addonLow) * stateMult * markup),
-    totalHigh: round((baseHigh + addonHigh) * stateMult * markup),
-    roofArea: area,
-  };
+  const final = applyFinal(total, stateMult, markup);
+  return { breakdown, totalLow: final.low, totalHigh: final.high, roofArea: area };
 }
 
-/**
- * TILE ROOFING
- * Inputs: roofArea / houseSqft, tileType, tearoffLayers, pitch, stories, addons
- */
 function calcTileRoofing(details, stateMult, markup) {
   const {
     roofArea, houseSqft,
-    tileType = 'concrete_tile',
-    tearoffLayers = 'single_layer',
     pitch = 'medium',
     stories = 1,
+    complexity = 'moderate',
+    penetrations = 'none',
     addons = [],
   } = details;
 
-  const area = roofArea ? Number(roofArea) : houseSqft ? estimateRoofArea(Number(houseSqft), pitch) : 1800;
-  const pitchMult = PITCH_MULTIPLIERS[pitch] || PITCH_MULTIPLIERS.medium;
-  const storyMult = STORY_MULTIPLIERS[stories] || STORY_MULTIPLIERS[1];
-  const tileCost = TILE_COSTS_PER_SQFT[tileType] || TILE_COSTS_PER_SQFT.concrete_tile;
+  const tileKey    = normaliseTileType(details.tileType);
+  const tearoffKey = normaliseLayers(details.existingLayers, details.tearoffLayers);
 
+  const area        = roofArea ? Number(roofArea) : houseSqft ? estimateRoofArea(Number(houseSqft), pitch) : 1800;
+  const pitchMult   = PITCH_MULTIPLIERS[pitch]           || PITCH_MULTIPLIERS.medium;
+  const storyMult   = STORY_MULTIPLIERS[String(stories)] || STORY_MULTIPLIERS[1];
+  const complexMult = COMPLEXITY_MULTIPLIERS[complexity] || COMPLEXITY_MULTIPLIERS.moderate;
+  const combinedMult = pitchMult * storyMult * complexMult;
+
+  const tileCost  = TILE_COSTS_PER_SQFT[tileKey] || TILE_COSTS_PER_SQFT.concrete_tile;
   const breakdown = [];
 
-  let baseLow = tileCost.low * area * pitchMult.low * storyMult.low;
-  let baseHigh = tileCost.high * area * pitchMult.high * storyMult.high;
-  breakdown.push({ label: `Tile roofing (${tileType.replace(/_/g, ' ')}, ${area.toLocaleString()} sq ft)`, low: round(baseLow), high: round(baseHigh) });
+  let total = applyMult(tileCost, area * combinedMult);
+  breakdown.push({ label: `${tileKey.replace(/_/g, ' ')} — ${area.toLocaleString()} sq ft`, low: round(total.low), high: round(total.high) });
 
-  const tearoff = TEAROFF_COSTS[tearoffLayers] || TEAROFF_COSTS.none;
+  const tearoff = TEAROFF_COSTS[tearoffKey] || TEAROFF_COSTS.single_layer;
   if (tearoff.low > 0) {
-    const tLow = tearoff.low * area;
-    const tHigh = tearoff.high * area;
-    breakdown.push({ label: `Tear-off (${tearoffLayers.replace(/_/g, ' ')})`, low: round(tLow), high: round(tHigh) });
-    baseLow += tLow;
-    baseHigh += tHigh;
+    const t = applyMult(tearoff, area);
+    breakdown.push({ label: `Tear-off (${tearoffKey.replace(/_/g, ' ')})`, low: round(t.low), high: round(t.high) });
+    total = addCosts(total, t);
   }
 
-  let addonLow = 0, addonHigh = 0;
+  const penetrationCost = PENETRATION_COSTS[penetrations] || PENETRATION_COSTS.none;
+  if (penetrationCost.low > 0) {
+    breakdown.push({ label: `Penetration flashing (${penetrations})`, low: penetrationCost.low, high: penetrationCost.high });
+    total = addCosts(total, penetrationCost);
+  }
+
   for (const addon of addons) {
     const cost = ADDON_COSTS[addon.type];
-    if (!cost) continue;
+    if (!cost || cost.low === 0) continue;
     const qty = Number(addon.quantity) || 1;
-    addonLow += cost.low * qty;
-    addonHigh += cost.high * qty;
-    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(cost.low * qty), high: round(cost.high * qty) });
+    const a = applyMult(cost, qty);
+    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(a.low), high: round(a.high) });
+    total = addCosts(total, a);
   }
 
-  return {
-    breakdown,
-    totalLow: round((baseLow + addonLow) * stateMult * markup),
-    totalHigh: round((baseHigh + addonHigh) * stateMult * markup),
-    roofArea: area,
-  };
+  const final = applyFinal(total, stateMult, markup);
+  return { breakdown, totalLow: final.low, totalHigh: final.high, roofArea: area };
 }
 
-/**
- * ROOF REPAIR
- * Inputs: repairSize (minor|small|medium|large|emergency), addons
- */
 function calcRoofRepair(details, stateMult, markup) {
   const { repairSize = 'small', addons = [] } = details;
   const repairCost = REPAIR_COSTS[repairSize] || REPAIR_COSTS.small;
 
-  const breakdown = [
-    { label: `Roof repair (${repairSize})`, low: repairCost.low, high: repairCost.high },
-  ];
+  let total = { ...repairCost };
+  const breakdown = [{ label: `Roof repair (${repairSize})`, low: repairCost.low, high: repairCost.high }];
 
-  let addonLow = 0, addonHigh = 0;
   for (const addon of addons) {
     const cost = ADDON_COSTS[addon.type];
-    if (!cost) continue;
+    if (!cost || cost.low === 0) continue;
     const qty = Number(addon.quantity) || 1;
-    addonLow += cost.low * qty;
-    addonHigh += cost.high * qty;
-    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(cost.low * qty), high: round(cost.high * qty) });
+    const a = applyMult(cost, qty);
+    breakdown.push({ label: `${addon.type.replace(/_/g, ' ')} ×${qty}`, low: round(a.low), high: round(a.high) });
+    total = addCosts(total, a);
   }
 
-  return {
-    breakdown,
-    totalLow: round((repairCost.low + addonLow) * stateMult * markup),
-    totalHigh: round((repairCost.high + addonHigh) * stateMult * markup),
-  };
+  const final = applyFinal(total, stateMult, markup);
+  return { breakdown, totalLow: final.low, totalHigh: final.high };
 }
 
-/**
- * ROOF INSPECTION
- * Inputs: inspectionType (standard|drone|post_storm|thermal)
- */
 function calcRoofInspection(details, stateMult, markup) {
   const { inspectionType = 'standard' } = details;
   const cost = INSPECTION_COSTS[inspectionType] || INSPECTION_COSTS.standard;
-
+  const final = applyFinal(cost, stateMult, markup);
   return {
     breakdown: [{ label: `Roof inspection (${inspectionType.replace(/_/g, ' ')})`, low: cost.low, high: cost.high }],
-    totalLow: round(cost.low * stateMult * markup),
-    totalHigh: round(cost.high * stateMult * markup),
+    totalLow: final.low, totalHigh: final.high,
   };
 }
 
-/**
- * GUTTER REPLACEMENT
- * Inputs: gutterMaterial (vinyl|aluminum|steel|copper),
- *   linearFeet (number), downspouts (count),
- *   gutterGuards (bool), gutterGuardLinearFeet (number)
- */
 function calcGutterReplacement(details, stateMult, markup) {
   const {
     gutterMaterial = 'aluminum',
@@ -393,156 +394,95 @@ function calcGutterReplacement(details, stateMult, markup) {
     gutterGuardLinearFeet,
   } = details;
 
-  const lf = Number(linearFeet);
+  const lf         = Number(linearFeet);
   const gutterCost = GUTTER_COSTS_PER_LF[gutterMaterial] || GUTTER_COSTS_PER_LF.aluminum;
-  const breakdown = [];
+  const breakdown  = [];
 
-  let baseLow = gutterCost.low * lf;
-  let baseHigh = gutterCost.high * lf;
-  breakdown.push({ label: `Gutters (${gutterMaterial}, ${lf} lf)`, low: round(baseLow), high: round(baseHigh) });
+  let total = applyMult(gutterCost, lf);
+  breakdown.push({ label: `${gutterMaterial} gutters — ${lf} lf`, low: round(total.low), high: round(total.high) });
 
-  // Downspouts
   if (downspouts > 0) {
-    // Average downspout is 10 linear feet
-    const dsLow = DOWNSPOUT_COST.low * 10 * downspouts;
-    const dsHigh = DOWNSPOUT_COST.high * 10 * downspouts;
-    breakdown.push({ label: `Downspouts ×${downspouts}`, low: round(dsLow), high: round(dsHigh) });
-    baseLow += dsLow;
-    baseHigh += dsHigh;
+    const ds = applyMult(DOWNSPOUT_COST, 10 * downspouts);
+    breakdown.push({ label: `Downspouts ×${downspouts}`, low: round(ds.low), high: round(ds.high) });
+    total = addCosts(total, ds);
   }
 
-  // Gutter guards
   if (gutterGuards) {
     const guardLf = gutterGuardLinearFeet ? Number(gutterGuardLinearFeet) : lf;
-    const gLow = GUTTER_GUARD_COST.low * guardLf;
-    const gHigh = GUTTER_GUARD_COST.high * guardLf;
-    breakdown.push({ label: `Gutter guards (${guardLf} lf)`, low: round(gLow), high: round(gHigh) });
-    baseLow += gLow;
-    baseHigh += gHigh;
+    const g = applyMult(GUTTER_GUARD_COST, guardLf);
+    breakdown.push({ label: `Gutter guards — ${guardLf} lf`, low: round(g.low), high: round(g.high) });
+    total = addCosts(total, g);
   }
 
-  return {
-    breakdown,
-    totalLow: round(baseLow * stateMult * markup),
-    totalHigh: round(baseHigh * stateMult * markup),
-    linearFeet: lf,
-  };
+  const final = applyFinal(total, stateMult, markup);
+  return { breakdown, totalLow: final.low, totalHigh: final.high, linearFeet: lf };
 }
 
-/**
- * FASCIA & SOFFIT
- * Inputs: soffitMaterial (vinyl|aluminum|wood|fiber_cement), soffitSqft,
- *   fasciaMaterial (vinyl|aluminum|wood|fiber_cement), fasciaLinearFeet
- */
 function calcFasciaSoffit(details, stateMult, markup) {
   const {
-    soffitMaterial = 'vinyl',
-    soffitSqft = 400,
-    fasciaMaterial = 'aluminum',
-    fasciaLinearFeet = 160,
+    soffitMaterial = 'vinyl',   soffitSqft = 400,
+    fasciaMaterial = 'aluminum', fasciaLinearFeet = 160,
   } = details;
 
   const soffitCost = SOFFIT_COSTS_PER_SQFT[soffitMaterial] || SOFFIT_COSTS_PER_SQFT.vinyl;
-  const fasciaCost = FASCIA_COSTS_PER_LF[fasciaMaterial] || FASCIA_COSTS_PER_LF.aluminum;
-  const breakdown = [];
+  const fasciaCost = FASCIA_COSTS_PER_LF[fasciaMaterial]   || FASCIA_COSTS_PER_LF.aluminum;
+  const breakdown  = [];
 
-  let baseLow = 0;
-  let baseHigh = 0;
+  let total = { low: 0, high: 0 };
 
   if (soffitSqft > 0) {
-    const sLow = soffitCost.low * Number(soffitSqft);
-    const sHigh = soffitCost.high * Number(soffitSqft);
-    breakdown.push({ label: `Soffit (${soffitMaterial}, ${soffitSqft} sq ft)`, low: round(sLow), high: round(sHigh) });
-    baseLow += sLow;
-    baseHigh += sHigh;
+    const s = applyMult(soffitCost, Number(soffitSqft));
+    breakdown.push({ label: `Soffit (${soffitMaterial}, ${soffitSqft} sq ft)`, low: round(s.low), high: round(s.high) });
+    total = addCosts(total, s);
   }
 
   if (fasciaLinearFeet > 0) {
-    const fLow = fasciaCost.low * Number(fasciaLinearFeet);
-    const fHigh = fasciaCost.high * Number(fasciaLinearFeet);
-    breakdown.push({ label: `Fascia (${fasciaMaterial}, ${fasciaLinearFeet} lf)`, low: round(fLow), high: round(fHigh) });
-    baseLow += fLow;
-    baseHigh += fHigh;
+    const f = applyMult(fasciaCost, Number(fasciaLinearFeet));
+    breakdown.push({ label: `Fascia (${fasciaMaterial}, ${fasciaLinearFeet} lf)`, low: round(f.low), high: round(f.high) });
+    total = addCosts(total, f);
   }
 
-  return {
-    breakdown,
-    totalLow: round(baseLow * stateMult * markup),
-    totalHigh: round(baseHigh * stateMult * markup),
-  };
+  const final = applyFinal(total, stateMult, markup);
+  return { breakdown, totalLow: final.low, totalHigh: final.high };
 }
 
-// ─── Main export ─────────────────────────────────────────────────────────────────────
+// ─── Main export ──────────────────────────────────────────────────────────────
 
-/**
- * calculateRoofing(input, companyConfig)
- *
- * @param {object} input
- *   serviceType, state, zip, serviceDetails
- * @param {object} companyConfig
- *   company-level overrides (markup, etc.)
- * @returns {object} result with totalLow, totalHigh, breakdown, state, etc.
- */
 async function calculateRoofing(input, companyConfig = {}) {
   const { serviceType, state: stateInput, zip, serviceDetails = {} } = input;
 
-  const state = resolveState(stateInput, zip);
-  const stateMult = STATE_PRICING_MULTIPLIERS[state] || 1.0;
-  const stateName = STATE_NAMES[state] || state;
+  const state      = resolveState(stateInput, zip);
+  const stateMult  = STATE_PRICING_MULTIPLIERS[state] || 1.0;
+  const stateName  = STATE_NAMES[state] || state;
 
-  // Get per-service markup from company config
   const serviceKeyMap = {
     shingle_replacement: 'shingleReplacement',
-    metal_roofing: 'metalRoofing',
-    flat_roof: 'flatRoof',
-    tile_roofing: 'tileRoofing',
-    roof_repair: 'roofRepair',
-    roof_inspection: 'roofInspection',
-    gutter_replacement: 'gutterReplacement',
-    fascia_soffit: 'fasciaSoffit',
+    metal_roofing:       'metalRoofing',
+    flat_roof:           'flatRoof',
+    tile_roofing:        'tileRoofing',
+    roof_repair:         'roofRepair',
+    roof_inspection:     'roofInspection',
+    gutter_replacement:  'gutterReplacement',
+    fascia_soffit:       'fasciaSoffit',
   };
-  const cfgKey = serviceKeyMap[serviceType];
+  const cfgKey       = serviceKeyMap[serviceType];
   const serviceConfig = companyConfig?.services?.[cfgKey] || {};
-  const markup = Number(serviceConfig.markup) || 1.0;
+  const markup       = Number(serviceConfig.markup) || 1.0;
 
   let result;
   switch (serviceType) {
-    case 'shingle_replacement':
-      result = calcShingleReplacement(serviceDetails, stateMult, markup);
-      break;
-    case 'metal_roofing':
-      result = calcMetalRoofing(serviceDetails, stateMult, markup);
-      break;
-    case 'flat_roof':
-      result = calcFlatRoof(serviceDetails, stateMult, markup);
-      break;
-    case 'tile_roofing':
-      result = calcTileRoofing(serviceDetails, stateMult, markup);
-      break;
-    case 'roof_repair':
-      result = calcRoofRepair(serviceDetails, stateMult, markup);
-      break;
-    case 'roof_inspection':
-      result = calcRoofInspection(serviceDetails, stateMult, markup);
-      break;
-    case 'gutter_replacement':
-      result = calcGutterReplacement(serviceDetails, stateMult, markup);
-      break;
-    case 'fascia_soffit':
-      result = calcFasciaSoffit(serviceDetails, stateMult, markup);
-      break;
-    default:
-      throw new Error(`Unknown serviceType: ${serviceType}`);
+    case 'shingle_replacement': result = calcShingleReplacement(serviceDetails, stateMult, markup); break;
+    case 'metal_roofing':       result = calcMetalRoofing(serviceDetails, stateMult, markup);       break;
+    case 'flat_roof':           result = calcFlatRoof(serviceDetails, stateMult, markup);           break;
+    case 'tile_roofing':        result = calcTileRoofing(serviceDetails, stateMult, markup);        break;
+    case 'roof_repair':         result = calcRoofRepair(serviceDetails, stateMult, markup);         break;
+    case 'roof_inspection':     result = calcRoofInspection(serviceDetails, stateMult, markup);     break;
+    case 'gutter_replacement':  result = calcGutterReplacement(serviceDetails, stateMult, markup);  break;
+    case 'fascia_soffit':       result = calcFasciaSoffit(serviceDetails, stateMult, markup);       break;
+    default: throw new Error(`Unknown serviceType: ${serviceType}`);
   }
 
-  return {
-    ...result,
-    serviceType,
-    state,
-    stateName,
-    stateMultiplier: stateMult,
-    markup,
-  };
+  return { ...result, serviceType, state, stateName, stateMultiplier: stateMult, markup };
 }
 
 module.exports = { calculateRoofing };
