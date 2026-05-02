@@ -1,13 +1,13 @@
 {
   "files": {
     "main.css": "/roof-cost-estimate/static/css/main.5676f0cd.css",
-    "main.js": "/roof-cost-estimate/static/js/main.ede81a25.js",
+    "main.js": "/roof-cost-estimate/static/js/main.22c0112f.js",
     "index.html": "/roof-cost-estimate/index.html",
     "main.5676f0cd.css.map": "/roof-cost-estimate/static/css/main.5676f0cd.css.map",
-    "main.ede81a25.js.map": "/roof-cost-estimate/static/js/main.ede81a25.js.map"
+    "main.22c0112f.js.map": "/roof-cost-estimate/static/js/main.22c0112f.js.map"
   },
   "entrypoints": [
     "static/css/main.5676f0cd.css",
-    "static/js/main.ede81a25.js"
+    "static/js/main.22c0112f.js"
   ]
 }
