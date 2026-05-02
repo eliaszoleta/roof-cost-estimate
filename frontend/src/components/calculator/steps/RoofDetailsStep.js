@@ -285,9 +285,10 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       canNext={canNext}
       primaryColor={primaryColor}
     >
-      {/* ── Roof size ── */}
+      {/* ── Home size ── */}
       <div style={fieldWrap}>
-        <label style={fieldLabel}>Approximate roof size</label>
+        <label style={fieldLabel}>Home size (total sq ft, all floors)</label>
+        <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>Enter your home's total living area — we'll calculate the roof area based on pitch and stories.</div>
         <Chips options={SIZE_OPTIONS} value={roofSize} onChange={setRoofSize} primaryColor={primaryColor} />
       </div>
 

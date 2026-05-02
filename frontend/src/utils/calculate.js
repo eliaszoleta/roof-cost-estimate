@@ -27,15 +27,19 @@ const PITCH_MULT = { flat:1.00, low:1.05, medium:1.20, steep:1.40 };
 // Story multiplier — working at height adds labor cost
 const STORY_MULT = { 1:1.00, 2:1.12, 3:1.28 };
 
-// Complexity labor & waste multipliers (single value per selection — user told us the complexity)
+// Complexity labor multiplier — applied to labor-component of installed price only
 const COMPLEXITY_LABOR = { simple:1.00, moderate:1.15, complex:1.32 };
-const COMPLEXITY_WASTE = { simple:1.06, moderate:1.10, complex:1.15 };
+// Complexity waste — extra material for cuts/valleys beyond what $/sqft already includes.
+// Kept small because contractor quotes already bake in ~8% standard waste.
+const COMPLEXITY_WASTE = { simple:1.00, moderate:1.03, complex:1.08 };
 
-// Shingle grade: installed $/sqft (material + labor). Spread ≤25%.
+// Shingle grade: installed $/sqft of ROOF AREA (material + install labor, no tearoff/underlay).
+// These are BASE rates for a simple 1-story job; complexity & story multipliers apply on top.
+// Spread ≤22% — tighter than market since multipliers handle the structural variation.
 const SHINGLE_GRADE = {
-  standard:      { pLow: 4.00, pHigh: 5.00,  label: '3-Tab shingles' },
-  architectural: { pLow: 5.50, pHigh: 6.75,  label: 'Architectural shingles' },
-  designer:      { pLow: 8.75, pHigh: 10.75, label: 'Designer/premium shingles' },
+  standard:      { pLow: 3.75, pHigh: 4.75,  label: '3-Tab shingles' },
+  architectural: { pLow: 4.50, pHigh: 5.50,  label: 'Architectural shingles' },
+  designer:      { pLow: 7.50, pHigh: 9.25,  label: 'Designer/premium shingles' },
 };
 
 // Tear-off cost per sqft — a single merged line item regardless of layer count.
@@ -117,8 +121,10 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
     const gradeData = SHINGLE_GRADE[grade] || SHINGLE_GRADE.architectural;
     const addOns    = serviceDetails.addOns || [];
 
-    // Roof surface area = footprint × pitch factor × waste factor
-    const roofArea  = r(sqft * pm * cWasteM);
+    // User enters total living area (all floors). Divide by stories to get roof footprint,
+    // then multiply by pitch factor for slope area, and waste factor for cuts/valleys.
+    const footprint = Math.round(sqft / Math.max(stories, 1));
+    const roofArea  = r(footprint * pm * cWasteM);
     const laborMult = stm * cLaborM;
 
     // 1. Shingles (material + labor)
@@ -203,7 +209,8 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
   } else if (serviceType === 'metal_roofing') {
     const sqft      = Number(serviceDetails.houseSqft) || 1750;
     const metalType = serviceDetails.metalType || 'standing_seam';
-    const roofArea  = r(sqft * pm * cWasteM);
+    const footprint = Math.round(sqft / Math.max(stories, 1));
+    const roofArea  = r(footprint * pm * cWasteM);
     const laborMult = stm * cLaborM;
     const metalPrice = METAL_PRICE[metalType] || METAL_PRICE.standing_seam;
     const metalLow   = metalPrice.pLow  * roofArea * laborMult;
@@ -241,7 +248,8 @@ export function clientCalculate({ serviceType, zip, state: stateIn, serviceDetai
   } else if (serviceType === 'tile_roofing') {
     const sqft     = Number(serviceDetails.houseSqft) || 1750;
     const tileType = serviceDetails.tileType || 'concrete_tile';
-    const roofArea  = r(sqft * pm * cWasteM);
+    const footprint = Math.round(sqft / Math.max(stories, 1));
+    const roofArea  = r(footprint * pm * cWasteM);
     const laborMult = stm * cLaborM;
     const tilePrice = TILE_PRICE[tileType] || TILE_PRICE.concrete_tile;
     const matLow    = tilePrice.pLow  * roofArea * laborMult;
