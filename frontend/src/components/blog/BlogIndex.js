@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { DollarSign, Layers, Wrench, RefreshCw, Shield, BookOpen, ArrowRight } from 'lucide-react';
+import { DollarSign, Layers, Wrench, RefreshCw, Shield, BookOpen } from 'lucide-react';
 import { getAllPosts, getCategories } from '../../data/blogPosts';
 import { url } from '../../utils/routes';
 

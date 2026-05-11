@@ -1,6 +1,5 @@
 import React from 'react';
-import { Check, CreditCard, Shield, Zap, ArrowRight, ExternalLink } from 'lucide-react';
-import { url } from '../../../utils/routes';
+import { Check, CreditCard, Shield, Zap } from 'lucide-react';
 
 const PLAN_FEATURES = [
   'Embeddable estimator widget',

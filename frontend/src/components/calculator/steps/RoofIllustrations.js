@@ -576,7 +576,7 @@ function GutterScene({ bodyColor, topColor, capColor, fasciaColor = '#d1d5db', a
   const FL = [22, 78], FR = [158, 78];   // front-left / front-right top edge
   const BL = [34, 64], BR = [170, 64];   // back-left  / back-right  top edge (depth offset)
   const FLb = [22, 98], FRb = [158, 98]; // front bottom edge
-  const BLb = [34, 84], BRb = [170, 84]; // back bottom edge
+  const BRb = [170, 84]; // back bottom edge
 
   // Fascia board (vertical siding strip above gutter)
   const fasciaTop = [[34, 34], [170, 34], BR, BL];

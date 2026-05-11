@@ -37,7 +37,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
   const [stepIndex, setStepIndex] = useState(0);
   const [location, setLocation] = useState({ zip: '', state: '' });
   const [serviceDetails, setServiceDetails] = useState({});
-  const [leadInfo, setLeadInfo] = useState(null);
+  const [, setLeadInfo] = useState(null);
   const [result, setResult] = useState(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);

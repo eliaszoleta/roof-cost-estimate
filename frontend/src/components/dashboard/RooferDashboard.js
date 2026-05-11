@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import {
   BarChart3, Users, Palette, Layers, Code2, CreditCard,
-  Settings, ListChecks, LogOut, Menu, ChevronRight, Save,
+  Settings, ListChecks, LogOut, Menu, Save,
 } from 'lucide-react';
 import { url } from '../../utils/routes';
 import OverviewTab      from './tabs/OverviewTab';

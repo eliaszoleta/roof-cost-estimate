@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Edit2, Trash2, X, Info } from 'lucide-react';
+import { Plus, Trash2, X, Info } from 'lucide-react';
 
 /* ─── Built-in question config ──────────────────────────── */
 const DEFAULT_Q_CONFIG = {
