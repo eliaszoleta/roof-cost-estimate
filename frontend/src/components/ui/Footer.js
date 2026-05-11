@@ -24,7 +24,7 @@ export default function Footer() {
                   <path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z"/>
                 </svg>
               </div>
-              <span style={{ fontWeight: 800, fontSize: 17, color: 'white' }}>RoofCalc</span>
+              <span style={{ fontWeight: 800, fontSize: 17, color: 'white' }}>RoofingCal</span>
             </div>
             <p style={{ fontSize: 13, lineHeight: 1.7, margin: 0 }}>
               Free roofing cost estimates for homeowners. Instant ZIP-code specific pricing for replacement, repair, and more.
@@ -93,7 +93,7 @@ export default function Footer() {
         </div>
 
         <div style={{ borderTop: '1px solid #1e293b', paddingTop: 24, display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: 8, fontSize: 12.5 }}>
-          <span>&copy; {year} RoofCalc. All rights reserved.</span>
+          <span>&copy; {year} RoofingCal. All rights reserved.</span>
           <span>Estimates are for informational purposes only. Always get multiple quotes from licensed roofing contractors.</span>
         </div>
       </div>

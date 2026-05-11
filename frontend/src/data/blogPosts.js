@@ -9,7 +9,7 @@ const POSTS = [
   {
     slug: 'how-much-does-a-new-roof-cost',
     title: 'How Much Does a New Roof Cost in 2026?',
-    seoTitle: 'How Much Does a New Roof Cost in 2026? | RoofCalc',
+    seoTitle: 'How Much Does a New Roof Cost in 2026? | RoofingCal',
     metaDescription: 'The average new roof costs $5,500–$12,500 in 2026. Learn what drives roofing prices — materials, size, pitch, location — and how to budget accurately.',
     category: 'roofing-costs',
     publishedDate: '2026-01-08',
@@ -79,7 +79,7 @@ const POSTS = [
   {
     slug: 'roof-replacement-cost-by-material',
     title: 'Roof Replacement Cost by Material (2026 Guide)',
-    seoTitle: 'Roof Replacement Cost by Material 2026 | RoofCalc',
+    seoTitle: 'Roof Replacement Cost by Material 2026 | RoofingCal',
     metaDescription: 'Compare roofing material costs: asphalt $4–6/sqft, metal $7–16, tile $10–20, slate $15–30. Full breakdown with lifespan, pros, cons, and best uses.',
     category: 'roofing-costs',
     publishedDate: '2026-01-15',
@@ -157,7 +157,7 @@ const POSTS = [
   {
     slug: 'roof-repair-cost-guide',
     title: 'Roof Repair Cost Guide: What to Expect in 2026',
-    seoTitle: 'Roof Repair Cost Guide 2026 — What You\'ll Pay | RoofCalc',
+    seoTitle: 'Roof Repair Cost Guide 2026 — What You\'ll Pay | RoofingCal',
     metaDescription: 'Roof repair costs range from $150 for minor shingle replacement to $3,000+ for major structural work. Detailed breakdown by repair type with tips to avoid overpaying.',
     category: 'roofing-costs',
     publishedDate: '2026-01-22',
@@ -232,7 +232,7 @@ const POSTS = [
   {
     slug: 'asphalt-shingles-vs-metal-roofing',
     title: 'Asphalt Shingles vs Metal Roofing: Which Is Right for You?',
-    seoTitle: 'Asphalt Shingles vs Metal Roofing 2026 | RoofCalc',
+    seoTitle: 'Asphalt Shingles vs Metal Roofing 2026 | RoofingCal',
     metaDescription: 'Comparing asphalt shingles vs metal roofing? Asphalt costs $4–6/sqft with 25-year life. Metal costs $10–16/sqft but lasts 50+ years. Full comparison inside.',
     category: 'roof-materials',
     publishedDate: '2026-02-01',
@@ -283,7 +283,7 @@ const POSTS = [
   {
     slug: 'best-roofing-materials-guide',
     title: 'Best Roofing Materials Guide for 2026',
-    seoTitle: 'Best Roofing Materials Guide 2026 | RoofCalc',
+    seoTitle: 'Best Roofing Materials Guide 2026 | RoofingCal',
     metaDescription: 'The best roofing material depends on your climate, budget, and home style. Compare asphalt, metal, tile, slate, and flat roofing systems in this complete 2026 guide.',
     category: 'roof-materials',
     publishedDate: '2026-02-08',
@@ -330,7 +330,7 @@ const POSTS = [
   {
     slug: 'metal-roofing-cost-pros-cons',
     title: 'Metal Roofing Cost, Pros & Cons (2026)',
-    seoTitle: 'Metal Roofing Cost, Pros & Cons 2026 | RoofCalc',
+    seoTitle: 'Metal Roofing Cost, Pros & Cons 2026 | RoofingCal',
     metaDescription: 'Metal roofing costs $5–16 per sq ft installed. Learn the real pros and cons, which metal type fits your home, and whether the investment pays off long-term.',
     category: 'roof-materials',
     publishedDate: '2026-02-15',
@@ -382,7 +382,7 @@ const POSTS = [
   {
     slug: 'how-to-fix-a-leaking-roof',
     title: 'How to Fix a Leaking Roof: Step-by-Step Guide',
-    seoTitle: 'How to Fix a Leaking Roof (Step-by-Step) 2026 | RoofCalc',
+    seoTitle: 'How to Fix a Leaking Roof (Step-by-Step) 2026 | RoofingCal',
     metaDescription: 'Roof leaking? Learn how to find the source, make emergency repairs, and know when to call a professional. Step-by-step guide with costs and safety tips.',
     category: 'roof-repair',
     publishedDate: '2026-02-20',
@@ -425,7 +425,7 @@ const POSTS = [
   {
     slug: 'roof-maintenance-checklist',
     title: 'Annual Roof Maintenance Checklist for Homeowners',
-    seoTitle: 'Annual Roof Maintenance Checklist 2026 | RoofCalc',
+    seoTitle: 'Annual Roof Maintenance Checklist 2026 | RoofingCal',
     metaDescription: 'Keep your roof in top shape with this annual maintenance checklist. Covers gutters, flashing, shingles, attic inspection, and seasonal tasks to extend roof life.',
     category: 'roof-repair',
     publishedDate: '2026-02-27',
@@ -474,7 +474,7 @@ const POSTS = [
   {
     slug: 'when-to-repair-vs-replace-roof',
     title: 'Repair vs Replace Your Roof: How to Decide',
-    seoTitle: 'Repair vs Replace Roof: How to Decide in 2026 | RoofCalc',
+    seoTitle: 'Repair vs Replace Roof: How to Decide in 2026 | RoofingCal',
     metaDescription: 'Should you repair or replace your roof? Use our decision framework based on roof age, damage extent, and repair cost to make the right call and avoid overpaying.',
     category: 'roof-repair',
     publishedDate: '2026-03-05',
@@ -533,7 +533,7 @@ const POSTS = [
   {
     slug: 'roof-replacement-process-timeline',
     title: 'Roof Replacement Process: What to Expect Day by Day',
-    seoTitle: 'Roof Replacement Process & Timeline 2026 | RoofCalc',
+    seoTitle: 'Roof Replacement Process & Timeline 2026 | RoofingCal',
     metaDescription: 'A full roof replacement takes 1–3 days for most homes. Here\'s exactly what happens each day, what questions to ask your contractor, and how to prepare.',
     category: 'roof-replacement',
     publishedDate: '2026-03-10',
@@ -576,7 +576,7 @@ const POSTS = [
   {
     slug: 'how-long-does-a-roof-last',
     title: 'How Long Does a Roof Last? Lifespan by Material',
-    seoTitle: 'How Long Does a Roof Last? Lifespan by Material 2026 | RoofCalc',
+    seoTitle: 'How Long Does a Roof Last? Lifespan by Material 2026 | RoofingCal',
     metaDescription: 'Asphalt roofs last 20–30 years. Metal 50–70. Tile 40–100. Learn what affects roof lifespan, warning signs it\'s ending, and how to maximize your roof\'s life.',
     category: 'roof-replacement',
     publishedDate: '2026-03-17',
@@ -623,7 +623,7 @@ const POSTS = [
   {
     slug: 'signs-you-need-a-new-roof',
     title: '10 Signs You Need a New Roof (Don\'t Ignore These)',
-    seoTitle: '10 Signs You Need a New Roof in 2026 | RoofCalc',
+    seoTitle: '10 Signs You Need a New Roof in 2026 | RoofingCal',
     metaDescription: 'Missing shingles, granules in gutters, sagging, and light in the attic are warning signs you need a new roof. Learn all 10 signs and what to do next.',
     category: 'roof-replacement',
     publishedDate: '2026-03-24',
@@ -671,7 +671,7 @@ const POSTS = [
   {
     slug: 'does-homeowners-insurance-cover-roof',
     title: 'Does Homeowners Insurance Cover Roof Replacement?',
-    seoTitle: 'Does Homeowners Insurance Cover Your Roof? 2026 | RoofCalc',
+    seoTitle: 'Does Homeowners Insurance Cover Your Roof? 2026 | RoofingCal',
     metaDescription: 'Homeowners insurance covers storm and hail damage but not wear and tear. Learn what\'s covered, what\'s excluded, and how to maximize your claim.',
     category: 'roofing-insurance',
     publishedDate: '2026-03-28',
@@ -713,7 +713,7 @@ const POSTS = [
   {
     slug: 'how-to-file-roof-insurance-claim',
     title: 'How to File a Roof Insurance Claim: Step-by-Step',
-    seoTitle: 'How to File a Roof Insurance Claim 2026 | RoofCalc',
+    seoTitle: 'How to File a Roof Insurance Claim 2026 | RoofingCal',
     metaDescription: 'Filing a roof insurance claim? Follow these steps: document damage, contact your insurer, meet the adjuster, review the estimate, and hire a contractor. Full guide.',
     category: 'roofing-insurance',
     publishedDate: '2026-04-02',
@@ -755,7 +755,7 @@ const POSTS = [
   {
     slug: 'hail-damage-roof-insurance-guide',
     title: 'Hail Damage and Roof Insurance: Complete Guide',
-    seoTitle: 'Hail Damage Roof Insurance Guide 2026 | RoofCalc',
+    seoTitle: 'Hail Damage Roof Insurance Guide 2026 | RoofingCal',
     metaDescription: 'Hail can total your roof without visible leaks. Learn how to identify hail damage, file a successful claim, and avoid storm chaser scams after a hailstorm.',
     category: 'roofing-insurance',
     publishedDate: '2026-04-08',
@@ -792,7 +792,7 @@ const POSTS = [
   {
     slug: 'how-long-does-roof-installation-take',
     title: 'How Long Does Roof Installation Take?',
-    seoTitle: 'How Long Does Roof Installation Take? 2026 | RoofCalc',
+    seoTitle: 'How Long Does Roof Installation Take? 2026 | RoofingCal',
     metaDescription: 'Most residential roofs are replaced in 1–3 days. Learn what affects the timeline, how to prepare, and what causes delays so you can plan accordingly.',
     category: 'roofing-basics',
     publishedDate: '2026-04-10',
@@ -834,7 +834,7 @@ const POSTS = [
   {
     slug: 'how-to-choose-a-roofing-contractor',
     title: 'How to Choose a Roofing Contractor: 8 Must-Ask Questions',
-    seoTitle: 'How to Choose a Roofing Contractor 2026 | RoofCalc',
+    seoTitle: 'How to Choose a Roofing Contractor 2026 | RoofingCal',
     metaDescription: 'Choosing the wrong roofer is the #1 cause of premature roof failure. Use these 8 questions to vet any contractor before signing a contract.',
     category: 'roofing-basics',
     publishedDate: '2026-04-15',
@@ -874,7 +874,7 @@ const POSTS = [
   {
     slug: 'roofing-terms-glossary',
     title: 'Roofing Terms Glossary: 40+ Terms Every Homeowner Should Know',
-    seoTitle: 'Roofing Terms Glossary 2026 — 40+ Definitions | RoofCalc',
+    seoTitle: 'Roofing Terms Glossary 2026 — 40+ Definitions | RoofingCal',
     metaDescription: 'Confused by roofing jargon? This glossary defines 40+ roofing terms — from decking and flashing to squares and valleys — in plain English for homeowners.',
     category: 'roofing-basics',
     publishedDate: '2026-04-20',

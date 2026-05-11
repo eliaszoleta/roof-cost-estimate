@@ -145,9 +145,9 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
     <>
       {!embedded && (
         <Helmet>
-          <title>Free Roofing Cost Estimator 2026 | RoofCalc</title>
+          <title>Free Roofing Cost Estimator 2026 | RoofingCal</title>
           <meta name="description" content="Free roofing cost calculator for 2026. Get instant ZIP-code specific estimates: roof replacement $5,000–$15,000, repair $150–$1,500, gutter installation, inspections & more. No signup needed." />
-          <meta property="og:title" content="Free Roofing Cost Estimator 2026 | RoofCalc" />
+          <meta property="og:title" content="Free Roofing Cost Estimator 2026 | RoofingCal" />
           <meta property="og:type" content="website" />
         </Helmet>
       )}

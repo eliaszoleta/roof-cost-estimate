@@ -5,7 +5,13 @@ export default function Contact() {
   return (
     <>
       <Helmet>
-        <title>Contact | RoofCalc</title>
+        <title>Contact RoofingCal | Get In Touch</title>
+        <meta name="description" content="Have a question about RoofingCal or our roofing estimates? Contact us — we'd love to hear from you." />
+        <link rel="canonical" href="https://roofingcal.com/contact" />
+        <meta property="og:title" content="Contact RoofingCal | Get In Touch" />
+        <meta property="og:description" content="Have a question about RoofingCal or our roofing estimates? Contact us — we'd love to hear from you." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://roofingcal.com/contact" />
       </Helmet>
       <div style={{ maxWidth: 600, margin: '0 auto', padding: '56px 24px' }}>
         <h1 style={{ fontSize: 36, fontWeight: 800, color: '#0f172a', marginBottom: 8 }}>Contact Us</h1>

@@ -13,7 +13,7 @@ export default function CompanyPortal() {
   return (
     <>
       <Helmet>
-        <title>Contractor Dashboard | RoofCalc</title>
+        <title>Contractor Dashboard | RoofingCal</title>
         <meta name="robots" content="noindex, nofollow" />
       </Helmet>
       {session

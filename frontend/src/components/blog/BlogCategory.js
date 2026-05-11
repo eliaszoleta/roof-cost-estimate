@@ -21,9 +21,13 @@ export default function BlogCategory({ category }) {
   return (
     <>
       <Helmet>
-        <title>{meta.label} Guide 2026 | RoofCalc</title>
+        <title>{meta.label} Guide 2026 | RoofingCal</title>
         <meta name="description" content={meta.desc} />
-        <link rel="canonical" href={`https://eliaszoleta.github.io/roof-cost-estimate/blog/category/${category}`} />
+        <link rel="canonical" href={`https://roofingcal.com/blog/category/${category}`} />
+        <meta property="og:title" content={`${meta.label} Guide 2026 | RoofingCal`} />
+        <meta property="og:description" content={meta.desc} />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content={`https://roofingcal.com/blog/category/${category}`} />
       </Helmet>
       <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '48px 24px 64px' }}>
         <div style={{ maxWidth: 900, margin: '0 auto' }}>
