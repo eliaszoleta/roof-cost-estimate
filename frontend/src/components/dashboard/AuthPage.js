@@ -58,7 +58,7 @@ export default function AuthPage({ onAuth }) {
         <div style={{ width: 36, height: 36, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(234,88,12,0.35)' }}>
           <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z"/></svg>
         </div>
-        <span style={{ fontWeight: 800, fontSize: 20, color: 'white' }}>RoofCalc</span>
+        <span style={{ fontWeight: 800, fontSize: 20, color: 'white' }}>RoofingCal</span>
       </a>
 
       {/* Card */}

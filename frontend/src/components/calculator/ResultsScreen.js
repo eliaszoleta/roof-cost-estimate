@@ -49,7 +49,7 @@ export default function ResultsScreen({ result, serviceDetails, companyConfig, e
     <>
       {!embedded && (
         <Helmet>
-          <title>{serviceTypeLabel(serviceType)} Cost Estimate — {stateName} | RoofCalc</title>
+          <title>{serviceTypeLabel(serviceType)} Cost Estimate — {stateName} | RoofingCal</title>
           <meta name="description" content={`Your estimated cost for ${serviceTypeLabel(serviceType).toLowerCase()} in ${stateName}: ${formatPriceRange(totalLow, totalHigh)}.`} />
         </Helmet>
       )}

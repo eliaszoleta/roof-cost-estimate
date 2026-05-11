@@ -107,9 +107,13 @@ export default function CompanyLanding() {
   return (
     <>
       <Helmet>
-        <title>Roofing Estimator for Contractors — Capture More Leads | RoofCalc</title>
+        <title>Roofing Estimator for Contractors — Capture More Leads | RoofingCal</title>
         <meta name="description" content="Embed a branded roofing cost estimator on your website. Capture qualified leads automatically. $149/mo. No setup fee." />
-        <link rel="canonical" href="https://eliaszoleta.github.io/roof-cost-estimate/for-companies" />
+        <link rel="canonical" href="https://roofingcal.com/for-companies" />
+        <meta property="og:title" content="Roofing Estimator for Contractors — Capture More Leads | RoofingCal" />
+        <meta property="og:description" content="Embed a branded roofing cost estimator on your website. Capture qualified leads automatically. $149/mo. No setup fee." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://roofingcal.com/for-companies" />
       </Helmet>
 
       <div style={{ background: 'white' }}>
@@ -317,7 +321,7 @@ export default function CompanyLanding() {
                 Ready to generate more roofing leads?
               </h2>
               <p style={{ fontSize: 16, color: '#64748b', marginBottom: 32, lineHeight: 1.7 }}>
-                Join 500+ roofing contractors who use RoofCalc to turn website visitors into booked jobs.
+                Join 500+ roofing contractors who use RoofingCal to turn website visitors into booked jobs.
               </p>
               <a href={url('/company')} style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8, background: '#ea580c',

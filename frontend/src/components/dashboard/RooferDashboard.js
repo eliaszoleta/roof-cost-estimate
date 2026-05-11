@@ -141,7 +141,7 @@ export default function RooferDashboard({ session, onLogout }) {
             <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z"/></svg>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 15, color: 'white' }}>RoofCalc</span>
+            <span style={{ fontWeight: 800, fontSize: 15, color: 'white' }}>RoofingCal</span>
           </a>
           <span style={{ color: '#475569', fontSize: 14 }}>/</span>
           <span style={{ color: '#94a3b8', fontSize: 14 }}>Dashboard</span>

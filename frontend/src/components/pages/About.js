@@ -5,13 +5,18 @@ export default function About() {
   return (
     <>
       <Helmet>
-        <title>About | RoofCalc</title>
-        <meta name="description" content="RoofCalc provides free, instant roofing cost estimates for homeowners across the US." />
+        <title>About RoofingCal | Free Roofing Cost Estimator for Homeowners</title>
+        <meta name="description" content="RoofingCal provides free, instant ZIP-code accurate roofing cost estimates for homeowners across the US. No signup required." />
+        <link rel="canonical" href="https://roofingcal.com/about" />
+        <meta property="og:title" content="About RoofingCal | Free Roofing Cost Estimator" />
+        <meta property="og:description" content="RoofingCal provides free, instant ZIP-code accurate roofing cost estimates for homeowners across the US. No signup required." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://roofingcal.com/about" />
       </Helmet>
       <div style={{ maxWidth: 760, margin: '0 auto', padding: '56px 24px' }}>
-        <h1 style={{ fontSize: 36, fontWeight: 800, color: '#0f172a', marginBottom: 16 }}>About RoofCalc</h1>
+        <h1 style={{ fontSize: 36, fontWeight: 800, color: '#0f172a', marginBottom: 16 }}>About RoofingCal</h1>
         <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.8, marginBottom: 24 }}>
-          RoofCalc is a free roofing cost estimator that helps homeowners understand what they should expect to pay before calling a contractor. We use ZIP-code-level labor data, material price indices, and regional cost-of-living adjustments to generate accurate, honest estimates.
+          RoofingCal is a free roofing cost estimator that helps homeowners understand what they should expect to pay before calling a contractor. We use ZIP-code-level labor data, material price indices, and regional cost-of-living adjustments to generate accurate, honest estimates.
         </p>
         <p style={{ fontSize: 16, color: '#475569', lineHeight: 1.8, marginBottom: 24 }}>
           Our goal is simple: put the homeowner in the driver's seat. Armed with a realistic estimate, you can have more informed conversations with contractors, spot outliers, and make better decisions for one of the biggest investments on your home.

@@ -54,9 +54,13 @@ export default function BlogIndex() {
   return (
     <>
       <Helmet>
-        <title>Roofing Blog 2026 — Cost Guides, Tips & Advice | RoofCalc</title>
+        <title>Roofing Blog 2026 — Cost Guides, Tips & Advice | RoofingCal</title>
         <meta name="description" content="Expert roofing guides: cost estimates, material comparisons, repair tips, insurance claims, and contractor advice. Free resources for homeowners." />
-        <link rel="canonical" href="https://eliaszoleta.github.io/roof-cost-estimate/blog" />
+        <link rel="canonical" href="https://roofingcal.com/blog" />
+        <meta property="og:title" content="Roofing Blog 2026 — Cost Guides, Tips & Advice | RoofingCal" />
+        <meta property="og:description" content="Expert roofing guides: cost estimates, material comparisons, repair tips, insurance claims, and contractor advice. Free resources for homeowners." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://roofingcal.com/blog" />
       </Helmet>
       <div style={{ background: '#f8fafc', minHeight: '100vh', padding: '48px 24px 64px' }}>
         <div style={{ maxWidth: 1100, margin: '0 auto' }}>

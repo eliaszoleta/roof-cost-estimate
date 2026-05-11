@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Copy, Check, ExternalLink } from 'lucide-react';
 
-const BASE = 'https://eliaszoleta.github.io/roof-cost-estimate';
+const BASE = 'https://roofingcal.com';
 
 export default function EmbedTab({ companyId = 'demo' }) {
   const [copied, setCopied] = useState('');
@@ -64,7 +64,7 @@ export default function EmbedTab({ companyId = 'demo' }) {
 
       <CodeBlock id="iframe" label="Standard iFrame" badge="Recommended" sub="Works on any website. Paste inside your page's HTML." code={iframeCode} />
       <CodeBlock id="js"     label="JavaScript Snippet" sub="Dynamically injects the widget. Good for CMS platforms." code={jsCode} />
-      <CodeBlock id="wp"     label="WordPress Shortcode" sub="Install the RoofCalc WordPress plugin, then paste this shortcode." code={wpCode} />
+      <CodeBlock id="wp"     label="WordPress Shortcode" sub="Install the RoofingCal WordPress plugin, then paste this shortcode." code={wpCode} />
 
       {/* Installation Guide */}
       <div style={{ background: 'white', borderRadius: 12, border: '1px solid #e2e8f0', padding: '22px 24px', marginBottom: 16 }}>

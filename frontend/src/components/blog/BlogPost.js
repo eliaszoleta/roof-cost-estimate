@@ -52,16 +52,16 @@ export default function BlogPost({ slug }) {
     headline: post.title,
     description: post.metaDescription,
     datePublished: post.publishedDate,
-    author: { '@type': 'Organization', name: 'RoofCalc' },
-    publisher: { '@type': 'Organization', name: 'RoofCalc', url: 'https://eliaszoleta.github.io/roof-cost-estimate' },
+    author: { '@type': 'Organization', name: 'RoofingCal' },
+    publisher: { '@type': 'Organization', name: 'RoofingCal', url: 'https://roofingcal.com' },
   };
   const breadcrumb = {
     '@context': 'https://schema.org',
     '@type': 'BreadcrumbList',
     itemListElement: [
-      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://eliaszoleta.github.io/roof-cost-estimate' },
-      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://eliaszoleta.github.io/roof-cost-estimate/blog' },
-      { '@type': 'ListItem', position: 3, name: post.title, item: `https://eliaszoleta.github.io/roof-cost-estimate/blog/${post.slug}` },
+      { '@type': 'ListItem', position: 1, name: 'Home', item: 'https://roofingcal.com' },
+      { '@type': 'ListItem', position: 2, name: 'Blog', item: 'https://roofingcal.com/blog' },
+      { '@type': 'ListItem', position: 3, name: post.title, item: `https://roofingcal.com/blog/${post.slug}` },
     ],
   };
 
@@ -70,7 +70,7 @@ export default function BlogPost({ slug }) {
       <Helmet>
         <title>{post.seoTitle}</title>
         <meta name="description" content={post.metaDescription} />
-        <link rel="canonical" href={`https://eliaszoleta.github.io/roof-cost-estimate/blog/${post.slug}`} />
+        <link rel="canonical" href={`https://roofingcal.com/blog/${post.slug}`} />
         <meta property="og:title" content={post.seoTitle} />
         <meta property="og:description" content={post.metaDescription} />
         <meta property="og:type" content="article" />
