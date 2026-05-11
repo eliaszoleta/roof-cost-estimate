@@ -9,17 +9,28 @@ async function apiFetch(path, options = {}) {
     ...restOptions,
     headers: { 'Content-Type': 'application/json', ...(optHeaders || {}) },
   });
-  const data = await res.json();
+  let data;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error(`Server returned an invalid response (${res.status})`);
+  }
   if (!res.ok || !data.success) throw new Error(data.error || `Request failed (${res.status})`);
   return data;
 }
 
 export async function postCalculate(payload) {
-  // If no backend configured, run calculation client-side
+  // No backend configured — run client-side
   if (!API_URL) {
     return clientCalculate(payload);
   }
-  return apiFetch('/api/calculate', { method: 'POST', body: JSON.stringify(payload) });
+  // Backend configured — try Railway, fall back to client-side if unavailable
+  try {
+    return await apiFetch('/api/calculate', { method: 'POST', body: JSON.stringify(payload) });
+  } catch (err) {
+    console.warn('API unreachable, falling back to client-side calculator:', err.message);
+    return clientCalculate(payload);
+  }
 }
 
 export async function getCompanyPublic(companyId) {
