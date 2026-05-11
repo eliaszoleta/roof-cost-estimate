@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
-  BarChart3, Palette, Users, LayoutDashboard,
+  Palette, Users, LayoutDashboard,
   Check, ChevronDown, ChevronUp, Zap, Shield, Star,
   ArrowRight, Code2, Bell, Clock, TrendingUp,
 } from 'lucide-react';
