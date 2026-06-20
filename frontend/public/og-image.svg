@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="heroBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0f172a"/>
+      <stop offset="100%" stop-color="#1e293b"/>
+    </linearGradient>
+    <linearGradient id="iconBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#c2410c"/>
+    </linearGradient>
+  </defs>
+  <!-- Background -->
+  <rect width="1200" height="630" fill="url(#heroBg)"/>
+  <!-- Decorative accent line -->
+  <rect x="0" y="0" width="6" height="630" fill="#ea580c"/>
+  <!-- Icon box -->
+  <rect x="88" y="195" width="110" height="110" rx="24" fill="url(#iconBg)"/>
+  <path d="M98 252L143 210L188 252V298H170V274H116V298H98V252Z" fill="white"/>
+  <!-- Site name -->
+  <text x="224" y="268" font-family="system-ui, -apple-system, sans-serif" font-size="72" font-weight="800" fill="white">RoofingCal</text>
+  <!-- Tagline -->
+  <text x="88" y="355" font-family="system-ui, -apple-system, sans-serif" font-size="34" font-weight="400" fill="#94a3b8">Free Roof Cost Estimator — Instant ZIP-Code Pricing</text>
+  <!-- CTA pill -->
+  <rect x="88" y="400" width="360" height="58" rx="12" fill="#ea580c"/>
+  <text x="268" y="438" font-family="system-ui, -apple-system, sans-serif" font-size="26" font-weight="600" fill="white" text-anchor="middle">Get Your Free Estimate</text>
+  <!-- Domain -->
+  <text x="1112" y="590" font-family="system-ui, -apple-system, sans-serif" font-size="24" fill="#475569" text-anchor="end">roofingcal.com</text>
+</svg>
