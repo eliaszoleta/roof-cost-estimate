@@ -50,6 +50,15 @@ const styles = {
     color: '#475569',
     transition: 'all 0.15s',
   },
+  partnerLink: {
+    padding: '8px 14px',
+    borderRadius: 8,
+    textDecoration: 'none',
+    fontSize: 14,
+    fontWeight: 700,
+    color: '#ea580c',
+    transition: 'all 0.15s',
+  },
   cta: {
     background: '#ea580c',
     color: 'white',
@@ -135,6 +144,14 @@ export default function Header() {
               </a>
             ))}
             <a
+              href={url("/partner-with-us")}
+              style={styles.partnerLink}
+              onMouseEnter={e => { e.target.style.background = '#fff7ed'; }}
+              onMouseLeave={e => { e.target.style.background = 'transparent'; }}
+            >
+              Partner With Us
+            </a>
+            <a
               href={url("/for-companies")}
               style={styles.navLink}
               onMouseEnter={e => { e.target.style.color = '#0f172a'; e.target.style.background = '#f8fafc'; }}
@@ -161,6 +178,9 @@ export default function Header() {
               {n.label}
             </a>
           ))}
+          <a href={url("/partner-with-us")} style={{ ...styles.partnerLink, display: 'block', padding: '10px 12px' }}>
+            Partner With Us
+          </a>
           <a href={url("/company")} style={{ ...styles.cta, display: 'block', textAlign: 'center', marginLeft: 0, marginTop: 8 }}>
             Contractor Login →
           </a>

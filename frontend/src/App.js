@@ -10,6 +10,7 @@ import BlogCategory from './components/blog/BlogCategory';
 import BlogPost from './components/blog/BlogPost';
 import CompanyLanding from './components/pages/CompanyLanding';
 import CompanyPortal from './components/dashboard/CompanyPortal';
+import PartnerWithUs from './components/pages/PartnerWithUs';
 import About from './components/pages/About';
 import Contact from './components/pages/Contact';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
@@ -30,6 +31,7 @@ const isAbout        = pathname === '/about';
 const isContact      = pathname === '/contact';
 const isPrivacy      = pathname === '/privacy-policy';
 const isTerms        = pathname === '/terms-of-service';
+const isPartnerWithUs = pathname === '/partner-with-us';
 
 const embedCompanyId = isEmbed ? searchParams.get('company') : null;
 
@@ -74,6 +76,8 @@ export default function App() {
 
   if (isResults) return <HelmetProvider><ResultsPage /></HelmetProvider>;
 
+  if (isPartnerWithUs) return <HelmetProvider><div className="app"><Header /><main><PartnerWithUs /></main><Footer /></div></HelmetProvider>;
+
   if (isBlog) {
     const blogPath = pathname.replace('/blog', '') || '/';
     let blogContent;
@@ -89,7 +93,6 @@ export default function App() {
   if (isPrivacy)      return <HelmetProvider><div className="app"><Header /><main><PrivacyPolicy /></main><Footer /></div></HelmetProvider>;
   if (isTerms)        return <HelmetProvider><div className="app"><Header /><main><TermsOfService /></main><Footer /></div></HelmetProvider>;
 
-  // Home — public calculator
   return (
     <HelmetProvider>
       <div className="app">
