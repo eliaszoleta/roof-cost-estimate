@@ -126,6 +126,7 @@ export default function PartnerWithUs() {
       <Helmet>
         <title>Partner With Us | RoofingCal</title>
         <meta name="description" content="Get your roofing business recommended to thousands of homeowners actively getting roofing estimates in your city. Join RoofingCal's partner network for $350/month per city." />
+        <link rel="canonical" href="https://roofingcal.com/partner-with-us" />
       </Helmet>
 
       {/* Hero */}
