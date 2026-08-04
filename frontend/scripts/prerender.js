@@ -63,47 +63,6 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-// Static footer with real internal links, visible to Googlebot's raw HTML crawl without
-// needing JS to render. Without this, every prerendered page's only crawlable link out
-// (besides the header) is whatever's in its own body copy -- other pages are only
-// discoverable via sitemap.xml or the client-side (post-hydration) footer.
-function staticFooter() {
-  const catLinks = CATEGORIES.map(cat =>
-    `<a href="/blog/category/${cat.slug}" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">${esc(cat.label)}</a>`
-  ).join('\n        ');
-
-  return `<footer style="background:#0f172a;color:#94a3b8">
-  <div style="max-width:1200px;margin:0 auto;padding:64px 24px 40px;font-family:system-ui,-apple-system,sans-serif">
-    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:40px;margin-bottom:48px">
-      <div>
-        <div style="color:white;font-weight:700;font-size:14px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em">Blog Categories</div>
-        ${catLinks}
-        <a href="/blog" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">All Blog Posts</a>
-      </div>
-      <div>
-        <div style="color:white;font-weight:700;font-size:14px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em">Resources</div>
-        <a href="/about" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">About RoofingCal</a>
-        <a href="/contact" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">Contact</a>
-      </div>
-      <div>
-        <div style="color:white;font-weight:700;font-size:14px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em">For Contractors</div>
-        <a href="/for-companies" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">Embed the Estimator</a>
-        <a href="/partner-with-us" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">Partner With Us</a>
-      </div>
-      <div>
-        <div style="color:white;font-weight:700;font-size:14px;margin-bottom:16px;text-transform:uppercase;letter-spacing:0.05em">Legal</div>
-        <a href="/privacy-policy" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">Privacy Policy</a>
-        <a href="/terms-of-service" style="display:block;color:#94a3b8;text-decoration:none;font-size:14px;margin-bottom:10px">Terms of Service</a>
-      </div>
-    </div>
-    <div style="border-top:1px solid #1e293b;padding-top:32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
-      <div style="color:white;font-weight:700">RoofingCal</div>
-      <div style="font-size:13px;color:#64748b">&copy; ${new Date().getFullYear()} RoofingCal. All rights reserved.</div>
-    </div>
-  </div>
-</footer>`;
-}
-
 function pageShell({ title, description, canonicalPath, assets, bodyHtml, extraHead = '' }) {
   const url = `${DOMAIN}${canonicalPath}`;
   return `<!DOCTYPE html>
@@ -130,7 +89,7 @@ function pageShell({ title, description, canonicalPath, assets, bodyHtml, extraH
   ${assets.cssLinks}
 </head>
 <body>
-<div id="root">${staticHeader()}${bodyHtml}${staticFooter()}</div>
+<div id="root">${staticHeader()}${bodyHtml}</div>
   ${assets.jsScripts}
 </body>
 </html>`;
