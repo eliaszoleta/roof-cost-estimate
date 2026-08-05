@@ -5,6 +5,9 @@ import ResultsScreen from './components/calculator/ResultsScreen';
 import Header from './components/ui/Header';
 import Footer from './components/ui/Footer';
 import SEOContent from './components/ui/SEOContent';
+import ServiceCards from './components/ui/ServiceCards';
+import StateCostTable from './components/ui/StateCostTable';
+import FAQSection from './components/ui/FAQSection';
 import BlogIndex from './components/blog/BlogIndex';
 import BlogCategory from './components/blog/BlogCategory';
 import BlogPost from './components/blog/BlogPost';
@@ -15,6 +18,8 @@ import About from './components/pages/About';
 import Contact from './components/pages/Contact';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsOfService from './components/pages/TermsOfService';
+import ServicePage from './components/pages/ServicePage';
+import StatePage from './components/pages/StatePage';
 import EmbedWrapper from './components/EmbedWrapper';
 import { getPathname, url } from './utils/routes';
 import './App.css';
@@ -32,6 +37,8 @@ const isContact      = pathname === '/contact';
 const isPrivacy      = pathname === '/privacy-policy';
 const isTerms        = pathname === '/terms-of-service';
 const isPartnerWithUs = pathname === '/partner-with-us';
+const isServicePage  = pathname.startsWith('/roofing-services/');
+const isStatePage    = pathname.startsWith('/roofing-cost/');
 
 const embedCompanyId = isEmbed ? searchParams.get('company') : null;
 
@@ -92,6 +99,8 @@ export default function App() {
   if (isContact)      return <HelmetProvider><div className="app"><Header /><main><Contact /></main><Footer /></div></HelmetProvider>;
   if (isPrivacy)      return <HelmetProvider><div className="app"><Header /><main><PrivacyPolicy /></main><Footer /></div></HelmetProvider>;
   if (isTerms)        return <HelmetProvider><div className="app"><Header /><main><TermsOfService /></main><Footer /></div></HelmetProvider>;
+  if (isServicePage)  return <HelmetProvider><div className="app"><Header /><main><ServicePage slug={pathname.replace('/roofing-services/', '')} /></main><Footer /></div></HelmetProvider>;
+  if (isStatePage)    return <HelmetProvider><div className="app"><Header /><main><StatePage slug={pathname.replace('/roofing-cost/', '')} /></main><Footer /></div></HelmetProvider>;
 
   return (
     <HelmetProvider>
@@ -99,7 +108,10 @@ export default function App() {
         <Header />
         <main>
           <RoofingCalculator />
+          <ServiceCards />
+          <StateCostTable />
           <SEOContent />
+          <FAQSection />
         </main>
         <Footer />
       </div>

@@ -86,6 +86,7 @@ const styles = {
 
 const navItems = [
   { label: 'Calculator', href: url('/') },
+  { label: 'Services', href: url('/#services') },
   { label: 'Blog', href: url('/blog') },
   { label: 'About', href: url('/about') },
 ];

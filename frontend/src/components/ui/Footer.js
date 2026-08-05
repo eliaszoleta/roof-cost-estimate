@@ -32,15 +32,33 @@ export default function Footer() {
           </div>
 
           <div>
-            <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Estimates</div>
+            <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Roofing Services</div>
             {[
-              ['Asphalt Shingle Roof', url('/?service=asphalt_shingle')],
-              ['Metal Roof', url('/?service=metal')],
-              ['Tile Roof', url('/?service=tile')],
-              ['Flat / TPO Roof', url('/?service=flat_tpo')],
-              ['Roof Repair', url('/?service=repair')],
-              ['Roof Inspection', url('/?service=inspection')],
-              ['Gutter Installation', url('/?service=gutter')],
+              ['Asphalt Shingle Roof', url('/roofing-services/asphalt-shingle-roof-cost')],
+              ['Metal Roof', url('/roofing-services/metal-roof-cost')],
+              ['Tile Roof', url('/roofing-services/tile-roof-cost')],
+              ['Flat / TPO Roof', url('/roofing-services/flat-roof-cost')],
+              ['Roof Repair', url('/roofing-services/roof-repair-cost')],
+              ['Roof Inspection', url('/roofing-services/roof-inspection-cost')],
+              ['Gutter Installation', url('/roofing-services/gutter-replacement-cost')],
+            ].map(([label, href]) => (
+              <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7, lineHeight: 1.5 }}
+                onMouseEnter={e => { e.target.style.color = 'white'; }}
+                onMouseLeave={e => { e.target.style.color = '#94a3b8'; }}>
+                {label}
+              </a>
+            ))}
+          </div>
+
+          <div>
+            <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Roofing Cost by State</div>
+            {[
+              ['California', url('/roofing-cost/california')],
+              ['Texas', url('/roofing-cost/texas')],
+              ['Florida', url('/roofing-cost/florida')],
+              ['New York', url('/roofing-cost/new-york')],
+              ['Pennsylvania', url('/roofing-cost/pennsylvania')],
+              ['Illinois', url('/roofing-cost/illinois')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7, lineHeight: 1.5 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}
