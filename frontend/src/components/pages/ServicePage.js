@@ -19,6 +19,12 @@ function formatPrice(n) {
   return `$${Math.round(n).toLocaleString('en-US')}`;
 }
 
+// Per-sq-ft / per-linear-ft tier rates carry meaningful cents (e.g. $2.90/sq ft) —
+// rounding those to whole dollars silently discards real precision.
+function formatTierPrice(n, service) {
+  return service.unitType !== 'flat' ? `$${n.toFixed(2)}` : formatPrice(n);
+}
+
 function TiersTable({ service }) {
   return (
     <div style={{ overflowX: 'auto', margin: '20px 0' }}>
@@ -35,7 +41,7 @@ function TiersTable({ service }) {
             <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
               <td style={{ padding: '10px 14px', color: '#0f172a', fontWeight: 600, borderBottom: '1px solid #f1f5f9' }}>{tier.label}</td>
               <td style={{ padding: '10px 14px', color: '#ea580c', fontWeight: 700, borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' }}>
-                {formatPrice(tier.low)}–{formatPrice(tier.high)} {service.unitType !== 'flat' ? <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: 12 }}>/{service.unitType === 'per_lf' ? 'lin ft' : 'sq ft'}</span> : null}
+                {formatTierPrice(tier.low, service)}–{formatTierPrice(tier.high, service)} {service.unitType !== 'flat' ? <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: 12 }}>/{service.unitType === 'per_lf' ? 'lin ft' : 'sq ft'}</span> : null}
               </td>
               <td style={{ padding: '10px 14px', color: '#475569', borderBottom: '1px solid #f1f5f9' }}>{tier.note}</td>
             </tr>

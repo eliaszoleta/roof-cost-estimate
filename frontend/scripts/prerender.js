@@ -398,6 +398,12 @@ function fmt(n) {
   return `$${Math.round(n).toLocaleString('en-US')}`;
 }
 
+// Per-sq-ft / per-linear-ft tier rates carry meaningful cents (e.g. $2.90/sq ft) —
+// rounding those to whole dollars silently discards real precision.
+function fmtTier(n, service) {
+  return service.unitType !== 'flat' ? `$${n.toFixed(2)}` : fmt(n);
+}
+
 function faqAccordionHtml(faqs) {
   return faqs.map(f => `
     <div style="background:#fafafa;border:1px solid #f1f5f9;border-radius:10px;overflow:hidden;margin-bottom:10px">
@@ -444,7 +450,7 @@ function renderServicePage(service, statesMod, assets) {
   const tierRows = service.tiers.map((tier, i) => `
     <tr style="background:${i % 2 === 0 ? 'white' : '#fafafa'}">
       <td style="padding:10px 14px;color:#0f172a;font-weight:600;border-bottom:1px solid #f1f5f9">${esc(tier.label)}</td>
-      <td style="padding:10px 14px;color:#ea580c;font-weight:700;border-bottom:1px solid #f1f5f9;white-space:nowrap">${fmt(tier.low)}&ndash;${fmt(tier.high)}${service.unitType !== 'flat' ? ` <span style="color:#94a3b8;font-weight:500;font-size:12px">/${service.unitType === 'per_lf' ? 'lin ft' : 'sq ft'}</span>` : ''}</td>
+      <td style="padding:10px 14px;color:#ea580c;font-weight:700;border-bottom:1px solid #f1f5f9;white-space:nowrap">${fmtTier(tier.low, service)}&ndash;${fmtTier(tier.high, service)}${service.unitType !== 'flat' ? ` <span style="color:#94a3b8;font-weight:500;font-size:12px">/${service.unitType === 'per_lf' ? 'lin ft' : 'sq ft'}</span>` : ''}</td>
       <td style="padding:10px 14px;color:#475569;border-bottom:1px solid #f1f5f9">${esc(tier.note)}</td>
     </tr>`).join('');
 
