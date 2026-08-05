@@ -1,5 +1,5 @@
 import React from 'react';
-import { Home, Layers, LayoutGrid, Square, Wrench, ScanSearch, Droplets, Zap, ShieldOff, Clock } from 'lucide-react';
+import { Home, Layers, LayoutGrid, Square, Wrench, ScanSearch, Droplets } from 'lucide-react';
 
 // Fixed thematic accent per service — decorative iconography, not brand identity, so it
 // stays put regardless of which company's primaryColor this widget is embedded with.
@@ -13,12 +13,6 @@ const SERVICES = [
   { id: 'gutter_replacement',  label: 'Gutters',         Icon: Droplets,    desc: 'New gutters + guards', accent: '#1d4ed8' },
 ];
 
-const TRUST_ITEMS = [
-  { Icon: Clock,     label: '60-second estimate' },
-  { Icon: ShieldOff, label: 'No email required' },
-  { Icon: Zap,       label: 'Instant results' },
-];
-
 export default function ServiceSelect({ onSelect, primaryColor = '#ea580c', companyName = null, companyConfig = null }) {
   const [hovered, setHovered] = React.useState(null);
   const [pressed, setPressed] = React.useState(null);
@@ -30,15 +24,7 @@ export default function ServiceSelect({ onSelect, primaryColor = '#ea580c', comp
       <h2 style={{ fontSize: 21, fontWeight: 800, color: '#0f172a', marginBottom: 5, letterSpacing: '-0.3px' }}>
         {companyName ? `Get a Quote from ${companyName}` : 'What do you need estimated?'}
       </h2>
-      <p style={{ color: '#64748b', fontSize: 13.5, marginBottom: 12 }}>Tap a service below to get your free, instant estimate.</p>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px 16px', marginBottom: 20 }}>
-        {TRUST_ITEMS.map(({ Icon, label }) => (
-          <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, color: '#64748b', fontWeight: 500 }}>
-            <Icon size={13} color={primaryColor} strokeWidth={2} /> {label}
-          </div>
-        ))}
-      </div>
+      <p style={{ color: '#64748b', fontSize: 13.5, marginBottom: 18 }}>Tap a service below to get your free, instant estimate.</p>
 
       <div className="rc-svc-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 10 }}>
         {visible.map(({ id, label, Icon, desc, accent, popular }, i) => {
