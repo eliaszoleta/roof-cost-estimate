@@ -97,7 +97,11 @@ function pageShell({ title, description, canonicalPath, assets, bodyHtml, extraH
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" href="/favicon.ico">
   <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
   <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
@@ -108,11 +112,11 @@ function pageShell({ title, description, canonicalPath, assets, bodyHtml, extraH
   <meta property="og:url" content="${url}">
   <meta property="og:type" content="website">
   <meta property="og:site_name" content="RoofingCal">
-  <meta property="og:image" content="${DOMAIN}/og-image.svg">
+  <meta property="og:image" content="${DOMAIN}/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="${esc(title)}">
   <meta name="twitter:description" content="${esc(description)}">
-  <meta name="twitter:image" content="${DOMAIN}/og-image.svg">
+  <meta name="twitter:image" content="${DOMAIN}/og-image.png">
   ${extraHead}
   ${assets.cssLinks}
 </head>
