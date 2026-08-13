@@ -1,0 +1,274 @@
+<!--
+  Prodentures review funnel — GoHighLevel Custom Code embed.
+
+  Paste this whole block into a "Custom Code" / "Custom HTML" element on
+  the GHL funnel/website page where you want the review flow to appear.
+  It's self-contained (styles + markup + script) and scoped under
+  #pdr-widget so it won't leak into, or get overridden by, the rest of
+  your GHL page's styles.
+
+  Config to edit before using — search for "CONFIG" near the bottom:
+    - web3formsAccessKey: get a free one at https://web3forms.com so the
+      private feedback form (1-3 stars) actually emails you.
+-->
+<style>
+  #pdr-widget, #pdr-widget *{box-sizing:border-box;}
+  #pdr-widget{
+    --pdr-teal:#0f766e;
+    --pdr-teal-dark:#0b5c56;
+    --pdr-bg:#f4faf9;
+    --pdr-card:#ffffff;
+    --pdr-text:#1f2937;
+    --pdr-muted:#6b7280;
+    --pdr-star:#e5e7eb;
+    --pdr-star-fill:#f59e0b;
+    --pdr-danger:#b91c1c;
+
+    display:flex;
+    justify-content:center;
+    background:linear-gradient(180deg,var(--pdr-bg) 0%,#eaf5f3 100%);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--pdr-text);
+    padding:48px 20px;
+  }
+  #pdr-widget .pdr-card{
+    width:100%;
+    max-width:460px;
+    background:var(--pdr-card);
+    border-radius:20px;
+    box-shadow:0 10px 40px rgba(15,118,110,0.12);
+    padding:36px 28px;
+    text-align:center;
+  }
+  #pdr-widget .pdr-logo{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--pdr-teal);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 16px;
+    font-size:28px;
+  }
+  #pdr-widget h1{font-size:22px;margin:0 0 6px;line-height:1.3;}
+  #pdr-widget p.pdr-sub{color:var(--pdr-muted);margin:0 0 28px;font-size:15px;line-height:1.4;}
+  #pdr-widget .pdr-stars{display:flex;justify-content:center;gap:8px;margin-bottom:8px;}
+  #pdr-widget .pdr-stars button{
+    background:none;border:none;cursor:pointer;padding:4px;
+    font-size:38px;line-height:1;color:var(--pdr-star);
+    transition:transform .12s ease, color .12s ease;
+  }
+  #pdr-widget .pdr-stars button:hover{transform:scale(1.12);}
+  #pdr-widget .pdr-stars button.pdr-filled{color:var(--pdr-star-fill);}
+  #pdr-widget .pdr-rating-label{min-height:20px;color:var(--pdr-muted);font-size:14px;margin-bottom:8px;}
+  #pdr-widget .pdr-screen{display:none;}
+  #pdr-widget .pdr-screen.pdr-active{display:block;}
+  #pdr-widget textarea{
+    width:100%;min-height:110px;border:1px solid #d1d5db;border-radius:12px;
+    padding:12px 14px;font-size:15px;font-family:inherit;resize:vertical;
+    margin:16px 0;color:var(--pdr-text);background:#fff;color-scheme:light;
+  }
+  #pdr-widget textarea:focus{outline:2px solid var(--pdr-teal);border-color:transparent;}
+  #pdr-widget input[type=text]{
+    width:100%;border:1px solid #d1d5db;border-radius:12px;
+    padding:12px 14px;font-size:15px;font-family:inherit;margin:8px 0;
+    color:var(--pdr-text);background:#fff;color-scheme:light;
+  }
+  #pdr-widget input[type=text]:focus{outline:2px solid var(--pdr-teal);border-color:transparent;}
+  #pdr-widget label.pdr-field-label{display:block;text-align:left;font-size:13px;color:var(--pdr-muted);margin:14px 0 2px;}
+  #pdr-widget .pdr-btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:14px 18px;border:none;border-radius:12px;
+    font-size:16px;font-weight:600;cursor:pointer;
+    background:var(--pdr-teal);color:#fff;transition:background .15s ease;
+  }
+  #pdr-widget .pdr-btn:hover{background:var(--pdr-teal-dark);}
+  #pdr-widget .pdr-btn:disabled{opacity:.6;cursor:not-allowed;}
+  #pdr-widget .pdr-hint{font-size:12.5px;color:var(--pdr-muted);margin-top:12px;line-height:1.4;}
+  #pdr-widget .pdr-toast{
+    margin-top:14px;font-size:13.5px;color:var(--pdr-teal-dark);
+    background:#e6f6f4;border-radius:10px;padding:10px 12px;display:none;
+  }
+  #pdr-widget .pdr-toast.pdr-show{display:block;}
+  #pdr-widget .pdr-thankyou-icon{font-size:44px;margin-bottom:10px;}
+  #pdr-widget .pdr-back-link{
+    display:inline-block;margin-top:18px;font-size:13px;color:var(--pdr-muted);
+    text-decoration:underline;cursor:pointer;background:none;border:none;
+  }
+  #pdr-widget .pdr-error{color:var(--pdr-danger);font-size:13px;margin-top:8px;display:none;}
+  #pdr-widget .pdr-error.pdr-show{display:block;}
+</style>
+
+<div id="pdr-widget">
+  <div class="pdr-card">
+
+    <!-- Screen 1: Rating -->
+    <div id="pdr-screen-rating" class="pdr-screen pdr-active">
+      <div class="pdr-logo">🦷</div>
+      <h1>How was your visit to Prodentures?</h1>
+      <p class="pdr-sub">Your feedback helps us take care of every patient a little better.</p>
+      <div class="pdr-stars" id="pdr-stars">
+        <button type="button" data-value="1">★</button>
+        <button type="button" data-value="2">★</button>
+        <button type="button" data-value="3">★</button>
+        <button type="button" data-value="4">★</button>
+        <button type="button" data-value="5">★</button>
+      </div>
+      <div class="pdr-rating-label" id="pdr-ratingLabel">Tap a star to rate your experience</div>
+    </div>
+
+    <!-- Screen 2: Happy path -> Google review -->
+    <div id="pdr-screen-happy" class="pdr-screen">
+      <div class="pdr-logo">🙂</div>
+      <h1>We're so glad to hear that!</h1>
+      <p class="pdr-sub">Feel free to edit the note below — we'll copy it for you, then take you straight to Google.</p>
+      <textarea id="pdr-happyText"></textarea>
+      <button class="pdr-btn" id="pdr-postGoogleBtn">Copy Review &amp; Continue to Google</button>
+      <div class="pdr-toast" id="pdr-happyToast">Copied! Taking you to Google now — tap the stars there, then paste (long-press → Paste) and hit Post.</div>
+      <div class="pdr-hint">On Google's page, tap a star rating, then long-press the review box and choose <strong>Paste</strong>. Your review isn't submitted until you tap <strong>Post</strong> over there.</div>
+      <button class="pdr-back-link" id="pdr-backFromHappy">← change my rating</button>
+    </div>
+
+    <!-- Screen 3: Unhappy path -> private feedback -->
+    <div id="pdr-screen-unhappy" class="pdr-screen">
+      <div class="pdr-logo">💬</div>
+      <h1>Thanks for being honest with us</h1>
+      <p class="pdr-sub">We're sorry your visit wasn't a great one. Tell us what happened so we can make it right.</p>
+      <label class="pdr-field-label" for="pdr-unhappyName">Name (optional)</label>
+      <input type="text" id="pdr-unhappyName" placeholder="Your name">
+      <label class="pdr-field-label" for="pdr-unhappyContact">Phone or email (optional, if you'd like a callback)</label>
+      <input type="text" id="pdr-unhappyContact" placeholder="How can we reach you?">
+      <label class="pdr-field-label" for="pdr-unhappyMessage">What could we have done better?</label>
+      <textarea id="pdr-unhappyMessage" placeholder="Tell us more..."></textarea>
+      <div class="pdr-error" id="pdr-unhappyError">Please add a quick note before sending.</div>
+      <button class="pdr-btn" id="pdr-sendFeedbackBtn">Send Feedback</button>
+      <button class="pdr-back-link" id="pdr-backFromUnhappy">← change my rating</button>
+    </div>
+
+    <!-- Screen 4: Thank you (after private feedback submitted) -->
+    <div id="pdr-screen-thankyou" class="pdr-screen">
+      <div class="pdr-thankyou-icon">🙏</div>
+      <h1>Thank you for your feedback</h1>
+      <p class="pdr-sub">We appreciate you taking the time to let us know. Our team will review this and do better next time. If it's urgent, please call the clinic directly.</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+(function(){
+  // ---- Configuration: edit these for your clinic ----
+  const CONFIG = {
+    businessName: "Prodentures",
+    googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJmZIKmhTRQIYR5SIcotQkzsI",
+    // Free key from https://web3forms.com — lets the "unhappy" form email you without a backend.
+    // Sign up, verify the destination email, then paste your Access Key below.
+    web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY_HERE",
+    happyReviewTemplate: "The team at Prodentures was friendly, professional, and made the whole process easy. Really happy with my results — highly recommend!"
+  };
+
+  const root = document.getElementById('pdr-widget');
+  const screens = {
+    rating: root.querySelector('#pdr-screen-rating'),
+    happy: root.querySelector('#pdr-screen-happy'),
+    unhappy: root.querySelector('#pdr-screen-unhappy'),
+    thankyou: root.querySelector('#pdr-screen-thankyou'),
+  };
+  function showScreen(name){
+    Object.values(screens).forEach(s => s.classList.remove('pdr-active'));
+    screens[name].classList.add('pdr-active');
+  }
+
+  const starButtons = Array.from(root.querySelectorAll('#pdr-stars button'));
+  const ratingLabel = root.querySelector('#pdr-ratingLabel');
+  const labels = {1:"Poor",2:"Not great",3:"Okay",4:"Good",5:"Excellent"};
+
+  function paintStars(value){
+    starButtons.forEach(btn => {
+      btn.classList.toggle('pdr-filled', Number(btn.dataset.value) <= value);
+    });
+  }
+
+  starButtons.forEach(btn => {
+    btn.addEventListener('mouseenter', () => paintStars(Number(btn.dataset.value)));
+    btn.addEventListener('mouseleave', () => paintStars(0));
+    btn.addEventListener('click', () => {
+      const value = Number(btn.dataset.value);
+      paintStars(value);
+      ratingLabel.textContent = labels[value];
+      setTimeout(() => {
+        if (value >= 4) {
+          root.querySelector('#pdr-happyText').value = CONFIG.happyReviewTemplate;
+          showScreen('happy');
+        } else {
+          showScreen('unhappy');
+        }
+      }, 250);
+    });
+  });
+
+  root.querySelector('#pdr-backFromHappy').addEventListener('click', () => {
+    paintStars(0);
+    ratingLabel.textContent = 'Tap a star to rate your experience';
+    root.querySelector('#pdr-happyToast').classList.remove('pdr-show');
+    showScreen('rating');
+  });
+  root.querySelector('#pdr-backFromUnhappy').addEventListener('click', () => {
+    paintStars(0);
+    ratingLabel.textContent = 'Tap a star to rate your experience';
+    showScreen('rating');
+  });
+
+  root.querySelector('#pdr-postGoogleBtn').addEventListener('click', async () => {
+    const text = root.querySelector('#pdr-happyText').value.trim();
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      // Clipboard may be blocked (older browsers/insecure context) — user can still select & copy manually.
+    }
+    root.querySelector('#pdr-happyToast').classList.add('pdr-show');
+    // Navigate this same tab (not a new one) — a new tab opened after the
+    // await above loses the browser's "user gesture" permission in some
+    // browsers (notably Safari/iOS) and silently gets popup-blocked.
+    setTimeout(() => {
+      window.location.href = CONFIG.googleReviewUrl;
+    }, 700);
+  });
+
+  root.querySelector('#pdr-sendFeedbackBtn').addEventListener('click', async () => {
+    const name = root.querySelector('#pdr-unhappyName').value.trim();
+    const contact = root.querySelector('#pdr-unhappyContact').value.trim();
+    const message = root.querySelector('#pdr-unhappyMessage').value.trim();
+    const errorEl = root.querySelector('#pdr-unhappyError');
+    const btn = root.querySelector('#pdr-sendFeedbackBtn');
+
+    if (!message) {
+      errorEl.classList.add('pdr-show');
+      return;
+    }
+    errorEl.classList.remove('pdr-show');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      if (CONFIG.web3formsAccessKey && CONFIG.web3formsAccessKey !== 'YOUR_WEB3FORMS_ACCESS_KEY_HERE') {
+        await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: CONFIG.web3formsAccessKey,
+            subject: `New private feedback — ${CONFIG.businessName}`,
+            from_name: `${CONFIG.businessName} Feedback Form`,
+            name: name || '(not provided)',
+            contact: contact || '(not provided)',
+            message: message,
+          }),
+        });
+      }
+    } catch (e) {
+      // Even if delivery fails, don't block the patient — still show the thank-you screen.
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send Feedback';
+      showScreen('thankyou');
+    }
+  });
+})();
+</script>
