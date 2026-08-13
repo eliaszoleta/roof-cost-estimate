@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prodentures — Share Your Feedback</title>
+<meta name="robots" content="noindex">
+<style>
+  :root{
+    --teal:#0f766e;
+    --teal-dark:#0b5c56;
+    --bg:#f4faf9;
+    --card:#ffffff;
+    --text:#1f2937;
+    --muted:#6b7280;
+    --star:#e5e7eb;
+    --star-fill:#f59e0b;
+    --danger:#b91c1c;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:linear-gradient(180deg,var(--bg) 0%,#eaf5f3 100%);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    color:var(--text);
+    padding:24px;
+  }
+  .card{
+    width:100%;
+    max-width:460px;
+    background:var(--card);
+    border-radius:20px;
+    box-shadow:0 10px 40px rgba(15,118,110,0.12);
+    padding:36px 28px;
+    text-align:center;
+  }
+  .logo{
+    width:56px;height:56px;border-radius:50%;
+    background:var(--teal);
+    display:flex;align-items:center;justify-content:center;
+    margin:0 auto 16px;
+    font-size:28px;
+  }
+  h1{font-size:22px;margin:0 0 6px;}
+  p.sub{color:var(--muted);margin:0 0 28px;font-size:15px;line-height:1.4;}
+  .stars{display:flex;justify-content:center;gap:8px;margin-bottom:8px;}
+  .stars button{
+    background:none;border:none;cursor:pointer;padding:4px;
+    font-size:38px;line-height:1;color:var(--star);
+    transition:transform .12s ease, color .12s ease;
+  }
+  .stars button:hover{transform:scale(1.12);}
+  .stars button.filled{color:var(--star-fill);}
+  .rating-label{min-height:20px;color:var(--muted);font-size:14px;margin-bottom:8px;}
+  .screen{display:none;}
+  .screen.active{display:block;}
+  textarea{
+    width:100%;min-height:110px;border:1px solid #d1d5db;border-radius:12px;
+    padding:12px 14px;font-size:15px;font-family:inherit;resize:vertical;
+    margin:16px 0;color:var(--text);
+  }
+  textarea:focus{outline:2px solid var(--teal);border-color:transparent;}
+  input[type=text]{
+    width:100%;border:1px solid #d1d5db;border-radius:12px;
+    padding:12px 14px;font-size:15px;font-family:inherit;margin:8px 0;
+  }
+  input[type=text]:focus{outline:2px solid var(--teal);border-color:transparent;}
+  label.field-label{display:block;text-align:left;font-size:13px;color:var(--muted);margin:14px 0 2px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    width:100%;padding:14px 18px;border:none;border-radius:12px;
+    font-size:16px;font-weight:600;cursor:pointer;
+    background:var(--teal);color:#fff;transition:background .15s ease;
+  }
+  .btn:hover{background:var(--teal-dark);}
+  .btn:disabled{opacity:.6;cursor:not-allowed;}
+  .btn.secondary{background:transparent;color:var(--teal);border:1px solid var(--teal);margin-top:10px;}
+  .btn.secondary:hover{background:#eefaf8;}
+  .hint{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.4;}
+  .toast{
+    margin-top:14px;font-size:13.5px;color:var(--teal-dark);
+    background:#e6f6f4;border-radius:10px;padding:10px 12px;display:none;
+  }
+  .toast.show{display:block;}
+  .thankyou-icon{font-size:44px;margin-bottom:10px;}
+  .back-link{
+    display:inline-block;margin-top:18px;font-size:13px;color:var(--muted);
+    text-decoration:underline;cursor:pointer;background:none;border:none;
+  }
+  .error{color:var(--danger);font-size:13px;margin-top:8px;display:none;}
+  .error.show{display:block;}
+</style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- Screen 1: Rating -->
+  <div id="screen-rating" class="screen active">
+    <div class="logo">🦷</div>
+    <h1>How was your visit to Prodentures?</h1>
+    <p class="sub">Your feedback helps us take care of every patient a little better.</p>
+    <div class="stars" id="stars">
+      <button type="button" data-value="1">★</button>
+      <button type="button" data-value="2">★</button>
+      <button type="button" data-value="3">★</button>
+      <button type="button" data-value="4">★</button>
+      <button type="button" data-value="5">★</button>
+    </div>
+    <div class="rating-label" id="ratingLabel">Tap a star to rate your experience</div>
+  </div>
+
+  <!-- Screen 2: Happy path -> Google review -->
+  <div id="screen-happy" class="screen">
+    <div class="logo">🙂</div>
+    <h1>We're so glad to hear that!</h1>
+    <p class="sub">Feel free to edit the note below, then post it straight to Google in one click.</p>
+    <textarea id="happyText"></textarea>
+    <button class="btn" id="postGoogleBtn">Copy Review &amp; Open Google</button>
+    <div class="toast" id="happyToast">Copied! We opened Google in a new tab — just paste (long-press → Paste) and hit Post.</div>
+    <div class="hint">This opens Google in a new tab. Your review isn't submitted until you click <strong>Post</strong> over there.</div>
+    <button class="back-link" id="backFromHappy">← change my rating</button>
+  </div>
+
+  <!-- Screen 3: Unhappy path -> private feedback -->
+  <div id="screen-unhappy" class="screen">
+    <div class="logo">💬</div>
+    <h1>Thanks for being honest with us</h1>
+    <p class="sub">We're sorry your visit wasn't a great one. Tell us what happened so we can make it right.</p>
+    <label class="field-label" for="unhappyName">Name (optional)</label>
+    <input type="text" id="unhappyName" placeholder="Your name">
+    <label class="field-label" for="unhappyContact">Phone or email (optional, if you'd like a callback)</label>
+    <input type="text" id="unhappyContact" placeholder="How can we reach you?">
+    <label class="field-label" for="unhappyMessage">What could we have done better?</label>
+    <textarea id="unhappyMessage" placeholder="Tell us more..."></textarea>
+    <div class="error" id="unhappyError">Please add a quick note before sending.</div>
+    <button class="btn" id="sendFeedbackBtn">Send Feedback</button>
+    <button class="back-link" id="backFromUnhappy">← change my rating</button>
+  </div>
+
+  <!-- Screen 4: Thank you (after private feedback submitted) -->
+  <div id="screen-thankyou" class="screen">
+    <div class="thankyou-icon">🙏</div>
+    <h1>Thank you for your feedback</h1>
+    <p class="sub">We appreciate you taking the time to let us know. Our team will review this and do better next time. If it's urgent, please call the clinic directly.</p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+  // ---- Configuration: edit these for your clinic ----
+  const CONFIG = {
+    businessName: "Prodentures",
+    googleReviewUrl: "https://search.google.com/local/writereview?placeid=ChIJmZIKmhTRQIYR5SIcotQkzsI",
+    // Free key from https://web3forms.com — lets the "unhappy" form email you without a backend.
+    // Sign up, verify the destination email, then paste your Access Key below.
+    web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY_HERE",
+    happyReviewTemplate: "The team at Prodentures was friendly, professional, and made the whole process easy. Really happy with my results — highly recommend!"
+  };
+
+  const screens = {
+    rating: document.getElementById('screen-rating'),
+    happy: document.getElementById('screen-happy'),
+    unhappy: document.getElementById('screen-unhappy'),
+    thankyou: document.getElementById('screen-thankyou'),
+  };
+  function showScreen(name){
+    Object.values(screens).forEach(s => s.classList.remove('active'));
+    screens[name].classList.add('active');
+  }
+
+  const starButtons = Array.from(document.querySelectorAll('#stars button'));
+  const ratingLabel = document.getElementById('ratingLabel');
+  const labels = {1:"Poor",2:"Not great",3:"Okay",4:"Good",5:"Excellent"};
+
+  function paintStars(value){
+    starButtons.forEach(btn => {
+      btn.classList.toggle('filled', Number(btn.dataset.value) <= value);
+    });
+  }
+
+  starButtons.forEach(btn => {
+    btn.addEventListener('mouseenter', () => paintStars(Number(btn.dataset.value)));
+    btn.addEventListener('mouseleave', () => paintStars(0));
+    btn.addEventListener('click', () => {
+      const value = Number(btn.dataset.value);
+      paintStars(value);
+      ratingLabel.textContent = labels[value];
+      setTimeout(() => {
+        if (value >= 4) {
+          document.getElementById('happyText').value = CONFIG.happyReviewTemplate;
+          showScreen('happy');
+        } else {
+          showScreen('unhappy');
+        }
+      }, 250);
+    });
+  });
+
+  document.getElementById('backFromHappy').addEventListener('click', () => {
+    paintStars(0);
+    ratingLabel.textContent = 'Tap a star to rate your experience';
+    document.getElementById('happyToast').classList.remove('show');
+    showScreen('rating');
+  });
+  document.getElementById('backFromUnhappy').addEventListener('click', () => {
+    paintStars(0);
+    ratingLabel.textContent = 'Tap a star to rate your experience';
+    showScreen('rating');
+  });
+
+  document.getElementById('postGoogleBtn').addEventListener('click', async () => {
+    const text = document.getElementById('happyText').value.trim();
+    try {
+      await navigator.clipboard.writeText(text);
+    } catch (e) {
+      // Clipboard may be blocked (older browsers/insecure context) — user can still select & copy manually.
+    }
+    window.open(CONFIG.googleReviewUrl, '_blank', 'noopener');
+    document.getElementById('happyToast').classList.add('show');
+  });
+
+  document.getElementById('sendFeedbackBtn').addEventListener('click', async () => {
+    const name = document.getElementById('unhappyName').value.trim();
+    const contact = document.getElementById('unhappyContact').value.trim();
+    const message = document.getElementById('unhappyMessage').value.trim();
+    const errorEl = document.getElementById('unhappyError');
+    const btn = document.getElementById('sendFeedbackBtn');
+
+    if (!message) {
+      errorEl.classList.add('show');
+      return;
+    }
+    errorEl.classList.remove('show');
+    btn.disabled = true;
+    btn.textContent = 'Sending...';
+
+    try {
+      if (CONFIG.web3formsAccessKey && CONFIG.web3formsAccessKey !== 'YOUR_WEB3FORMS_ACCESS_KEY_HERE') {
+        await fetch('https://api.web3forms.com/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+          body: JSON.stringify({
+            access_key: CONFIG.web3formsAccessKey,
+            subject: `New private feedback — ${CONFIG.businessName}`,
+            from_name: `${CONFIG.businessName} Feedback Form`,
+            name: name || '(not provided)',
+            contact: contact || '(not provided)',
+            message: message,
+          }),
+        });
+      }
+    } catch (e) {
+      // Even if delivery fails, don't block the patient — still show the thank-you screen.
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Send Feedback';
+      showScreen('thankyou');
+    }
+  });
+})();
+</script>
+</body>
+</html>
