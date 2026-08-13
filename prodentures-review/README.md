@@ -3,9 +3,8 @@
 A single self-contained page (`index.html`, no build step) that asks a patient to
 rate their visit, then branches:
 
-- **4–5 stars** → shows an editable, pre-filled positive review. One click
-  copies it to the clipboard and takes the patient to Prodentures' Google
-  review page (same tab), so they just paste and hit **Post**.
+- **4–5 stars** → shows a "Thank you!" message for 3 seconds, then
+  auto-redirects (same tab) to Prodentures' Google review page.
 - **1–3 stars** → shows a private feedback form instead. It's emailed to you
   (via [Web3Forms](https://web3forms.com), no backend needed) and the patient
   sees a "thank you, we'll do better" screen. Nothing negative ever reaches Google.
@@ -19,8 +18,6 @@ rate their visit, then branches:
    (replace `YOUR_WEB3FORMS_ACCESS_KEY_HERE`).
    - Until you do this, the "unhappy" form still shows the thank-you screen,
      it just won't email you — so don't skip this step.
-3. **Review template wording** — edit `CONFIG.happyReviewTemplate` to whatever
-   tone you want patients to start from. They can edit it before posting.
 
 ## Deploying
 
@@ -39,14 +36,12 @@ receipt, a tablet at checkout, or a follow-up SMS/email after an appointment).
 funnel/website page's **Custom Code** element instead of hosting it as its
 own URL. Every class and ID is prefixed (`pdr-...`) and scoped under a single
 `#pdr-widget` wrapper so it can't collide with GHL's own page styles in
-either direction. Config (Google link, Web3Forms key, review template) is
-the same block near the bottom of the file — edit it there too, independently
-of `index.html`, since the two files aren't auto-synced.
+either direction. Config (Google link, Web3Forms key) is the same block
+near the bottom of the file — edit it there too, independently of
+`index.html`, since the two files aren't auto-synced.
 
 Paste the whole file's contents into the Custom Code element as-is (it
-includes its own `<style>` and `<script>` tags). Avoid GHL's "iFrame"
-element for this instead — the Copy-to-clipboard button is unreliable
-inside cross-origin iframes on some mobile browsers.
+includes its own `<style>` and `<script>` tags).
 
 ## A note on Google's policy
 

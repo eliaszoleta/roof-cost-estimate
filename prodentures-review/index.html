@@ -94,6 +94,17 @@
   }
   .error{color:var(--danger);font-size:13px;margin-top:8px;display:none;}
   .error.show{display:block;}
+  .dots{display:inline-flex;gap:3px;margin-left:4px;vertical-align:middle;}
+  .dots span{
+    width:5px;height:5px;border-radius:50%;background:var(--muted);
+    display:inline-block;animation:pdr-bounce 1.2s infinite ease-in-out both;
+  }
+  .dots span:nth-child(1){animation-delay:-0.32s;}
+  .dots span:nth-child(2){animation-delay:-0.16s;}
+  @keyframes pdr-bounce{0%,80%,100%{transform:scale(0.6);opacity:.4;}40%{transform:scale(1);opacity:1;}}
+  @media (prefers-reduced-motion: reduce){
+    .dots span{animation:none;opacity:1;}
+  }
 </style>
 </head>
 <body>
@@ -118,12 +129,8 @@
   <!-- Screen 2: Happy path -> Google review -->
   <div id="screen-happy" class="screen">
     <div class="logo">🙂</div>
-    <h1>We're so glad to hear that!</h1>
-    <p class="sub">Feel free to edit the note below — we'll copy it for you, then take you straight to Google.</p>
-    <textarea id="happyText"></textarea>
-    <button class="btn" id="postGoogleBtn">Copy Review &amp; Continue to Google</button>
-    <div class="toast" id="happyToast">Copied! Taking you to Google now — tap the stars there, then paste (long-press → Paste) and hit Post.</div>
-    <div class="hint">On Google's page, tap a star rating, then long-press the review box and choose <strong>Paste</strong>. Your review isn't submitted until you tap <strong>Post</strong> over there.</div>
+    <h1>Thank you!</h1>
+    <p class="sub">It only takes a minute or two to leave us a written review. Bringing you to Google's review page now<span class="dots" aria-hidden="true"><span></span><span></span><span></span></span></p>
     <button class="back-link" id="backFromHappy">← change my rating</button>
   </div>
 
@@ -161,7 +168,6 @@
     // Free key from https://web3forms.com — lets the "unhappy" form email you without a backend.
     // Sign up, verify the destination email, then paste your Access Key below.
     web3formsAccessKey: "YOUR_WEB3FORMS_ACCESS_KEY_HERE",
-    happyReviewTemplate: "The team at Prodentures was friendly, professional, and made the whole process easy. Really happy with my results — highly recommend!"
   };
 
   const screens = {
@@ -185,6 +191,18 @@
     });
   }
 
+  let happyRedirectTimer = null;
+  function startHappyRedirect(){
+    clearTimeout(happyRedirectTimer);
+    happyRedirectTimer = setTimeout(() => {
+      window.location.href = CONFIG.googleReviewUrl;
+    }, 3000);
+  }
+  function cancelHappyRedirect(){
+    clearTimeout(happyRedirectTimer);
+    happyRedirectTimer = null;
+  }
+
   starButtons.forEach(btn => {
     btn.addEventListener('mouseenter', () => paintStars(Number(btn.dataset.value)));
     btn.addEventListener('mouseleave', () => paintStars(0));
@@ -194,8 +212,8 @@
       ratingLabel.textContent = labels[value];
       setTimeout(() => {
         if (value >= 4) {
-          document.getElementById('happyText').value = CONFIG.happyReviewTemplate;
           showScreen('happy');
+          startHappyRedirect();
         } else {
           showScreen('unhappy');
         }
@@ -204,31 +222,15 @@
   });
 
   document.getElementById('backFromHappy').addEventListener('click', () => {
+    cancelHappyRedirect();
     paintStars(0);
     ratingLabel.textContent = 'Tap a star to rate your experience';
-    document.getElementById('happyToast').classList.remove('show');
     showScreen('rating');
   });
   document.getElementById('backFromUnhappy').addEventListener('click', () => {
     paintStars(0);
     ratingLabel.textContent = 'Tap a star to rate your experience';
     showScreen('rating');
-  });
-
-  document.getElementById('postGoogleBtn').addEventListener('click', async () => {
-    const text = document.getElementById('happyText').value.trim();
-    try {
-      await navigator.clipboard.writeText(text);
-    } catch (e) {
-      // Clipboard may be blocked (older browsers/insecure context) — user can still select & copy manually.
-    }
-    document.getElementById('happyToast').classList.add('show');
-    // Navigate this same tab (not a new one) — a new tab opened after the
-    // await above loses the browser's "user gesture" permission in some
-    // browsers (notably Safari/iOS) and silently gets popup-blocked.
-    setTimeout(() => {
-      window.location.href = CONFIG.googleReviewUrl;
-    }, 700);
   });
 
   document.getElementById('sendFeedbackBtn').addEventListener('click', async () => {
