@@ -104,9 +104,9 @@
     font-size:17px;line-height:1.6;color:var(--text);max-width:340px;
     margin-left:auto;margin-right:auto;margin-bottom:0;
   }
-  .dots{display:inline-flex;gap:3px;margin-left:4px;vertical-align:middle;}
+  .dots{display:flex;justify-content:center;gap:5px;margin-top:14px;}
   .dots span{
-    width:5px;height:5px;border-radius:50%;background:var(--text);
+    width:6px;height:6px;border-radius:50%;background:var(--teal);
     display:inline-block;animation:pdr-bounce 1.2s infinite ease-in-out both;
   }
   .dots span:nth-child(1){animation-delay:-0.32s;}
@@ -150,8 +150,8 @@
   <!-- Screen 2: Happy path -> Google review -->
   <div id="screen-happy" class="screen">
     <img class="brand-logo" src="https://assets.cdn.filesafe.space/s13og7sTOL9EJ8kURREH/media/63729ce8d548fbb4f3b4a19d.png" alt="Prodentures logo">
-    <p class="sub" aria-live="polite">Please, take a minute to leave us a review<span class="dots" aria-hidden="true"><span></span><span></span><span></span></span></p>
-    <button class="back-link" id="backFromHappy">← change my rating</button>
+    <p class="sub" aria-live="polite">Please, take a minute to leave us a review</p>
+    <div class="dots" aria-hidden="true"><span></span><span></span><span></span></div>
   </div>
 
   <!-- Screen 3: Unhappy path -> private feedback -->
@@ -249,7 +249,6 @@
   }
 
   document.getElementById('backFromConfirm').addEventListener('click', resetToRating);
-  document.getElementById('backFromHappy').addEventListener('click', resetToRating);
   document.getElementById('backFromUnhappy').addEventListener('click', resetToRating);
 
   document.getElementById('recommendYes').addEventListener('click', () => {
