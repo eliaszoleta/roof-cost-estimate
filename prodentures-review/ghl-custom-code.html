@@ -97,6 +97,10 @@
   }
   #pdr-widget .pdr-btn:hover{background:var(--pdr-teal-dark);}
   #pdr-widget .pdr-btn:disabled{opacity:.6;cursor:not-allowed;}
+  #pdr-widget .pdr-btn.pdr-secondary{background:transparent;color:var(--pdr-teal);border:1px solid var(--pdr-teal);}
+  #pdr-widget .pdr-btn.pdr-secondary:hover{background:#eefaf8;}
+  #pdr-widget .pdr-btn-row{display:flex;gap:12px;}
+  #pdr-widget .pdr-btn-row .pdr-btn{width:auto;flex:1;margin-top:0;}
   #pdr-widget .pdr-hint{font-size:12.5px;color:var(--pdr-muted);margin-top:12px;line-height:1.4;}
   #pdr-widget .pdr-toast{
     margin-top:14px;font-size:13.5px;color:var(--pdr-teal-dark);
@@ -146,6 +150,18 @@
     </div>
 
     <!-- Screen 2: Happy path -> Google review -->
+    <!-- Screen 1b: Confirm before sending to Google (catches mis-taps) -->
+    <div id="pdr-screen-confirm" class="pdr-screen">
+      <img class="pdr-brand-logo" src="https://assets.cdn.filesafe.space/s13og7sTOL9EJ8kURREH/media/63729ce8d548fbb4f3b4a19d.png" alt="Prodentures logo">
+      <h1>Would you recommend us?</h1>
+      <p class="pdr-sub">Just double-checking before we take you to Google.</p>
+      <div class="pdr-btn-row">
+        <button class="pdr-btn pdr-secondary" id="pdr-recommendNo">No</button>
+        <button class="pdr-btn" id="pdr-recommendYes">Yes</button>
+      </div>
+      <button class="pdr-back-link" id="pdr-backFromConfirm">← change my rating</button>
+    </div>
+
     <div id="pdr-screen-happy" class="pdr-screen">
       <div class="pdr-spinner" role="status" aria-label="Loading"></div>
       <h1>Thank You!</h1>
@@ -193,6 +209,7 @@
   const root = document.getElementById('pdr-widget');
   const screens = {
     rating: root.querySelector('#pdr-screen-rating'),
+    confirm: root.querySelector('#pdr-screen-confirm'),
     happy: root.querySelector('#pdr-screen-happy'),
     unhappy: root.querySelector('#pdr-screen-unhappy'),
     thankyou: root.querySelector('#pdr-screen-thankyou'),
@@ -233,8 +250,7 @@
       ratingLabel.textContent = labels[value];
       setTimeout(() => {
         if (value >= 4) {
-          showScreen('happy');
-          startHappyRedirect();
+          showScreen('confirm');
         } else {
           showScreen('unhappy');
         }
@@ -242,16 +258,23 @@
     });
   });
 
-  root.querySelector('#pdr-backFromHappy').addEventListener('click', () => {
+  function resetToRating(){
     cancelHappyRedirect();
     paintStars(0);
     ratingLabel.textContent = 'Tap a star to rate your experience';
     showScreen('rating');
+  }
+
+  root.querySelector('#pdr-backFromConfirm').addEventListener('click', resetToRating);
+  root.querySelector('#pdr-backFromHappy').addEventListener('click', resetToRating);
+  root.querySelector('#pdr-backFromUnhappy').addEventListener('click', resetToRating);
+
+  root.querySelector('#pdr-recommendYes').addEventListener('click', () => {
+    showScreen('happy');
+    startHappyRedirect();
   });
-  root.querySelector('#pdr-backFromUnhappy').addEventListener('click', () => {
-    paintStars(0);
-    ratingLabel.textContent = 'Tap a star to rate your experience';
-    showScreen('rating');
+  root.querySelector('#pdr-recommendNo').addEventListener('click', () => {
+    showScreen('unhappy');
   });
 
   root.querySelector('#pdr-sendFeedbackBtn').addEventListener('click', async () => {

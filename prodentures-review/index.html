@@ -85,6 +85,8 @@
   .btn:disabled{opacity:.6;cursor:not-allowed;}
   .btn.secondary{background:transparent;color:var(--teal);border:1px solid var(--teal);margin-top:10px;}
   .btn.secondary:hover{background:#eefaf8;}
+  .btn-row{display:flex;gap:12px;}
+  .btn-row .btn{width:auto;flex:1;margin-top:0;}
   .hint{font-size:12.5px;color:var(--muted);margin-top:12px;line-height:1.4;}
   .toast{
     margin-top:14px;font-size:13.5px;color:var(--teal-dark);
@@ -134,6 +136,18 @@
     <div class="rating-label" id="ratingLabel">Tap a star to rate your experience</div>
   </div>
 
+  <!-- Screen 1b: Confirm before sending to Google (catches mis-taps) -->
+  <div id="screen-confirm" class="screen">
+    <img class="brand-logo" src="https://assets.cdn.filesafe.space/s13og7sTOL9EJ8kURREH/media/63729ce8d548fbb4f3b4a19d.png" alt="Prodentures logo">
+    <h1>Would you recommend us?</h1>
+    <p class="sub">Just double-checking before we take you to Google.</p>
+    <div class="btn-row">
+      <button class="btn secondary" id="recommendNo">No</button>
+      <button class="btn" id="recommendYes">Yes</button>
+    </div>
+    <button class="back-link" id="backFromConfirm">← change my rating</button>
+  </div>
+
   <!-- Screen 2: Happy path -> Google review -->
   <div id="screen-happy" class="screen">
     <div class="spinner" role="status" aria-label="Loading"></div>
@@ -180,6 +194,7 @@
 
   const screens = {
     rating: document.getElementById('screen-rating'),
+    confirm: document.getElementById('screen-confirm'),
     happy: document.getElementById('screen-happy'),
     unhappy: document.getElementById('screen-unhappy'),
     thankyou: document.getElementById('screen-thankyou'),
@@ -220,8 +235,7 @@
       ratingLabel.textContent = labels[value];
       setTimeout(() => {
         if (value >= 4) {
-          showScreen('happy');
-          startHappyRedirect();
+          showScreen('confirm');
         } else {
           showScreen('unhappy');
         }
@@ -229,16 +243,23 @@
     });
   });
 
-  document.getElementById('backFromHappy').addEventListener('click', () => {
+  function resetToRating(){
     cancelHappyRedirect();
     paintStars(0);
     ratingLabel.textContent = 'Tap a star to rate your experience';
     showScreen('rating');
+  }
+
+  document.getElementById('backFromConfirm').addEventListener('click', resetToRating);
+  document.getElementById('backFromHappy').addEventListener('click', resetToRating);
+  document.getElementById('backFromUnhappy').addEventListener('click', resetToRating);
+
+  document.getElementById('recommendYes').addEventListener('click', () => {
+    showScreen('happy');
+    startHappyRedirect();
   });
-  document.getElementById('backFromUnhappy').addEventListener('click', () => {
-    paintStars(0);
-    ratingLabel.textContent = 'Tap a star to rate your experience';
-    showScreen('rating');
+  document.getElementById('recommendNo').addEventListener('click', () => {
+    showScreen('unhappy');
   });
 
   document.getElementById('sendFeedbackBtn').addEventListener('click', async () => {
