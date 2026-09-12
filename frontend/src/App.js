@@ -15,6 +15,14 @@ import About from './components/pages/About';
 import Contact from './components/pages/Contact';
 import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsOfService from './components/pages/TermsOfService';
+import ServicePage from './components/pages/ServicePage';
+import StatePage from './components/pages/StatePage';
+import CityPage from './components/pages/CityPage';
+import CalculatorPage from './components/pages/CalculatorPage';
+import EstimatorPage from './components/pages/EstimatorPage';
+import MethodologyPage from './components/pages/MethodologyPage';
+import ServiceCalculatorPage, { calculatorSlugFor } from './components/pages/ServiceCalculatorPage';
+import { getAllServices } from './data/services';
 import EmbedWrapper from './components/EmbedWrapper';
 import { getPathname, url } from './utils/routes';
 import './App.css';
@@ -32,6 +40,13 @@ const isContact      = pathname === '/contact';
 const isPrivacy      = pathname === '/privacy-policy';
 const isTerms        = pathname === '/terms-of-service';
 const isPartnerWithUs = pathname === '/partner-with-us';
+const isServicePage = pathname.startsWith('/roofing-services/');
+const isCityPage = pathname.startsWith('/roof-cost/city/');
+const isStatePage = pathname.startsWith('/roof-cost/') && !isCityPage;
+const isCalculatorPage = pathname === '/roof-cost-calculator';
+const isEstimatorPage = pathname === '/roof-cost-estimator';
+const isMethodologyPage = pathname === '/how-we-calculate-prices';
+const isServiceCalculatorPage = getAllServices().some(s => pathname === '/' + calculatorSlugFor(s));
 
 const embedCompanyId = isEmbed ? searchParams.get('company') : null;
 
@@ -92,6 +107,13 @@ export default function App() {
   if (isContact)      return <HelmetProvider><div className="app"><Header /><main><Contact /></main><Footer /></div></HelmetProvider>;
   if (isPrivacy)      return <HelmetProvider><div className="app"><Header /><main><PrivacyPolicy /></main><Footer /></div></HelmetProvider>;
   if (isTerms)        return <HelmetProvider><div className="app"><Header /><main><TermsOfService /></main><Footer /></div></HelmetProvider>;
+  if (isServicePage)  return <HelmetProvider><div className="app"><Header /><main><ServicePage slug={pathname.replace('/roofing-services/', '')} /></main><Footer /></div></HelmetProvider>;
+  if (isCityPage)     return <HelmetProvider><div className="app"><Header /><main><CityPage slug={pathname.replace('/roof-cost/city/', '')} /></main><Footer /></div></HelmetProvider>;
+  if (isStatePage)    return <HelmetProvider><div className="app"><Header /><main><StatePage slug={pathname.replace('/roof-cost/', '')} /></main><Footer /></div></HelmetProvider>;
+  if (isCalculatorPage) return <HelmetProvider><div className="app"><Header /><main><CalculatorPage /></main><Footer /></div></HelmetProvider>;
+  if (isEstimatorPage)  return <HelmetProvider><div className="app"><Header /><main><EstimatorPage /></main><Footer /></div></HelmetProvider>;
+  if (isMethodologyPage) return <HelmetProvider><div className="app"><Header /><main><MethodologyPage /></main><Footer /></div></HelmetProvider>;
+  if (isServiceCalculatorPage) return <HelmetProvider><div className="app"><Header /><main><ServiceCalculatorPage slug={pathname.slice(1)} /></main><Footer /></div></HelmetProvider>;
 
   return (
     <HelmetProvider>

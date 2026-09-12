@@ -1,8 +1,17 @@
+/**
+ * generate-sitemap.js
+ * Reads blogPosts.js, services.js, statePricing.js, and cityPricing.js and
+ * auto-generates public/sitemap.xml. Run automatically before every build
+ * via the "prebuild" npm script.
+ */
+
 const fs = require('fs');
 const path = require('path');
 
 const SITE_URL = 'https://roofingcal.com';
 const TODAY = new Date().toISOString().split('T')[0];
+
+// ── Parse blogPosts.js as text ─────────────────────────────────────────────
 
 const postsFile = fs.readFileSync(
   path.join(__dirname, '../src/data/blogPosts.js'),
@@ -20,15 +29,62 @@ const posts = slugMatches.map((m, i) => ({
 
 const categorySlugs = [...new Set(categoryMatches.map(m => m[1]))];
 
+// ── Parse services.js and statePricing.js as text ──────────────────────────
+
+const servicesFile = fs.readFileSync(
+  path.join(__dirname, '../src/data/services.js'),
+  'utf8'
+);
+const serviceSlugs = [...servicesFile.matchAll(/(?<!\w)slug:\s*['"]([^'"]+)['"]/g)].map(m => m[1]);
+
+const statesFile = fs.readFileSync(
+  path.join(__dirname, '../src/data/statePricing.js'),
+  'utf8'
+);
+const stateSlugs = [...statesFile.matchAll(/(?<!\w)slug:\s*['"]([^'"]+)['"]/g)].map(m => m[1]);
+
+// City slugs are computed at runtime (`${slugify(name)}-${stateCode}`), not a
+// literal string in the source, so the regex scan above can't find them --
+// evaluate cityPricing.js (with its statePricing.js import stripped and the
+// needed functions injected) to get the real computed slugs.
+const statesModForCities = (() => {
+  // eslint-disable-next-line no-new-func
+  const fn = new Function(
+    statesFile
+      .replace(/^export const /gm, 'const ')
+      .replace(/^export function /gm, 'function ')
+      + '\nreturn { getStateBySlug, adjustForState };'
+  );
+  return fn();
+})();
+const cityFile = fs.readFileSync(
+  path.join(__dirname, '../src/data/cityPricing.js'),
+  'utf8'
+);
+const citySlugs = (() => {
+  const src = cityFile
+    .replace(/^import[^\n]*\n/gm, '')
+    .replace(/^export const /gm, 'const ')
+    .replace(/^export function /gm, 'function ');
+  // eslint-disable-next-line no-new-func
+  const fn = new Function('getStateBySlug', 'adjustForState', 'getAllServices', 'typicalCost', src + '\nreturn { getAllCities };');
+  return fn(statesModForCities.getStateBySlug, statesModForCities.adjustForState, () => [], () => ({ low: 0, high: 0 }))
+    .getAllCities().map(c => c.slug);
+})();
+
+// ── Static pages ───────────────────────────────────────────────────────────
 const staticPages = [
-  { path: '/',                priority: '1.0', changefreq: 'weekly',  lastmod: TODAY },
-  { path: '/blog',            priority: '0.9', changefreq: 'weekly',  lastmod: TODAY },
-  { path: '/for-companies',   priority: '0.8', changefreq: 'monthly', lastmod: TODAY },
-  { path: '/partner-with-us', priority: '0.7', changefreq: 'monthly', lastmod: TODAY },
-  { path: '/about',           priority: '0.6', changefreq: 'monthly', lastmod: TODAY },
-  { path: '/contact',         priority: '0.5', changefreq: 'monthly', lastmod: TODAY },
-  { path: '/privacy-policy',  priority: '0.3', changefreq: 'yearly',  lastmod: '2026-04-01' },
-  { path: '/terms-of-service',priority: '0.3', changefreq: 'yearly',  lastmod: '2026-04-01' },
+  { path: '/',                  priority: '1.0', changefreq: 'weekly',  lastmod: TODAY },
+  { path: '/roof-cost-calculator', priority: '0.9', changefreq: 'weekly', lastmod: TODAY },
+  { path: '/roof-cost-estimator',  priority: '0.9', changefreq: 'weekly', lastmod: TODAY },
+  { path: '/how-we-calculate-prices', priority: '0.7', changefreq: 'monthly', lastmod: TODAY },
+  { path: '/blog',              priority: '0.9', changefreq: 'weekly',  lastmod: TODAY },
+  { path: '/for-companies',     priority: '0.8', changefreq: 'monthly', lastmod: TODAY },
+  { path: '/partner-with-us',   priority: '0.7', changefreq: 'monthly', lastmod: TODAY },
+  { path: '/about',             priority: '0.6', changefreq: 'monthly', lastmod: TODAY },
+  { path: '/contact',           priority: '0.5', changefreq: 'monthly', lastmod: TODAY },
+  { path: '/privacy-policy',    priority: '0.3', changefreq: 'yearly',  lastmod: '2026-04-01' },
+  { path: '/terms-of-service',  priority: '0.3', changefreq: 'yearly',  lastmod: '2026-04-01' },
 ];
 
 function urlEntry({ loc, lastmod, changefreq, priority }) {
@@ -46,12 +102,32 @@ const xml = [
   '',
   '  <!-- Blog categories -->',
   ...categorySlugs.map(slug =>
-    urlEntry({ loc: `${SITE_URL}/blog/category/${slug}`, lastmod: TODAY, changefreq: 'weekly', priority: '0.8' })
+    urlEntry({ loc: `${SITE_URL}/blog/category/${slug}`, lastmod: TODAY, changefreq: 'weekly', priority: '0.7' })
   ),
   '',
   '  <!-- Blog posts (auto-generated from blogPosts.js) -->',
   ...posts.map(p =>
     urlEntry({ loc: `${SITE_URL}/blog/${p.slug}`, lastmod: p.date, changefreq: 'monthly', priority: '0.8' })
+  ),
+  '',
+  '  <!-- Roofing services (auto-generated from services.js) -->',
+  ...serviceSlugs.map(slug =>
+    urlEntry({ loc: `${SITE_URL}/roofing-services/${slug}`, lastmod: TODAY, changefreq: 'monthly', priority: '0.9' })
+  ),
+  '',
+  '  <!-- Dedicated per-service calculator pages (auto-generated from services.js) -->',
+  ...serviceSlugs.map(slug =>
+    urlEntry({ loc: `${SITE_URL}/${slug}-calculator`, lastmod: TODAY, changefreq: 'weekly', priority: '0.85' })
+  ),
+  '',
+  '  <!-- Roof cost by state (auto-generated from statePricing.js) -->',
+  ...stateSlugs.map(slug =>
+    urlEntry({ loc: `${SITE_URL}/roof-cost/${slug}`, lastmod: TODAY, changefreq: 'monthly', priority: '0.8' })
+  ),
+  '',
+  '  <!-- Roof cost by city (auto-generated from cityPricing.js) -->',
+  ...citySlugs.map(slug =>
+    urlEntry({ loc: `${SITE_URL}/roof-cost/city/${slug}`, lastmod: TODAY, changefreq: 'monthly', priority: '0.7' })
   ),
   '',
   '</urlset>',
@@ -60,4 +136,4 @@ const xml = [
 const outPath = path.join(__dirname, '../public/sitemap.xml');
 fs.writeFileSync(outPath, xml, 'utf8');
 
-console.log(`✓ sitemap.xml — ${posts.length} posts, ${categorySlugs.length} categories`);
+console.log(`✓ sitemap.xml — ${posts.length} posts, ${categorySlugs.length} categories, ${serviceSlugs.length} services, ${serviceSlugs.length} service calculators, ${stateSlugs.length} states, ${citySlugs.length} cities`);
