@@ -30,11 +30,11 @@ const DETAIL_STEP_COMPONENT = {
 
 const PROGRESS_LABELS = ['Service', 'Location', 'Details', 'Your Info', 'Results'];
 
-export default function RoofingCalculator({ companyConfig = null, embedded = false }) {
+export default function RoofingCalculator({ companyConfig = null, embedded = false, initialService = null, siteLanding = false, onShowResults = null }) {
   const cardRef = useRef(null);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
-  const [serviceType, setServiceType] = useState(null);
-  const [stepIndex, setStepIndex] = useState(0);
+  const [serviceType, setServiceType] = useState(() => (initialService && SERVICE_STEPS[initialService]) ? initialService : null);
+  const [stepIndex, setStepIndex] = useState(() => (initialService && SERVICE_STEPS[initialService]) ? 1 : 0);
   const [location, setLocation] = useState({ zip: '', state: '' });
   const [serviceDetails, setServiceDetails] = useState({});
   const [, setLeadInfo] = useState(null);
@@ -51,13 +51,22 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  // Pre-select service from URL param (skipped if initialService already set it)
   useEffect(() => {
+    if (initialService) return;
     const param = new URLSearchParams(window.location.search).get('service');
     if (param && SERVICE_STEPS[param]) {
       setServiceType(param);
       setStepIndex(1);
     }
-  }, []);
+  }, [initialService]);
+
+  // Let a siteLanding page's own wrapper drop its fixed white/shadow card
+  // once results are showing, since ResultsScreen renders its own full page
+  // chrome that would otherwise get boxed in a second time by that wrapper.
+  useEffect(() => {
+    onShowResults?.(currentStep === 'results' && !!result);
+  }, [currentStep, result, onShowResults]);
 
   useEffect(() => {
     if (stepIndex === 0 || !cardRef.current) return;
@@ -133,7 +142,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
         result={result}
         serviceDetails={serviceDetails}
         companyConfig={companyConfig}
-        embedded={embedded}
+        embedded={embedded && !siteLanding}
         onReset={handleReset}
       />
     );

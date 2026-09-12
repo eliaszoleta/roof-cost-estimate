@@ -45,6 +45,22 @@ function loadFaqsData() {
   return fn();
 }
 
+// cityPricing.js imports from statePricing.js and services.js, so those are
+// injected as parameters rather than re-read from disk a third time (same
+// approach generate-sitemap.js uses for this file).
+function loadCitiesData(statesMod, servicesMod) {
+  const raw = fs.readFileSync(path.join(SRC, 'data/cityPricing.js'), 'utf8');
+  const src = raw
+    .replace(/^import[^\n]*\n/gm, '')
+    .replace(/^export const /gm, 'const ')
+    .replace(/^export function /gm, 'function ');
+  const fn = new Function(
+    'getStateBySlug', 'adjustForState', 'getAllServices', 'typicalCost',
+    `${src}\nreturn { getAllCities, getCityBySlug, getCitiesByState, getFeaturedCities, cityServicePrices };`
+  );
+  return fn(statesMod.getStateBySlug, statesMod.adjustForState, servicesMod.getAllServices, servicesMod.typicalCost);
+}
+
 const CATEGORIES = [
   { slug: 'roofing-costs',     label: 'Roofing Costs',     desc: 'Understand what you should pay for any roofing project.' },
   { slug: 'roof-materials',    label: 'Roof Materials',    desc: 'Compare shingles, metal, tile, and more.' },
@@ -530,8 +546,9 @@ function renderServicePage(service, statesMod, assets) {
   });
 }
 
-function renderStatePage(state, servicesMod, statesMod, faqsMod, assets) {
+function renderStatePage(state, servicesMod, statesMod, faqsMod, citiesMod, assets) {
   const otherStates = statesMod.getAllStates().filter(s => s.slug !== state.slug);
+  const cities = citiesMod.getCitiesByState(state.slug);
   const faqs = faqsMod.getAllFaqs().slice(0, 5);
   const pctVsNational = Math.round((state.multiplier - 1) * 100);
   const TIER_COPY = {
@@ -550,6 +567,11 @@ function renderStatePage(state, servicesMod, statesMod, faqsMod, assets) {
   }).join('');
 
   const otherStatesHtml = otherStates.map(s => `<a href="/roofing-cost/${s.slug}" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">${esc(s.name)}</a>`).join(' ');
+  const cityLinksHtml = cities.map(c => `<a href="/roofing-cost/city/${c.slug}" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">${esc(c.name)}</a>`).join(' ');
+  const cityLinksBlock = cities.length > 0 ? `<div style="margin-bottom:24px">
+      <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px">Roofing Costs by City in ${esc(state.name)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${cityLinksHtml}</div>
+    </div>` : '';
 
   const title = `Roofing Cost in ${state.name} (2026) | Average Prices & Estimates | RoofingCal`;
   const description = `See average roofing costs in ${state.name} for 2026: full replacement, repair, metal, tile, and more, adjusted for local labor rates. Get a free instant estimate.`;
@@ -589,6 +611,7 @@ function renderStatePage(state, servicesMod, statesMod, faqsMod, assets) {
       <p style="font-size:14px;color:#64748b;margin-bottom:16px">Use our free calculator for a ZIP-code accurate roofing estimate in ${esc(state.name)} in under 60 seconds.</p>
       <a href="/" style="background:#ea580c;color:white;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:15px">Get My Free Estimate &rarr;</a>
     </div>
+    ${cityLinksBlock}
     <div>
       <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px">Roofing Costs in Other States</div>
       <div style="display:flex;flex-wrap:wrap;gap:8px">${otherStatesHtml}</div>
@@ -611,6 +634,269 @@ function renderStatePage(state, servicesMod, statesMod, faqsMod, assets) {
   });
 }
 
+function renderCityPage(city, citiesMod, faqsMod, assets) {
+  const otherCitiesInState = citiesMod.getCitiesByState(city.stateSlugRef).filter(c => c.slug !== city.slug);
+  const featuredCities = citiesMod.getFeaturedCities().filter(c => c.slug !== city.slug).slice(0, 8);
+  const faqs = faqsMod.getAllFaqs().slice(0, 5);
+  const pctVsNational = Math.round((city.multiplier - 1) * 100);
+  const TIER_COPY = {
+    high: `Roofing costs in ${city.name} run above the national average, in line with ${city.name}'s overall cost of living.`,
+    low: `Roofing costs in ${city.name} run below the national average, making it a comparatively affordable market for roofing work.`,
+    average: `Roofing costs in ${city.name} are close to the national average.`,
+  };
+
+  const serviceRows = citiesMod.cityServicePrices(city).map(({ service, low, high }, i) => `<tr style="background:${i % 2 === 0 ? 'white' : '#fafafa'}">
+      <td style="padding:10px 14px;border-bottom:1px solid #f1f5f9"><a href="/roofing-services/${service.slug}" style="color:#0f172a;font-weight:600;text-decoration:none">${esc(service.name)}</a></td>
+      <td style="padding:10px 14px;color:#ea580c;font-weight:700;border-bottom:1px solid #f1f5f9;white-space:nowrap">${fmt(low)}&ndash;${fmt(high)}</td>
+    </tr>`).join('');
+
+  const otherCitiesHtml = otherCitiesInState.map(c => `<a href="/roofing-cost/city/${c.slug}" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">${esc(c.name)}</a>`).join(' ');
+  const featuredCitiesHtml = featuredCities.map(c => `<a href="/roofing-cost/city/${c.slug}" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">${esc(c.name)}, ${esc(c.stateCode)}</a>`).join(' ');
+
+  const title = `Roofing Cost in ${city.name}, ${city.stateCode} (2026) | RoofingCal`;
+  const description = `See average roofing costs in ${city.name}, ${city.stateName} for 2026: shingle, metal, tile, flat roofing, repair, inspection, and gutters. Get a free instant estimate.`;
+
+  const body = `<div style="background:#f8fafc;min-height:100vh;padding:40px 24px 64px;font-family:system-ui,-apple-system,sans-serif">
+  <div style="max-width:780px;margin:0 auto">
+    <div style="display:flex;gap:6px;font-size:13px;color:#94a3b8;margin-bottom:24px;flex-wrap:wrap">
+      <a href="/" style="color:#64748b;text-decoration:none">Home</a><span>&rsaquo;</span>
+      <a href="/roofing-cost/${city.stateSlugRef}" style="color:#64748b;text-decoration:none">${esc(city.stateName)}</a><span>&rsaquo;</span>
+      <span style="color:#0f172a">${esc(city.name)}</span>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:24px">
+      <div style="font-size:12px;font-weight:700;color:#ea580c;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">${esc(city.name)}, ${esc(city.stateCode)}</div>
+      <h1 style="font-size:clamp(24px,4vw,32px);font-weight:800;color:#0f172a;line-height:1.25;margin-bottom:10px">Roofing Cost in ${esc(city.name)}, ${esc(city.stateCode)} (2026)</h1>
+      <p style="font-size:15.5px;color:#64748b;line-height:1.7;margin-bottom:20px">${esc(TIER_COPY[city.tier])}${pctVsNational !== 0 ? ` That's about ${Math.abs(pctVsNational)}% ${pctVsNational > 0 ? 'above' : 'below'} the national average, matching the broader ${esc(city.stateName)} market.` : ''}</p>
+      <div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap">
+        <span style="font-size:30px;font-weight:800;color:#ea580c">${fmt(city.low)} &ndash; ${fmt(city.high)}</span>
+        <span style="font-size:13px;color:#94a3b8">full asphalt shingle roof replacement, 2,000 sq ft roof</span>
+      </div>
+    </div>
+    <div style="background:linear-gradient(135deg,#ea580c,#c2410c);border-radius:12px;padding:18px 24px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="color:white"><div style="font-weight:700;font-size:15px">Get a ZIP-code accurate estimate in ${esc(city.name)}</div><div style="font-size:13px;opacity:0.9">Free &middot; No signup &middot; 60 seconds</div></div>
+      <a href="/" style="background:white;color:#ea580c;padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;white-space:nowrap">Calculate Now &rarr;</a>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:24px">
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:6px">Cost by Service in ${esc(city.name)}</h2>
+      <p style="font-size:13.5px;color:#64748b;margin-bottom:4px">Estimated typical job cost, adjusted for the ${esc(city.stateName)} market. <a href="/how-we-calculate-prices" style="color:#ea580c;font-weight:600">See how we calculate these prices &rarr;</a></p>
+      <div style="overflow-x:auto;margin:20px 0"><table style="width:100%;border-collapse:collapse;font-size:14px">
+        <thead><tr style="background:#f8fafc"><th style="padding:10px 14px;text-align:left;font-weight:700;color:#374151;border-bottom:2px solid #e2e8f0">Service</th><th style="padding:10px 14px;text-align:left;font-weight:700;color:#374151;border-bottom:2px solid #e2e8f0">${esc(city.name)} Estimate</th></tr></thead>
+        <tbody>${serviceRows}</tbody>
+      </table></div>
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-top:32px;margin-bottom:14px">FAQs</h2>
+      ${faqAccordionHtml(faqs)}
+    </div>
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:24px 28px;margin-bottom:32px;text-align:center">
+      <div style="font-weight:800;font-size:18px;color:#0f172a;margin-bottom:6px">Ready to get an accurate estimate?</div>
+      <p style="font-size:14px;color:#64748b;margin-bottom:16px">Use our free calculator for a ZIP-code accurate roofing estimate in ${esc(city.name)} in under 60 seconds.</p>
+      <a href="/" style="background:#ea580c;color:white;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:15px">Get My Free Estimate &rarr;</a>
+    </div>
+    ${otherCitiesInState.length > 0 ? `<div style="margin-bottom:32px">
+      <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px">More Cities in ${esc(city.stateName)}</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${otherCitiesHtml}
+        <a href="/roofing-cost/${city.stateSlugRef}" style="font-size:12.5px;color:#ea580c;font-weight:700;text-decoration:none;background:#fff7ed;border:1px solid #fed7aa;border-radius:20px;padding:6px 12px">All of ${esc(city.stateName)} &rarr;</a>
+      </div>
+    </div>` : ''}
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px">Popular Cities</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${featuredCitiesHtml}</div>
+    </div>
+  </div>
+</div>`;
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', item: DOMAIN },
+    { name: `Roofing Cost in ${city.stateName}`, item: `${DOMAIN}/roofing-cost/${city.stateSlugRef}` },
+    { name: `Roofing Cost in ${city.name}`, item: `${DOMAIN}/roofing-cost/city/${city.slug}` },
+  ]);
+
+  return pageShell({
+    title,
+    description,
+    canonicalPath: `/roofing-cost/city/${city.slug}`,
+    assets,
+    bodyHtml: body,
+    extraHead: `<script type="application/ld+json">${faqSchema(faqs)}</script><script type="application/ld+json">${breadcrumb}</script>`,
+  });
+}
+
+// Shared calculator-placeholder box used across the three pages that embed
+// the live <RoofingCalculator> client-side -- mirrors the Calculate Now CTA
+// pattern other prerendered pages use instead of a non-functional static
+// replica of the real interactive form.
+function calculatorPlaceholderHtml() {
+  return `<div style="max-width:720px;margin:0 auto;background:white;border-radius:16px;box-shadow:0 8px 40px rgba(0,0,0,0.10);border:1px solid #e2e8f0;overflow:hidden;padding:48px 24px;text-align:center">
+    <div style="display:inline-block;background:#ea580c;color:white;padding:14px 32px;border-radius:12px;font-size:15px;font-weight:600">Loading calculator&hellip;</div>
+  </div>`;
+}
+
+function renderServiceCalculatorPage(service, assets) {
+  const pageSlug = `${service.slug}-calculator`;
+  const title = `${service.name} Cost Calculator - Free Instant Estimate (2026)`;
+  const description = `Free ${service.name.toLowerCase()} cost calculator with ZIP-code accurate pricing. ${service.tagline}`;
+
+  const bulletsHtml = service.bullets.map(b => `<div style="display:flex;gap:10px;background:#f8fafc;border:1px solid #e2e8f0;border-radius:12px;padding:14px 18px"><span style="color:#16a34a;flex-shrink:0">&check;</span><span style="font-size:13.5px;color:#374151;line-height:1.6">${esc(b)}</span></div>`).join('');
+
+  const related = (service.relatedSlugs || []).slice(0, 3);
+  const relatedHtml = related.length
+    ? `<p style="font-size:13.5px;color:#94a3b8">Other calculators: ${related.map(slug => `<a href="/${slug}-calculator" style="color:#ea580c;font-weight:600">${esc(slug)}</a>`).join(' &middot; ')}</p>`
+    : '';
+
+  const body = `<div class="page-hero-wrap" style="font-family:system-ui,-apple-system,sans-serif">
+    <div class="page-hero-breadcrumb">
+      <a href="/" style="color:#64748b;text-decoration:none">Home</a><span>&rsaquo;</span>
+      <span style="color:#0f172a">${esc(service.name)} Cost Calculator</span>
+    </div>
+    <div class="page-hero-block">
+      <h1 class="page-hero-title">${esc(service.name)} Cost Calculator</h1>
+      <p class="page-hero-subtitle">Get an instant, ZIP-code accurate ${esc(service.name.toLowerCase())} estimate &mdash; enter a few details and see a real price range in under 60 seconds. ${esc(service.tagline)}</p>
+    </div>
+    ${calculatorPlaceholderHtml()}
+    <div style="margin-top:48px">
+      <h2 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:20px;text-align:center">What Affects Your ${esc(service.name)} Price</h2>
+      <div style="display:flex;flex-direction:column;gap:10px;max-width:720px;margin:0 auto">${bulletsHtml}</div>
+    </div>
+    <div style="margin-top:48px;background:white;border:1px solid #e2e8f0;border-radius:16px;padding:32px 36px">
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:16px">${esc(service.name)} Cost Calculator FAQs</h2>
+      ${faqAccordionHtml(service.faqs)}
+    </div>
+    <div style="margin-top:40px;text-align:center">
+      <p style="font-size:14px;color:#64748b;margin-bottom:14px">Want the full price breakdown by tier? See our <a href="/roofing-services/${service.slug}" style="color:#ea580c;font-weight:600">complete ${esc(service.name.toLowerCase())} cost guide</a>.</p>
+      ${relatedHtml}
+    </div>
+  </div>`;
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', item: DOMAIN },
+    { name: `${service.name} Cost Calculator`, item: `${DOMAIN}/${pageSlug}` },
+  ]);
+  const webAppSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: `${service.name} Cost Calculator`,
+    url: `${DOMAIN}/${pageSlug}`,
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Any',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  };
+
+  return pageShell({
+    title,
+    description,
+    canonicalPath: `/${pageSlug}`,
+    assets,
+    bodyHtml: body,
+    extraHead: `<script type="application/ld+json">${JSON.stringify(webAppSchema)}</script><script type="application/ld+json">${breadcrumb}</script><script type="application/ld+json">${faqSchema(service.faqs)}</script>`,
+  });
+}
+
+function renderCalculatorOrEstimatorPage({ slug, heading, heroCopy, whyPoints, faqs, title, description }, assets) {
+  const whyHtml = whyPoints.map(({ title: t, body }) => `<div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:14px;padding:22px 24px">
+      <h3 style="font-size:15px;font-weight:700;color:#0f172a;margin-bottom:6px">${esc(t)}</h3>
+      <p style="font-size:13.5px;color:#475569;line-height:1.6;margin:0">${esc(body)}</p>
+    </div>`).join('');
+
+  const body = `<div class="page-hero-wrap" style="font-family:system-ui,-apple-system,sans-serif">
+    <div class="page-hero-breadcrumb">
+      <a href="/" style="color:#64748b;text-decoration:none">Home</a><span>&rsaquo;</span>
+      <span style="color:#0f172a">${esc(heading)}</span>
+    </div>
+    <div class="page-hero-block">
+      <h1 class="page-hero-title">${esc(heading)}</h1>
+      <p class="page-hero-subtitle">${esc(heroCopy)}</p>
+    </div>
+    ${calculatorPlaceholderHtml()}
+    <div style="margin-top:48px">
+      <h2 style="font-size:22px;font-weight:800;color:#0f172a;margin-bottom:20px;text-align:center">Why Use This ${esc(heading)}</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px">${whyHtml}</div>
+    </div>
+    <div style="margin-top:48px;background:white;border:1px solid #e2e8f0;border-radius:16px;padding:32px 36px">
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:16px">${esc(heading)} FAQs</h2>
+      ${faqAccordionHtml(faqs)}
+    </div>
+    <div style="margin-top:40px;text-align:center">
+      <p style="font-size:14px;color:#64748b">Want cost breakdowns by state or service instead? Browse our <a href="/blog" style="color:#ea580c;font-weight:600">roofing cost guides</a>.</p>
+    </div>
+  </div>`;
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', item: DOMAIN },
+    { name: heading, item: `${DOMAIN}/${slug}` },
+  ]);
+  const webAppSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'WebApplication',
+    name: heading,
+    url: `${DOMAIN}/${slug}`,
+    applicationCategory: 'UtilitiesApplication',
+    operatingSystem: 'Any',
+    offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    description,
+  };
+
+  return pageShell({
+    title,
+    description,
+    canonicalPath: `/${slug}`,
+    assets,
+    bodyHtml: body,
+    extraHead: `<script type="application/ld+json">${JSON.stringify(webAppSchema)}</script><script type="application/ld+json">${breadcrumb}</script><script type="application/ld+json">${faqSchema(faqs)}</script>`,
+  });
+}
+
+function renderMethodologyPage(assets) {
+  const SECTIONS = [
+    { title: 'Our Base Pricing', body: "Every price tier in our calculator — for shingle, metal, tile, and flat roofing, plus repair, inspection, and gutters — starts from aggregated material and labor cost research across residential roofing contractors nationwide: published rate surveys, manufacturer install guides, and industry cost data. We don't invent a number and work backward; we build each tier from what contractors are actually charging per square foot or per job, then keep it current as material costs and labor rates shift." },
+    { title: 'State Cost-of-Living Adjustments', body: "The same shingle roof replacement costs more in California than in Mississippi, and our numbers reflect that. Each state carries a multiplier — California sits around 1.48× the national baseline, Mississippi and West Virginia around 0.80× — built from regional construction labor cost, permit costs, and material freight differences. That multiplier is applied directly to the national base price for whichever service you're pricing, not estimated separately per state." },
+    { title: 'City and ZIP Code Pricing', body: "For city-level pages, we intentionally reuse the parent state's pricing data rather than inventing separate city-specific numbers. Reliable, verifiable roofing cost data doesn't exist at neighborhood granularity for most markets — and we'd rather show you a number we can stand behind than a more precise-looking one we made up. If that changes for a given metro area, we'll update it." },
+    { title: 'How Roof Size, Pitch, and Complexity Change Your Price', body: "Tear-off, decking replacement, pitch, story count, and roof shape complexity are all priced as multipliers or per-sq-ft adders on top of the base material cost, derived from how roofing contractors actually structure their own estimates — for example, a steep 6:12–9:12 pitch consistently adds around 28% to labor cost across the contractors we've reviewed, and a very steep 9:12+ pitch can add up to 50%, since both require harnesses and slower, more careful work." },
+    { title: 'Where We Reference Outside Sources', body: null },
+    { title: "What Our Estimates Are — and Aren't", body: "Every number on RoofingCal is a starting point, not a quote. Actual pricing depends on the specific condition of a roof (rotted decking, extra penetrations, hidden damage), local competition, and each contractor's own pricing — factors that are only ever fully visible from an in-person inspection. Use our numbers to negotiate confidently and spot outliers, then always get multiple quotes from licensed, insured roofing contractors before booking." },
+    { title: 'How Often We Update Pricing', body: "We review and adjust our pricing models as national and regional material and labor costs change, rather than on a fixed calendar schedule. If you ever see a number that looks out of step with what you're being quoted locally, we want to know — contact us and we'll take a look." },
+  ];
+  const CITATIONS = [
+    { name: 'National Roofing Contractors Association (NRCA)', use: 'Industry installation standards and terminology (pitch categories, tear-off practices) referenced across our roofing cost guides.', href: 'https://www.nrca.net' },
+    { name: 'Insurance Institute for Business & Home Safety (IBHS)', use: 'Roofing material durability and storm-resistance guidance referenced in our metal and impact-resistant shingle content.', href: 'https://ibhs.org' },
+    { name: 'ENERGY STAR (U.S. EPA / DOE program)', use: 'Reflective/cool-roofing energy-efficiency claims referenced in our metal and TPO roofing content.', href: 'https://www.energystar.gov' },
+  ];
+
+  const sectionsHtml = SECTIONS.map(({ title: t, body }) => `<div style="background:white;border-radius:16px;padding:26px 28px;border:1px solid #e2e8f0;box-shadow:0 1px 2px rgba(15,23,42,0.03),0 4px 16px rgba(15,23,42,0.05)">
+      <h2 style="font-size:18px;font-weight:700;color:#0f172a;margin-bottom:8px">${esc(t)}</h2>
+      ${body ? `<p style="font-size:15px;color:#374151;line-height:1.7;margin:0">${esc(body)}</p>` : `<p style="font-size:15px;color:#374151;line-height:1.7;margin:0 0 4px">Where our content relies on industry standards, material performance claims, or program guidance rather than our own pricing data, we cite the source directly:</p>
+      <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px">${CITATIONS.map(c => `<div style="font-size:14px;color:#475569;line-height:1.6;padding-left:14px;border-left:2px solid #e2e8f0"><a href="${c.href}" target="_blank" rel="noopener noreferrer" style="color:#ea580c;font-weight:700;text-decoration:none">${esc(c.name)}</a> &mdash; ${esc(c.use)}</div>`).join('')}</div>`}
+    </div>`).join('');
+
+  const body = `<div style="max-width:780px;margin:0 auto;padding:60px 24px;font-family:system-ui,-apple-system,sans-serif">
+    <div style="display:flex;gap:6px;font-size:13px;color:#94a3b8;margin-bottom:20px;flex-wrap:wrap">
+      <a href="/" style="color:#64748b;text-decoration:none">Home</a><span>&rsaquo;</span>
+      <span style="color:#0f172a">How We Calculate Prices</span>
+    </div>
+    <h1 style="font-size:40px;font-weight:900;color:#0f172a;margin-bottom:12px;letter-spacing:-0.01em">How We Calculate Roofing Prices</h1>
+    <p style="font-size:18px;color:#64748b;margin-bottom:40px;line-height:1.7">Every estimate on RoofingCal comes from a real methodology, not a guess. Here's exactly how the numbers behind the calculator — and every cost guide on this site — actually get built.</p>
+    <div style="display:flex;flex-direction:column;gap:20px">${sectionsHtml}</div>
+    <div style="margin-top:44px;background:linear-gradient(135deg,#0f172a,#1e293b);border-radius:16px;padding:32px 36px;text-align:center">
+      <h2 style="font-size:22px;font-weight:800;color:white;margin-bottom:10px">See the Methodology in Action</h2>
+      <p style="color:#94a3b8;margin-bottom:20px;font-size:15px">Run a real, ZIP-code accurate estimate using the pricing engine described above.</p>
+      <a href="/roofing-cost-calculator" style="background:#ea580c;color:white;padding:13px 30px;border-radius:10px;text-decoration:none;font-weight:700;font-size:16px;display:inline-block">Try the Calculator &rarr;</a>
+    </div>
+  </div>`;
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', item: DOMAIN },
+    { name: 'How We Calculate Prices', item: `${DOMAIN}/how-we-calculate-prices` },
+  ]);
+
+  return pageShell({
+    title: 'How We Calculate Roofing Prices | RoofingCal',
+    description: "See exactly how RoofingCal builds its pricing: base rate research, state cost-of-living adjustments, city pricing methodology, and the external sources we cite. Full transparency on where our numbers come from.",
+    canonicalPath: '/how-we-calculate-prices',
+    assets,
+    bodyHtml: body,
+    extraHead: `<script type="application/ld+json">${breadcrumb}</script>`,
+  });
+}
+
 function writeFile(relPath, html) {
   const full = path.join(BUILD, relPath, 'index.html');
   fs.mkdirSync(path.dirname(full), { recursive: true });
@@ -628,6 +914,7 @@ function main() {
   const servicesMod = loadServicesData();
   const statesMod = loadStatesData();
   const faqsMod = loadFaqsData();
+  const citiesMod = loadCitiesData(statesMod, servicesMod);
   const assets = getAssetTags();
 
   let count = 0;
@@ -671,11 +958,69 @@ function main() {
 
   const states = statesMod.getAllStates();
   for (const state of states) {
-    writeFile(`roofing-cost/${state.slug}`, renderStatePage(state, servicesMod, statesMod, faqsMod, assets));
+    writeFile(`roofing-cost/${state.slug}`, renderStatePage(state, servicesMod, statesMod, faqsMod, citiesMod, assets));
     count++;
   }
 
-  console.log(`✓ prerender — ${count} pages generated (${posts.length} posts, ${CATEGORIES.length} categories, ${services.length} services, ${states.length} states)`);
+  const cities = citiesMod.getAllCities();
+  for (const city of cities) {
+    writeFile(`roofing-cost/city/${city.slug}`, renderCityPage(city, citiesMod, faqsMod, assets));
+    count++;
+  }
+
+  for (const service of services) {
+    writeFile(`${service.slug}-calculator`, renderServiceCalculatorPage(service, assets));
+    count++;
+  }
+
+  writeFile('how-we-calculate-prices', renderMethodologyPage(assets));
+  count++;
+
+  writeFile('roofing-cost-calculator', renderCalculatorOrEstimatorPage({
+    slug: 'roofing-cost-calculator',
+    heading: 'Roof Cost Calculator',
+    heroCopy: 'This free roof cost calculator gives you an instant, ZIP-code specific price for shingle, metal, tile, and flat roof replacement, plus repair, inspection, and gutters. Built as a standalone roofing calculator you can bookmark and reuse — no signup, no phone calls, just enter your details and get a real price range in under 60 seconds.',
+    whyPoints: [
+      { title: 'ZIP-Code Accurate', body: 'Every price this roof cost calculator returns is adjusted for your local labor rates and cost of living, not a flat national guess.' },
+      { title: 'Instant Results', body: 'Answer a few quick questions about your roof and get your estimate in under 60 seconds — no waiting for a callback from a contractor.' },
+      { title: '7 Service Types Covered', body: 'From full shingle replacement to metal, tile, flat roofing, repair, inspection, and gutters, this calculator covers the full range of roofing work.' },
+      { title: '100% Free, No Signup', body: 'Use the roof cost calculator as many times as you want. No account, no credit card, and no obligation to hire anyone.' },
+    ],
+    faqs: [
+      { q: 'Is this roof cost calculator really free?', a: 'Yes. Our roof cost calculator is completely free to use, with no signup, no account, and no hidden fees. You can run as many estimates as you need.' },
+      { q: 'How accurate is the roof cost calculator?', a: 'The calculator uses real material and labor pricing data with state-by-state cost-of-living adjustments, so your estimate reflects typical local pricing. Final prices from an actual roofing contractor can vary based on the specific condition of your roof and other in-person factors, so treat the result as a reliable starting range rather than a binding quote.' },
+      { q: 'What information do I need to use the roof cost calculator?', a: 'Just your ZIP code, the type of roofing work you need, and a few basic details about your roof (like square footage, pitch, and story count). No email or phone number is required to see your price range.' },
+      { q: 'Does the roof cost calculator work for repairs and inspections too?', a: 'Yes. In addition to full roof replacement (shingle, metal, tile, and flat), the calculator includes roof repair, roof inspection, and gutter installation.' },
+      { q: 'Can I embed this roof cost calculator on my own website?', a: "Yes — roofing companies can embed a white-labeled version of this calculator on their own site to capture leads with accurate, localized estimates. Visit our for-companies page for details." },
+    ],
+    title: 'Roof Cost Calculator - Free Instant Estimate (2026)',
+    description: 'Free roof cost calculator with ZIP-code accurate pricing. Instantly estimate shingle, metal, tile, and flat roof replacement, repair, inspection, and gutters. No signup required.',
+  }, assets));
+  count++;
+
+  writeFile('roofing-cost-estimator', renderCalculatorOrEstimatorPage({
+    slug: 'roofing-cost-estimator',
+    heading: 'Roof Cost Estimator',
+    heroCopy: "Get a free roof cost estimator for shingle, metal, tile, and flat roof replacement, plus repair, inspection, and gutters — enter your ZIP code and roof details to see a real price range in under a minute. This standalone estimator works the same whether you're comparing contractor quotes or budgeting ahead, with no signup and no obligation.",
+    whyPoints: [
+      { title: 'Real Market Pricing', body: 'This roof cost estimator pulls from actual material and labor pricing data, not a generic industry average.' },
+      { title: 'Covers Every Roof Type', body: 'Estimate shingle, metal, tile, and flat roof replacement, plus repair, inspection, and gutter installation.' },
+      { title: 'No Waiting on Quotes', body: "Skip the back-and-forth with roofing contractors — get your price estimate the moment you finish answering a few questions." },
+      { title: 'Always Free', body: "There's no cost to use this estimator, no account required, and no limit on how many times you can run it." },
+    ],
+    faqs: [
+      { q: 'What is a roof cost estimator?', a: 'A roof cost estimator is a tool that calculates an expected price range for roofing work based on inputs like your location, roof size, pitch, and material — instead of requiring an in-person quote.' },
+      { q: 'How is a roof cost estimator different from a fixed price?', a: 'An estimator gives you a realistic price range based on typical material and labor rates in your area. The exact price a roofing contractor charges can vary based on the specific condition of your roof, decking, and their own pricing.' },
+      { q: 'Can I use this roof cost estimator for a repair instead of a full replacement?', a: 'Yes — select Roof Repair as your service type and describe the damage size to get an estimate, or select Roof Inspection if you just need an assessment.' },
+      { q: 'Is my information saved when I use the estimator?', a: "No. Your estimate is calculated instantly and isn't stored unless you choose to submit your contact information at the end." },
+      { q: 'How often should I re-check my roof cost estimate?', a: "Material and labor prices can shift year to year, so it's worth re-running your estimate before budgeting for a project, especially if your last estimate is more than a few months old." },
+    ],
+    title: 'Roof Cost Estimator - Free Instant Estimate (2026)',
+    description: 'Free roof cost estimator with ZIP-code accurate pricing. Instantly estimate shingle, metal, tile, and flat roof replacement, repair, inspection, and gutters. No signup required.',
+  }, assets));
+  count++;
+
+  console.log(`✓ prerender — ${count} pages generated (${posts.length} posts, ${CATEGORIES.length} categories, ${services.length} services, ${states.length} states, ${cities.length} cities, 2 keyword pages, 1 methodology page)`);
 }
 
 main();

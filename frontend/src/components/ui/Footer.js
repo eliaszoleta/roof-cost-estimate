@@ -32,7 +32,7 @@ export default function Footer() {
           </div>
 
           <div>
-            <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Roofing Services</div>
+            <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Estimates</div>
             {[
               ['Asphalt Shingle Roof', url('/roofing-services/asphalt-shingle-roof-cost')],
               ['Metal Roof', url('/roofing-services/metal-roof-cost')],
@@ -41,24 +41,6 @@ export default function Footer() {
               ['Roof Repair', url('/roofing-services/roof-repair-cost')],
               ['Roof Inspection', url('/roofing-services/roof-inspection-cost')],
               ['Gutter Installation', url('/roofing-services/gutter-replacement-cost')],
-            ].map(([label, href]) => (
-              <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7, lineHeight: 1.5 }}
-                onMouseEnter={e => { e.target.style.color = 'white'; }}
-                onMouseLeave={e => { e.target.style.color = '#94a3b8'; }}>
-                {label}
-              </a>
-            ))}
-          </div>
-
-          <div>
-            <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Roofing Cost by State</div>
-            {[
-              ['California', url('/roofing-cost/california')],
-              ['Texas', url('/roofing-cost/texas')],
-              ['Florida', url('/roofing-cost/florida')],
-              ['New York', url('/roofing-cost/new-york')],
-              ['Pennsylvania', url('/roofing-cost/pennsylvania')],
-              ['Illinois', url('/roofing-cost/illinois')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7, lineHeight: 1.5 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}
@@ -82,6 +64,8 @@ export default function Footer() {
           <div>
             <div style={{ fontWeight: 700, color: 'white', marginBottom: 12, fontSize: 13, textTransform: 'uppercase', letterSpacing: '0.05em' }}>Company</div>
             {[
+              ['Roof Cost Calculator', url('/roofing-cost-calculator')],
+              ['How We Calculate Prices', url('/how-we-calculate-prices')],
               ['About', url('/about')],
               ['Contact', url('/contact')],
               ['For Contractors', url('/for-companies')],

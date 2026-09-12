@@ -1,9 +1,12 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { ChevronDown, Home, Layers, LayoutGrid, Square, Wrench, ScanSearch, Droplets, MapPin } from 'lucide-react';
+import { ChevronDown, Home, Layers, LayoutGrid, Square, Wrench, ScanSearch, Droplets, MapPin, Check } from 'lucide-react';
 import { getServiceBySlug, getRelatedServices, typicalCost } from '../../data/services';
 import { getFeaturedStates, adjustForState } from '../../data/statePricing';
 import { url } from '../../utils/routes';
+
+const PRIMARY = '#ea580c';
+const PRIMARY_DARK = '#c2410c';
 
 const ICONS = {
   shingle_replacement: Home,
@@ -19,10 +22,14 @@ function formatPrice(n) {
   return `$${Math.round(n).toLocaleString('en-US')}`;
 }
 
-// Per-sq-ft / per-linear-ft tier rates carry meaningful cents (e.g. $2.90/sq ft) —
-// rounding those to whole dollars silently discards real precision.
+// Per-sq-ft tier rates are often well under $10 -- rounding those to whole
+// dollars loses the actual rate. Show cents for per-sq-ft rates.
 function formatTierPrice(n, service) {
-  return service.unitType !== 'flat' ? `$${n.toFixed(2)}` : formatPrice(n);
+  return service.unitType === 'per_sqft' ? `$${n.toFixed(2)}` : formatPrice(n);
+}
+
+function unitSuffix(service) {
+  return service.unitType === 'per_sqft' ? '/sq ft' : '';
 }
 
 function TiersTable({ service }) {
@@ -40,8 +47,8 @@ function TiersTable({ service }) {
           {service.tiers.map((tier, i) => (
             <tr key={i} style={{ background: i % 2 === 0 ? 'white' : '#fafafa' }}>
               <td style={{ padding: '10px 14px', color: '#0f172a', fontWeight: 600, borderBottom: '1px solid #f1f5f9' }}>{tier.label}</td>
-              <td style={{ padding: '10px 14px', color: '#ea580c', fontWeight: 700, borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' }}>
-                {formatTierPrice(tier.low, service)}–{formatTierPrice(tier.high, service)} {service.unitType !== 'flat' ? <span style={{ color: '#94a3b8', fontWeight: 500, fontSize: 12 }}>/{service.unitType === 'per_lf' ? 'lin ft' : 'sq ft'}</span> : null}
+              <td style={{ padding: '10px 14px', color: PRIMARY, fontWeight: 700, borderBottom: '1px solid #f1f5f9', whiteSpace: 'nowrap' }}>
+                {formatTierPrice(tier.low, service)}–{formatTierPrice(tier.high, service)}<span style={{ color: '#94a3b8', fontWeight: 500, fontSize: 12 }}>{unitSuffix(service)}</span>
               </td>
               <td style={{ padding: '10px 14px', color: '#475569', borderBottom: '1px solid #f1f5f9' }}>{tier.note}</td>
             </tr>
@@ -63,8 +70,8 @@ function StateMiniTable({ service }) {
         return (
           <a key={state.code} href={url(`/roofing-cost/${state.slug}`)} style={{ textDecoration: 'none' }}>
             <div style={{ border: '1px solid #f1f5f9', background: '#fafafa', borderRadius: 8, padding: '11px 14px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 8 }}>
-              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600, color: '#0f172a' }}><MapPin size={11} color="#ea580c" />{state.name}</span>
-              <span style={{ fontSize: 12.5, fontWeight: 700, color: '#ea580c', whiteSpace: 'nowrap' }}>{formatPrice(range.low)}–{formatPrice(range.high)}</span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 13, fontWeight: 600, color: '#0f172a' }}><MapPin size={11} color={PRIMARY} />{state.name}</span>
+              <span style={{ fontSize: 12.5, fontWeight: 700, color: PRIMARY, whiteSpace: 'nowrap' }}>{formatPrice(range.low)}–{formatPrice(range.high)}</span>
             </div>
           </a>
         );
@@ -107,7 +114,7 @@ export default function ServicePage({ slug }) {
   if (!service) return (
     <div style={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: 12 }}>
       <h2 style={{ color: '#0f172a' }}>Service not found</h2>
-      <a href={url('/')} style={{ color: '#ea580c', fontWeight: 600 }}>← Back to home</a>
+      <a href={url('/')} style={{ color: PRIMARY, fontWeight: 600 }}>← Back to home</a>
     </div>
   );
 
@@ -166,38 +173,48 @@ export default function ServicePage({ slug }) {
 
           <div style={{ background: 'white', borderRadius: 14, border: '1px solid #e2e8f0', padding: '32px 36px', marginBottom: 24 }}>
             <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fff7ed', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 16 }}>
-              <Icon size={22} color="#ea580c" strokeWidth={1.75} />
+              <Icon size={22} color={PRIMARY} strokeWidth={1.75} />
             </div>
             <h1 style={{ fontSize: 'clamp(24px,4vw,32px)', fontWeight: 800, color: '#0f172a', lineHeight: 1.25, marginBottom: 10 }}>{service.name} Cost 2026</h1>
-            <p style={{ fontSize: 15.5, color: '#64748b', lineHeight: 1.7, marginBottom: 20 }}>{service.tagline}</p>
+            <p style={{ fontSize: 15.5, color: '#64748b', lineHeight: 1.7, marginBottom: 20 }}>{service.tagline} <a href={url(`/${service.slug}-calculator`)} style={{ color: PRIMARY, fontWeight: 600 }}>Try our dedicated {service.name} Calculator &rarr;</a></p>
             <div style={{ display: 'flex', alignItems: 'baseline', gap: 10, flexWrap: 'wrap' }}>
-              <span style={{ fontSize: 30, fontWeight: 800, color: '#ea580c' }}>{formatPrice(cost.low)} – {formatPrice(cost.high)}</span>
+              <span style={{ fontSize: 30, fontWeight: 800, color: PRIMARY }}>{formatPrice(cost.low)} – {formatPrice(cost.high)}</span>
               <span style={{ fontSize: 13, color: '#94a3b8' }}>
-                {service.unitType === 'flat' ? 'typical job cost' : service.unitType === 'per_lf' ? `for a ${service.typicalQuantity} linear ft system` : `for an ${service.typicalQuantity.toLocaleString()} sq ft roof`}
+                {service.unitType === 'flat' ? 'typical job cost' : `for ${service.typicalQuantity.toLocaleString()} ${service.unit.includes('linear') ? 'linear ft' : 'sq ft'}`}
               </span>
             </div>
           </div>
 
-          <div style={{ background: 'linear-gradient(135deg, #ea580c, #dc2626)', borderRadius: 12, padding: '18px 24px', marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+          {service.disclaimer && (
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 10, padding: '13px 16px', marginBottom: 24, display: 'flex', gap: 10 }}>
+              <span style={{ flexShrink: 0, marginTop: 1 }}>⚠️</span>
+              <div>
+                <div style={{ fontWeight: 700, color: '#991b1b', marginBottom: 3, fontSize: 13 }}>Important</div>
+                <p style={{ fontSize: 13, color: '#7f1d1d', lineHeight: 1.6, margin: 0 }}>{service.disclaimer}</p>
+              </div>
+            </div>
+          )}
+
+          <div style={{ background: `linear-gradient(135deg, ${PRIMARY}, ${PRIMARY_DARK})`, borderRadius: 12, padding: '18px 24px', marginBottom: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
             <div style={{ color: 'white' }}>
               <div style={{ fontWeight: 700, fontSize: 15 }}>Get a ZIP-code accurate {service.name.toLowerCase()} estimate</div>
               <div style={{ fontSize: 13, opacity: 0.9 }}>Free · No signup · 60 seconds</div>
             </div>
-            <a href={url(`/?service=${service.id}`)} style={{ background: 'white', color: '#ea580c', padding: '10px 20px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' }}>
+            <a href={url(`/?service=${service.id}`)} style={{ background: 'white', color: PRIMARY, padding: '10px 20px', borderRadius: 8, textDecoration: 'none', fontWeight: 700, fontSize: 14, whiteSpace: 'nowrap' }}>
               Calculate Now →
             </a>
           </div>
 
           <div style={{ background: 'white', borderRadius: 14, border: '1px solid #e2e8f0', padding: '32px 36px', marginBottom: 24 }}>
             <h2 style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', marginBottom: 6 }}>Pricing by Tier</h2>
-            <p style={{ fontSize: 13.5, color: '#64748b', marginBottom: 4 }}>National average pricing — {service.unit}.</p>
+            <p style={{ fontSize: 13.5, color: '#64748b', marginBottom: 4 }}>National average pricing — {service.unit}. <a href={url('/how-we-calculate-prices')} style={{ color: PRIMARY, fontWeight: 600 }}>See how we calculate these prices →</a></p>
             <TiersTable service={service} />
 
             <h2 style={{ fontSize: 19, fontWeight: 800, color: '#0f172a', marginTop: 32, marginBottom: 14 }}>What to Know</h2>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
               {service.bullets.map((b, i) => (
                 <li key={i} style={{ display: 'flex', gap: 8, fontSize: 14.5, color: '#374151', lineHeight: 1.7, marginBottom: 10 }}>
-                  <span style={{ color: '#16a34a', flexShrink: 0 }}>✓</span>{b}
+                  <Check size={16} color="#16a34a" strokeWidth={3} strokeLinecap="square" strokeLinejoin="miter" style={{ flexShrink: 0, marginTop: 2 }} />{b}
                 </li>
               ))}
             </ul>
@@ -212,7 +229,7 @@ export default function ServicePage({ slug }) {
           <div style={{ background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 12, padding: '24px 28px', marginBottom: 32, textAlign: 'center' }}>
             <div style={{ fontWeight: 800, fontSize: 18, color: '#0f172a', marginBottom: 6 }}>Ready to get an accurate estimate?</div>
             <p style={{ fontSize: 14, color: '#64748b', marginBottom: 16 }}>Use our free calculator for a ZIP-code accurate {service.name.toLowerCase()} estimate in under 60 seconds.</p>
-            <a href={url(`/?service=${service.id}`)} style={{ background: '#ea580c', color: 'white', padding: '12px 28px', borderRadius: 9, textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
+            <a href={url(`/?service=${service.id}`)} style={{ background: PRIMARY, color: 'white', padding: '12px 28px', borderRadius: 9, textDecoration: 'none', fontWeight: 700, fontSize: 15 }}>
               Get My Free Estimate →
             </a>
           </div>
@@ -225,7 +242,7 @@ export default function ServicePage({ slug }) {
                   <a key={r.slug} href={url(`/roofing-services/${r.slug}`)} style={{ textDecoration: 'none' }}>
                     <div style={{ background: 'white', borderRadius: 10, border: '1px solid #e2e8f0', padding: '16px 18px' }}>
                       <div style={{ fontSize: 14, fontWeight: 700, color: '#0f172a', lineHeight: 1.4, marginBottom: 6 }}>{r.name}</div>
-                      <span style={{ fontSize: 12.5, color: '#ea580c', fontWeight: 600 }}>See pricing →</span>
+                      <span style={{ fontSize: 12.5, color: PRIMARY, fontWeight: 600 }}>See pricing →</span>
                     </div>
                   </a>
                 ))}

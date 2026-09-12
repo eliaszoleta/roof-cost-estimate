@@ -1,58 +1,22 @@
 // ─── Homepage FAQ content ───────────────────────────────────────────────────
-// General roofing-cost questions shown on the homepage FAQ section, with
-// FAQPage schema. Service-specific FAQs live alongside each service in
-// services.js; state-specific context is generated in statePricing.js /
-// the StatePage component.
+// General roofing-cost questions shown on the homepage FAQ section and
+// reused on the state cost pages. Service-specific FAQs live alongside each
+// service in services.js.
 
 const FAQS = [
-  {
-    q: 'How much does a roof replacement cost?',
-    a: 'Roof replacement typically costs $5,500–$15,000 for an average home, depending on size, material, and location. Asphalt shingles average $3.25–$6.25 per sq ft installed for the most common tiers, while metal, tile, and premium materials cost significantly more.',
-  },
-  {
-    q: 'How much does roof repair cost?',
-    a: 'Minor roof repairs — a few shingles, flashing, or a small leak — cost $150–$450. Larger repairs covering more of the roof or storm damage can run $1,000–$6,500 depending on scope.',
-  },
-  {
-    q: 'How much does a metal roof cost?',
-    a: 'Metal roofing costs $7.50–$21 per sq ft installed. Corrugated panels are the most affordable option, while standing seam — the premium, longest-lasting choice — runs $15–$21 per sq ft.',
-  },
-  {
-    q: 'How long does a roof last?',
-    a: 'Asphalt shingles last 20–30 years. Metal roofs last 40–70 years. Tile and slate roofs can last 50–100+ years with proper maintenance.',
-  },
-  {
-    q: 'Is RoofingCal really free?',
-    a: 'Yes, 100% free. No account needed. Enter your ZIP code and roof details to get an instant, location-specific estimate you can use to compare contractor quotes.',
-  },
-  {
-    q: 'What factors affect my roofing estimate the most?',
-    a: 'The five biggest factors are: roof size, material choice, pitch/steepness, number of stories, and your location. Labor rates in high cost-of-living states like California, New York, and Hawaii can run 30–55% above the national average.',
-  },
-  {
-    q: 'Do I need a permit to replace my roof?',
-    a: 'Most municipalities require a roofing permit, typically costing $100–$500. Reputable contractors pull permits as a standard part of the job — skipping one can void your homeowner\'s insurance and create issues when you sell your home.',
-  },
-  {
-    q: 'What time of year is cheapest to replace a roof?',
-    a: 'Late fall and winter (outside of freezing regions) tend to be the roofing industry\'s slower season, so some contractors offer lower pricing or faster scheduling. Spring and summer are the busiest and most expensive months in most markets.',
-  },
-  {
-    q: 'Will homeowners insurance cover my roof replacement?',
-    a: 'Sudden damage from storms, wind, hail, or fallen debris is often covered under a standard homeowner\'s policy. Gradual wear-and-tear or age-related deterioration typically is not. Document damage with photos and contact your insurer before starting any work.',
-  },
-  {
-    q: 'How is roof size measured for pricing?',
-    a: 'Roofers price by the "square" — 1 square = 100 sq ft of actual roof surface. Because of pitch, your roof surface is larger than your home\'s footprint; a steep roof can have significantly more surface area than a flat one over the same floor plan.',
-  },
-  {
-    q: 'Should I get multiple roofing quotes?',
-    a: 'Yes — getting at least three in-person quotes from licensed, insured contractors is the best way to confirm you\'re getting a fair price and can save 10–15% versus accepting the first bid.',
-  },
-  {
-    q: 'How accurate is RoofingCal\'s estimate?',
-    a: 'Our estimates use ZIP-code-level labor data, national material pricing, and your specific roof details (size, pitch, material, complexity) to generate a realistic low-to-high range. Final pricing always requires an in-person contractor assessment.',
-  },
+  { q: 'How much does a new roof cost in 2026?', a: 'A new asphalt shingle roof costs $7,400–$10,900 for a typical 1,500–2,000 sq ft home in 2026, using architectural (dimensional) shingles. Prices vary by state — California runs closer to $12,700–$17,000 for the same size roof, while states like Mississippi and West Virginia run $6,300–$8,500. Use our free roof cost calculator above to get a ZIP-code specific estimate in seconds.' },
+  { q: 'How do I calculate roof replacement cost for my home?', a: 'To calculate roof replacement cost, use our free roof cost estimator: select your material (shingle, metal, tile, or flat), enter your ZIP code, and provide your roof\'s size, pitch, and story count. Our calculator uses real material and labor pricing with state-by-state cost-of-living adjustments to generate an estimate in under 60 seconds. As a rough manual estimate: multiply your roof\'s square footage by $4.25–$6.25 for architectural shingles, then adjust for your local labor rates.' },
+  { q: 'How much does it cost to reroof an average-size house?', a: 'For a 1,500–2,000 sq ft roof — the most common size — a full asphalt shingle replacement costs $7,400–$10,900 installed, including tear-off of one existing layer. Smaller roofs (under 1,500 sq ft) run $5,100–$7,500, and larger roofs over 3,000 sq ft run $14,900–$21,900.' },
+  { q: 'How much does a metal roof cost compared to shingles?', a: 'Metal roofing costs roughly 2–4x more than asphalt shingles upfront — $15,000–$42,000 for a typical 2,000 sq ft roof depending on panel type, versus $7,400–$10,900 for shingles. Metal lasts significantly longer (40–70 years vs. 20–30), so the lifetime cost gap is smaller than the upfront price suggests.' },
+  { q: 'How much does roof repair cost?', a: 'A small, localized roof repair (50–200 sq ft, the most common type) costs $400–$1,100. Minor fixes like a few shingles or flashing run $150–$450, while major storm damage over 500 sq ft can run $2,500–$6,500. Emergency tarping to stop an active leak runs $450–$2,200.' },
+  { q: 'How much does a roof inspection cost?', a: 'A standard visual roof inspection costs $150–$325. Drone inspections run $200–$400, post-storm/insurance inspections run $200–$475, and thermal/infrared inspections (which detect hidden moisture) run $400–$750.' },
+  { q: 'How long does a roof last?', a: 'Asphalt shingles typically last 20–30 years, standing seam metal lasts 40–70 years, concrete/clay tile lasts 50+ years, and natural slate can last 75–100+ years. Flat roof membranes (TPO, EPDM, PVC) typically carry 15–30 year warranties. Climate, ventilation, and installation quality all affect actual lifespan.' },
+  { q: 'What factors affect roof replacement cost the most?', a: 'The biggest factors are: (1) Roof size — more square footage means more material and labor, (2) Material — asphalt shingles are cheapest, metal and tile cost significantly more, (3) Pitch — steep roofs (6:12+) require harnesses and cost up to 50% more in labor, (4) Tear-off — removing existing layers adds $0.80–$1.90/sq ft, (5) Decking — rotted sheathing found during tear-off adds $2.00–$5.50/sq ft, and (6) Location — labor and material costs vary significantly by state.' },
+  { q: 'Should I repair or fully replace my roof?', a: 'As a rule of thumb, if damage affects more than roughly 30% of the roof, or the roof is already near the end of its expected lifespan (20+ years for shingles), full replacement is usually more cost-effective than another repair. A roof inspection ($150–$325) is the best way to get a clear answer for your specific roof.' },
+  { q: 'Does homeowner\'s insurance cover a new roof?', a: 'Sudden damage from a storm, wind, hail, or a fallen tree is typically covered by homeowner\'s insurance (minus your deductible). Gradual wear-and-tear, age-related deterioration, or lack of maintenance usually is not covered — insurers expect roofs to be replaced on a normal lifespan schedule.' },
+  { q: 'How much does gutter installation cost with a new roof?', a: 'New gutters cost $540–$6,840 depending on material and home size, with aluminum (the most common choice) running $900–$1,620 for a typical 180 linear foot home. Many roofing companies offer a bundled discount when gutters are replaced alongside a full roof replacement.' },
+  { q: 'How do I get a free roof cost estimate?', a: 'Use the roof cost calculator at the top of this page — it\'s completely free, requires no signup, and gives you an instant estimate based on your ZIP code, roof material, size, and pitch. For an official quote, contact 2–3 local roofing contractors and request an in-person inspection.' },
+  { q: 'Can I get a roofing estimate online instead of scheduling an in-home visit?', a: 'Yes — that\'s exactly what this calculator is built for. You get a full roof cost estimate online in under 60 seconds, based on real material, labor, and state-by-state pricing data, without a salesperson visiting your home. It works for shingle, metal, tile, and flat roofing, plus repair, inspection, and gutter installation — no signup required.' },
 ];
 
 export function getAllFaqs() {
