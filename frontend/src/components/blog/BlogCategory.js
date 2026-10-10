@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { DollarSign, Layers, Wrench, RefreshCw, Shield, CreditCard, BookOpen, ChevronLeft } from 'lucide-react';
+import { DollarSign, Layers, Wrench, RefreshCw, Shield, CreditCard, BookOpen, ChevronLeft, Rocket } from 'lucide-react';
 import { getPostsByCategory } from '../../data/blogPosts';
 import { url } from '../../utils/routes';
 
@@ -12,6 +12,7 @@ const CATEGORY_META = {
   'roofing-insurance':{ label: 'Roofing Insurance',Icon: Shield,     desc: 'Navigate insurance claims and coverage for roof damage.' },
   'roofing-financing':{ label: 'Roofing Financing',Icon: CreditCard, desc: 'Loans, 0% promotions, and how to pay for a new roof.' },
   'roofing-basics':   { label: 'Roofing Basics',   Icon: BookOpen,   desc: 'Foundational knowledge every homeowner should have.' },
+  'starting-a-roofing-business': { label: 'Starting a Roofing Business', Icon: Rocket, desc: 'Licensing, startup costs, equipment, and everything you need to start and grow a roofing business.' },
 };
 
 export default function BlogCategory({ category }) {

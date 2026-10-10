@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { Helmet } from 'react-helmet-async';
-import { DollarSign, Layers, Wrench, RefreshCw, Shield, CreditCard, BookOpen, Search, X } from 'lucide-react';
+import { DollarSign, Layers, Wrench, RefreshCw, Shield, CreditCard, BookOpen, Search, X, Rocket } from 'lucide-react';
 import { getAllPosts, getCategories } from '../../data/blogPosts';
 import { url } from '../../utils/routes';
 
@@ -12,6 +12,7 @@ const CATEGORY_LABELS = {
   'roofing-insurance':{ label: 'Roofing Insurance',Icon: Shield     },
   'roofing-financing':{ label: 'Roofing Financing',Icon: CreditCard },
   'roofing-basics':   { label: 'Roofing Basics',   Icon: BookOpen   },
+  'starting-a-roofing-business': { label: 'Starting a Roofing Business', Icon: Rocket },
 };
 
 function PostCard({ post, featured = false }) {
