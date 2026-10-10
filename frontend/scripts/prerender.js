@@ -67,6 +67,7 @@ const CATEGORIES = [
   { slug: 'roof-repair',       label: 'Roof Repair',       desc: "Fix leaks, damaged shingles, and extend your roof's life." },
   { slug: 'roof-replacement',  label: 'Roof Replacement',  desc: 'Everything you need to know about replacing your roof.' },
   { slug: 'roofing-insurance', label: 'Roofing Insurance', desc: 'Navigate insurance claims and coverage for roof damage.' },
+  { slug: 'roofing-financing', label: 'Roofing Financing', desc: 'Loans, 0% promotions, and how to pay for a new roof.' },
   { slug: 'roofing-basics',    label: 'Roofing Basics',    desc: 'Foundational knowledge every homeowner should have.' },
 ];
 

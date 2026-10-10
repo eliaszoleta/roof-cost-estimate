@@ -1,6 +1,7 @@
 // ─── Blog post data ─────────────────────────────────────────────────────────────
 // Categories: roofing-costs | roof-materials | roof-repair |
-//             roof-replacement | roofing-insurance | roofing-basics
+//             roof-replacement | roofing-insurance | roofing-financing |
+//             roofing-basics
 
 const POSTS = [
 
@@ -920,6 +921,164 @@ const POSTS = [
           'Manufacturer warranty: Covers defects in roofing materials. Typically 25–50 years for architectural shingles. Often requires professional installation and registration.',
           'Workmanship warranty: Covers the contractor\'s installation quality. Varies widely — 1 year to lifetime depending on the contractor. Get it in writing.',
           'Tear-off: Removing the existing roofing material before installing new. Adds cost ($0.50–$2.00/sq ft) but is required when adding layers would exceed building code limits or when the deck needs inspection.',
+        ],
+      },
+    ],
+  },
+
+  // ─── CATEGORY 7: roofing-financing ──────────────────────────────────────────
+
+  {
+    slug: 'how-to-finance-a-new-roof',
+    title: 'How to Finance a New Roof: Every Option Compared (2026)',
+    seoTitle: 'How to Finance a New Roof: Every Option Compared (2026) | RoofingCal',
+    metaDescription: 'A new roof costs $5,500–$12,500 — more than most households keep in savings. Compare roofing company financing, personal loans, HELOCs, and cash-out refinancing to find the cheapest way to pay.',
+    category: 'roofing-financing',
+    publishedDate: '2026-04-24',
+    readTime: '8 min read',
+    tags: ['roof financing', 'roofing loan', 'home improvement loan', 'HELOC'],
+    relatedSlugs: ['should-you-finance-or-pay-cash-for-a-roof', 'roofing-0-percent-financing-explained', 'how-much-does-a-new-roof-cost'],
+    sections: [
+      {
+        h2: "Why Most Homeowners Don't Pay Cash",
+        paragraphs: [
+          "At $5,500–$12,500 for an average replacement — and well over $20,000 for metal or tile — a new roof is one of the larger bills a homeowner will face, and it usually arrives without warning. A storm, a sudden leak, or a contractor flagging advanced wear during an unrelated inspection rarely lines up with having that much sitting in a savings account.",
+          "That's why the large majority of roof replacements in the US are financed in some form, whether through the roofing company itself, a bank, or home equity. The option that's cheapest depends heavily on your credit, how much equity you have in your home, and how fast you need the work done.",
+        ],
+      },
+      {
+        h2: 'Option 1: Roofing Company Financing',
+        paragraphs: [
+          "Most established roofing contractors partner with a specialty lender (companies like GreenSky, Hearth, or Service Finance Company) to offer financing at the point of sale. You apply during your consultation, often get approved same-day, and the loan is unsecured — no lien on your home.",
+          'Rates run a wide range, roughly 6%–24% APR, depending on your credit score and the specific promotion running. Terms typically span 5–15 years. The convenience is real, but these loans often carry a "dealer fee" baked into the roofing company\'s price — ask directly whether the cash price and the financed price are the same number, since a gap between them is effectively a hidden financing cost.',
+        ],
+      },
+      {
+        h2: 'Option 2: Home Equity Loan or HELOC',
+        paragraphs: [
+          "If you have equity built up, a home equity loan or home equity line of credit (HELOC) typically offers the lowest rates available for a roof — often several points below an unsecured roofing loan, since your home secures the debt. Interest may also be tax-deductible when the funds go toward improving the home that secures the loan; confirm specifics with a tax professional.",
+          'The tradeoffs: approval takes longer (often 2–6 weeks, versus same-day for contractor financing), there are closing costs on a home equity loan, and your home is now collateral — missed payments carry more serious consequences than an unsecured personal loan.',
+        ],
+      },
+      {
+        h2: 'Option 3: Personal Loan',
+        paragraphs: [
+          "An unsecured personal loan from a bank, credit union, or online lender (SoFi, LightStream, Marcus) works similarly to contractor financing but is arranged independently, which means you can shop rates before you ever talk to a roofer. Well-qualified borrowers (720+ credit score) can often land 7%–12% APR; weaker credit pushes well into the teens.",
+          "Credit unions in particular are worth checking first — their personal loan rates frequently undercut both big banks and roofing-company lenders for members with decent credit.",
+        ],
+      },
+      {
+        h2: 'Option 4: Cash-Out Refinance',
+        paragraphs: [
+          "Rolling the cost into a refinance of your mortgage can make sense if current mortgage rates are at or below your existing rate, letting you tap equity without taking on a second loan or monthly payment. If rates have risen since your original mortgage, though, refinancing your entire balance to fund a roof usually costs more over time than a smaller, separate loan — run the numbers before assuming this is the cheap option.",
+        ],
+      },
+      {
+        h2: 'Option 5: 0% Promotional Financing',
+        paragraphs: [
+          'Many roofing companies advertise "0% for 12 months" or similar promotions. These can be genuinely free money if you pay the full balance before the promotional period ends — but most are structured as deferred-interest loans, where missing the deadline by even one payment retroactively charges interest on the full original balance, not just what\'s left. See our full guide to how these loans actually work before signing one.',
+        ],
+      },
+      {
+        h2: 'Which Option Should You Choose?',
+        table: [
+          ['Option', 'Typical APR', 'Speed', 'Best For'],
+          ['Roofing company financing', '6%–24%', 'Same-day', 'Fast approval, no equity needed'],
+          ['Home equity loan / HELOC', '7%–11%', '2–6 weeks', 'Homeowners with equity, lowest rate'],
+          ['Personal loan', '7%–20%', '1–3 days', 'Good credit, want to shop rates first'],
+          ['Cash-out refinance', 'Varies with mortgage rates', '3–6 weeks', 'Rates have dropped since your mortgage'],
+          ['0% promotional', '0% if paid in full', 'Same-day', 'Can realistically pay off before deadline'],
+        ],
+        paragraphs: [
+          "As a rule of thumb: if you have home equity and aren't in a rush, a HELOC or home equity loan is usually cheapest. If you need the roof fixed now and don't want to put your home up as collateral, compare a personal loan against the contractor's in-house financing — and always ask the contractor for the cash price so you can see exactly what financing costs you.",
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'roofing-0-percent-financing-explained',
+    title: '0% APR Roofing Loans: How They Work and What to Watch For',
+    seoTitle: '0% APR Roofing Loans Explained: The Deferred-Interest Trap | RoofingCal',
+    metaDescription: "0% roofing financing can be genuinely free — or cost thousands in retroactive interest if you miss the payoff deadline. Here's exactly how deferred-interest roofing loans work.",
+    category: 'roofing-financing',
+    publishedDate: '2026-04-27',
+    readTime: '6 min read',
+    tags: ['0% financing', 'roof financing', 'deferred interest', 'roofing loan'],
+    relatedSlugs: ['how-to-finance-a-new-roof', 'should-you-finance-or-pay-cash-for-a-roof', 'how-to-choose-a-roofing-contractor'],
+    sections: [
+      {
+        h2: 'What "0% for 12 Months" Actually Means',
+        paragraphs: [
+          'Almost all roofing "0% interest" promotions are deferred-interest loans, not true no-interest loans. The lender calculates interest on your full loan balance from day one at a standard rate (often 20%+ APR) — but waives it entirely if you pay off the complete balance before the promotional period ends. Miss that deadline by even a single payment, and the lender charges all the interest that accrued from the original purchase date, not just interest going forward.',
+          'This is different from a 0% credit card promotion, where unpaid interest going forward (not retroactively) usually starts accruing after the intro period. Deferred-interest roofing loans are structured to penalize you for the entire loan, which is why the fine print matters enormously here.',
+        ],
+      },
+      {
+        h2: 'A Real Example of the Trap',
+        paragraphs: [
+          "On a $10,000 roof financed at 0% for 18 months with a 21.99% APR backup rate: if you pay it off in full by month 18, you've paid $10,000 total. If you still owe $500 in month 19 because of one missed or short payment, the lender can charge you interest on the full original $10,000 — calculated back to day one — which can easily add $2,000–$3,000 to your bill depending on the exact terms.",
+          "This isn't a hypothetical edge case. Consumer complaint data to the CFPB consistently shows deferred-interest promotions as one of the most common sources of surprise retail-financing charges.",
+        ],
+      },
+      {
+        h2: 'Questions to Ask Before Signing',
+        paragraphs: [
+          'Ask explicitly: "Is this deferred interest, or is it a true 0% loan where unpaid interest is simply waived (not charged retroactively) after the promo period?" Get the answer in writing, not just verbally from the salesperson. Ask what the backup APR is if the balance isn\'t paid in full — this number, not "0%," is the real risk you\'re taking on.',
+          "Also confirm exactly what counts as the payoff deadline — the day the promotional period ends, or the due date of your final statement, which can be slightly different and has tripped up borrowers who paid \"on time\" by their own calendar but a few days after the lender's cutoff.",
+        ],
+      },
+      {
+        h2: 'When 0% Financing Makes Sense',
+        paragraphs: [
+          "If you have a clear, reliable source of funds landing before the deadline — an insurance payout, a bonus, a maturing CD — and you're confident you can hit the full payoff date, deferred-interest financing can be the cheapest option on this list, full stop. The risk is specifically for homeowners who plan to \"pay it off eventually\" without a concrete payoff date, since that's exactly the scenario that triggers the retroactive interest.",
+          "If you're not confident you can hit the deadline with room to spare, a standard personal loan or home equity loan at a modest fixed rate is often the safer and ultimately cheaper choice — see our full roof financing comparison for the other options.",
+        ],
+      },
+    ],
+  },
+
+  {
+    slug: 'should-you-finance-or-pay-cash-for-a-roof',
+    title: 'Should You Finance or Pay Cash for a New Roof?',
+    seoTitle: 'Should You Finance or Pay Cash for a New Roof? | RoofingCal',
+    metaDescription: 'Paying cash avoids interest entirely, but financing preserves your emergency fund. Here is a clear framework for deciding which makes more sense for your situation.',
+    category: 'roofing-financing',
+    publishedDate: '2026-04-29',
+    readTime: '6 min read',
+    tags: ['roof financing', 'pay cash', 'home improvement budget'],
+    relatedSlugs: ['how-to-finance-a-new-roof', 'roofing-0-percent-financing-explained', 'how-much-does-a-new-roof-cost'],
+    sections: [
+      {
+        h2: 'The Case for Paying Cash',
+        paragraphs: [
+          'Paying cash is the cheapest option in pure dollar terms whenever you have the money sitting in a low-yield account anyway — there\'s no interest to pay, no approval process, and no monthly payment to manage for the next 5–15 years. If your roof costs $8,500 and you have $15,000+ in accessible savings beyond your emergency fund, cash is usually the straightforward right call.',
+          "The key qualifier is \"beyond your emergency fund.\" A roof replacement is itself the kind of emergency that fund exists for, but draining it entirely to cover one leaves you exposed if a second unrelated expense (a car repair, a medical bill) hits in the following months.",
+        ],
+      },
+      {
+        h2: 'The Case for Financing',
+        paragraphs: [
+          "Financing makes sense when paying cash would leave you without a safety net, when you can get a 0% or low-single-digit promotional rate and can comfortably hit the payoff terms, or when the opportunity cost of your cash is high — money sitting in investments earning more than a roof loan's interest rate is, mathematically, better off staying invested.",
+          "It also makes sense simply as a cash-flow preference: a predictable $150–$300/month payment is easier for many households to absorb than a single five-figure withdrawal, even when the total cost with interest ends up slightly higher.",
+        ],
+      },
+      {
+        h2: 'A Simple Decision Framework',
+        table: [
+          ['Your Situation', 'Likely Better Choice'],
+          ['Cash covers the roof with 3+ months of expenses still in savings after', 'Pay cash'],
+          ['Cash would leave you with less than 3 months of expenses in savings', 'Finance'],
+          ['You qualify for 0% financing and can hit the payoff deadline with room to spare', 'Finance (0%)'],
+          ['Your investments are earning more than the loan APR you\'d pay', 'Finance, invest the cash'],
+          ['You\'re not confident about hitting a deferred-interest payoff deadline', 'Pay cash, or use a fixed-rate loan instead'],
+        ],
+      },
+      {
+        h2: 'A Middle Path: Partial Financing',
+        paragraphs: [
+          "You don't have to pick one or the other for the entire bill. Some homeowners pay a meaningful down payment in cash — enough to keep the financed amount, and therefore the monthly payment and total interest, small — then finance the remainder. This keeps your emergency fund mostly intact while limiting how much interest you pay overall.",
+          'Whichever path you choose, get your roofing quotes first and your financing approval second — comparing 2–3 contractor quotes before locking in financing terms is one of the most reliable ways to avoid overpaying on either side of the deal.',
         ],
       },
     ],

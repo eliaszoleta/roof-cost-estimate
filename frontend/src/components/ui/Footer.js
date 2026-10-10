@@ -7,6 +7,7 @@ const BLOG_CATEGORIES = [
   { slug: 'roof-repair',         label: 'Roof Repair'          },
   { slug: 'roof-replacement',    label: 'Roof Replacement'     },
   { slug: 'roofing-insurance',   label: 'Roofing & Insurance'  },
+  { slug: 'roofing-financing',   label: 'Roofing Financing'    },
   { slug: 'roofing-basics',      label: 'Roofing Basics'       },
 ];
 

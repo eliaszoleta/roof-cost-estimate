@@ -106,6 +106,12 @@
     <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
+  <url>
+    <loc>https://roofingcal.com/blog/category/roofing-financing</loc>
+    <lastmod>2026-10-10</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.7</priority>
+  </url>
 
   <!-- Blog posts (auto-generated from blogPosts.js) -->
   <url>
@@ -213,6 +219,24 @@
   <url>
     <loc>https://roofingcal.com/blog/roofing-terms-glossary</loc>
     <lastmod>2026-04-20</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://roofingcal.com/blog/how-to-finance-a-new-roof</loc>
+    <lastmod>2026-04-24</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://roofingcal.com/blog/roofing-0-percent-financing-explained</loc>
+    <lastmod>2026-04-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://roofingcal.com/blog/should-you-finance-or-pay-cash-for-a-roof</loc>
+    <lastmod>2026-04-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>

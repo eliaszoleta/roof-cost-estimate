@@ -6,7 +6,7 @@ import { url } from '../../utils/routes';
 const CATEGORY_LABELS = {
   'roofing-costs':'Roofing Costs','roof-materials':'Roof Materials',
   'roof-repair':'Roof Repair','roof-replacement':'Roof Replacement',
-  'roofing-insurance':'Roofing Insurance','roofing-basics':'Roofing Basics',
+  'roofing-insurance':'Roofing Insurance','roofing-financing':'Roofing Financing','roofing-basics':'Roofing Basics',
 };
 
 function CostTable({ rows }) {

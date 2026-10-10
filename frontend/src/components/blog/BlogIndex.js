@@ -1,6 +1,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
-import { DollarSign, Layers, Wrench, RefreshCw, Shield, BookOpen } from 'lucide-react';
+import { DollarSign, Layers, Wrench, RefreshCw, Shield, CreditCard, BookOpen } from 'lucide-react';
 import { getAllPosts, getCategories } from '../../data/blogPosts';
 import { url } from '../../utils/routes';
 
@@ -10,6 +10,7 @@ const CATEGORY_LABELS = {
   'roof-repair':      { label: 'Roof Repair',      Icon: Wrench     },
   'roof-replacement': { label: 'Roof Replacement', Icon: RefreshCw  },
   'roofing-insurance':{ label: 'Roofing Insurance',Icon: Shield     },
+  'roofing-financing':{ label: 'Roofing Financing',Icon: CreditCard },
   'roofing-basics':   { label: 'Roofing Basics',   Icon: BookOpen   },
 };
 
