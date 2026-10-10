@@ -7,7 +7,6 @@ import {
 } from 'lucide-react';
 import Header from '../ui/Header';
 import Footer from '../ui/Footer';
-import NoWebsiteBanner from '../ui/NoWebsiteBanner';
 import { url } from '../../utils/routes';
 
 const FEATURES = [
@@ -187,8 +186,6 @@ export default function CompanyLanding() {
               </div>
             </div>
           </div>
-
-          <NoWebsiteBanner />
 
           {/* ── How It Works ── */}
           <div style={{ padding: '80px 24px 72px', background: '#f8fafc' }}>

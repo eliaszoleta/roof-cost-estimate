@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import NoWebsiteBanner from '../ui/NoWebsiteBanner';
 import { url } from '../../utils/routes';
 
 const PRIMARY = '#ea580c';
@@ -155,8 +154,6 @@ export default function PartnerWithUs() {
           <StatBadge number="$350" label="Per city / month" />
         </div>
       </div>
-
-      <NoWebsiteBanner />
 
       {/* Why it works */}
       <div style={{ padding: 'clamp(48px, 8vw, 80px) 24px', background: 'white' }}>
