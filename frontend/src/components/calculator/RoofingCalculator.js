@@ -172,11 +172,11 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
               Free • Instant • No signup required
             </div>
             <h1 style={{ fontSize: 'clamp(22px, 4vw, 36px)', fontWeight: 800, color: '#0f172a', lineHeight: 1.2, marginBottom: 8 }}>
-              How Much Does a New Roof Cost{' '}
-              <span style={{ color: primaryColor }}>In Your Area?</span>
+              Free Roofing Cost Calculator{' '}
+              <span style={{ color: primaryColor }}>& Estimator</span>
             </h1>
             <p style={{ fontSize: 15, color: '#64748b', maxWidth: 480, margin: '0 auto' }}>
-              ZIP-code accurate estimates for any roofing project — in seconds.
+              Get an instant, ZIP-code accurate roof cost estimate for your area in seconds.
             </p>
           </div>
         )}
