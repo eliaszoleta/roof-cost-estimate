@@ -1,14 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { url, getPathname } from '../../utils/routes';
-import NoWebsiteBanner from './NoWebsiteBanner';
-
-// Hidden on the banner's own sales page (showing "get a website" on the
-// page that already is the website offer would be redundant) and on a
-// prospect's private /website-approval/:token review page (they're already
-// mid-flow on this exact offer). Shown everywhere else Header renders.
-function shouldHideBanner(pathname) {
-  return pathname === '/website-for-roofing-companies' || pathname.startsWith('/website-approval/');
-}
+import { url } from '../../utils/routes';
+import WebsiteOfferBanner from './WebsiteOfferBanner';
 
 const styles = {
   header: {
@@ -103,7 +95,6 @@ const navItems = [
 export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
-  const showBanner = !shouldHideBanner(getPathname());
 
   useEffect(() => {
     const onResize = () => setIsMobile(window.innerWidth <= 768);
@@ -113,7 +104,7 @@ export default function Header() {
 
   return (
     <>
-    <header style={styles.header}>
+    <header id="site-header" style={styles.header}>
       <div style={styles.inner}>
         <a href={url("/")} style={{ ...styles.logo, fontSize: isMobile ? 16 : 20 }} aria-label="RoofingCal — Free Roofing Cost Estimator">
           <span style={styles.logoIcon} aria-hidden="true">
@@ -199,7 +190,7 @@ export default function Header() {
         </div>
       )}
     </header>
-    {showBanner && <NoWebsiteBanner />}
+    <WebsiteOfferBanner />
     </>
   );
 }
