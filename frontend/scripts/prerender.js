@@ -61,6 +61,15 @@ function loadCitiesData(statesMod, servicesMod) {
   return fn(statesMod.getStateBySlug, statesMod.adjustForState, servicesMod.getAllServices, servicesMod.typicalCost);
 }
 
+function loadSitesData() {
+  const raw = fs.readFileSync(path.join(SRC, 'components/demo-sites/siteConfigs.js'), 'utf8');
+  const src = raw
+    .replace(/^export function /gm, 'function ')
+    .replace(/^export default SITES;\s*$/m, '');
+  const fn = new Function(`${src}\nreturn { getSite, getAllSites, getFaqs };`);
+  return fn();
+}
+
 const CATEGORIES = [
   { slug: 'roofing-costs',     label: 'Roofing Costs',     desc: 'Understand what you should pay for any roofing project.' },
   { slug: 'roof-materials',    label: 'Roof Materials',    desc: 'Compare shingles, metal, tile, and more.' },
@@ -107,7 +116,7 @@ function formatDate(iso) {
   return new Date(iso).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
 }
 
-function pageShell({ title, description, canonicalPath, assets, bodyHtml, extraHead = '' }) {
+function pageShell({ title, description, canonicalPath, assets, bodyHtml, extraHead = '', robots = 'index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1' }) {
   const url = `${DOMAIN}${canonicalPath}`;
   return `<!DOCTYPE html>
 <html lang="en">
@@ -121,7 +130,7 @@ function pageShell({ title, description, canonicalPath, assets, bodyHtml, extraH
   <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
   <title>${esc(title)}</title>
   <meta name="description" content="${esc(description)}">
-  <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1">
+  <meta name="robots" content="${esc(robots)}">
   <link rel="canonical" href="${url}">
   <link rel="sitemap" type="application/xml" href="/sitemap.xml">
   <meta property="og:title" content="${esc(title)}">
@@ -253,6 +262,85 @@ function renderForCompanies(assets) {
     canonicalPath: '/for-companies',
     assets,
     bodyHtml: body,
+  });
+}
+
+// Lightweight crawler mirror of WebsiteSubscription.js (the "Get a
+// Done-For-You Website" sales page) -- summarizes the hero, what's
+// included, and pricing rather than recreating the full interactive page,
+// same abbreviated-mirror approach as renderForCompanies above. Without
+// this, Vercel's catch-all rewrite would silently serve the *homepage's*
+// prerendered HTML to Googlebot's first-pass crawl of this URL (see the
+// comment on main()'s writeFile calls below).
+function renderWebsiteSubscription(assets) {
+  const body = `<div style="font-family:system-ui,-apple-system,sans-serif">
+    <div style="background:linear-gradient(135deg, #1c1917 0%, #431407 100%);color:white;padding:64px 24px 80px;text-align:center">
+      <div style="max-width:780px;margin:0 auto">
+        <div style="font-size:12px;font-weight:700;color:#fb923c;letter-spacing:0.16em;text-transform:uppercase;margin-bottom:18px">Roofing Website + Lead App</div>
+        <h1 style="font-size:clamp(22px,4vw,36px);font-weight:800;line-height:1.3;margin-bottom:16px">A Professional Roofing Website, Built and Hosted for You — With Every Lead Landing Right In Your Pocket</h1>
+        <p style="font-size:15px;color:#d6d3d1;max-width:540px;margin:0 auto 28px;line-height:1.55">No roofing website yet? We build it, host it, and connect every estimate request, text, and call to a mobile app you carry with you — for one flat monthly rate, no big upfront cost.</p>
+        <a href="#apply" style="display:inline-flex;align-items:center;gap:8px;background:${PRIMARY};color:white;padding:15px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15.5px">Build My Free Sample Site &rarr;</a>
+      </div>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:56px 24px">
+      <h2 style="font-size:28px;font-weight:800;color:#0f172a;margin-bottom:20px">What's Included</h2>
+      <ul style="font-size:15px;color:#374151;line-height:2;padding-left:20px">
+        <li>A custom roofing website built for your business — not a generic template</li>
+        <li>A domain name of your choice</li>
+        <li>Fast, secure hosting, fully managed — nothing for you to set up</li>
+        <li>A website chat widget that can auto-reply with AI or be switched to manual</li>
+        <li>A built-in lead capture form so visitors can request a free estimate right from your site</li>
+        <li>A mobile app where every website chat and estimate form lead lands</li>
+        <li>Priority support for ongoing changes — no extra invoices</li>
+        <li>No long-term contract — cancel anytime</li>
+      </ul>
+      <h2 style="font-size:28px;font-weight:800;color:#0f172a;margin:40px 0 16px">Simple Pricing, Zero Risk</h2>
+      <p style="font-size:15px;color:#374151;line-height:1.8">We build your live roofing website first — you only pay once you've seen and approved it. Just $5 one-time to lock it in, then your first 2 months are completely free. After that it's a flat $249/month, cancel anytime.</p>
+      <p style="font-size:15px;color:#374151;line-height:1.8">See example designs at <a href="/website-example" style="color:${PRIMARY};font-weight:600">roofingcal.com/website-example</a>, or apply directly at <a href="/website-for-roofing-companies" style="color:${PRIMARY};font-weight:600">this page</a> to get your own free sample built.</p>
+    </div>
+  </div>`;
+  return pageShell({
+    title: 'Roofing Website + Lead App for Roofing Companies | RoofingCal',
+    description: 'Get a professional roofing website built free to preview. Approve it for just $5, get 2 months free, then $249/month — with every lead landing in a mobile app you can reply to instantly.',
+    canonicalPath: '/website-for-roofing-companies',
+    assets,
+    bodyHtml: body,
+  });
+}
+
+// Lightweight crawler mirror of DemoGallery.js -- the example-site showcase
+// index. Deliberately noindex (matches cleanestimator.com's own
+// /website-example page): these are fictional demo businesses built to
+// show design range, not real content worth ranking in search on their
+// own, but still worth crawling through (follow) so links to the real
+// sales page above get discovered.
+function renderDemoGallery(sitesMod, assets) {
+  const sites = sitesMod.getAllSites();
+  const cards = sites.map(site => `
+    <a href="/website-example/${site.slug}" target="_blank" rel="noopener noreferrer" style="display:block;text-decoration:none;border-radius:16px;overflow:hidden;background:white;border:1px solid #e2e8f0;margin-bottom:16px">
+      <div style="height:72px;background:linear-gradient(135deg, ${site.colors.primary} 0%, ${site.colors.primaryDark} 100%);display:flex;align-items:center;padding:0 20px">
+        <div style="width:36px;height:36px;border-radius:9px;background:${site.colors.accent};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:12px;color:${site.colors.primaryDark}">${esc(site.logoLabel)}</div>
+      </div>
+      <div style="padding:16px 20px">
+        <div style="font-weight:700;font-size:16px;color:#0f172a;margin-bottom:4px">${esc(site.businessName)}</div>
+        <div style="font-size:13px;color:#64748b">${esc(site.tagline)}</div>
+      </div>
+    </a>`).join('');
+
+  const body = `<div style="font-family:system-ui,-apple-system,sans-serif">
+    <div style="background:linear-gradient(135deg, #0f172a 0%, #1e3a8a 100%);color:white;padding:56px 24px 64px;text-align:center">
+      <h1 style="font-size:clamp(26px,4.5vw,40px);font-weight:800;margin-bottom:16px">See What Your Roofing Website Could Actually Look Like</h1>
+      <p style="font-size:15.5px;color:#94a3b8;max-width:600px;margin:0 auto">${sites.length} example sites for roofing businesses — every one a different design, not one template reskinned.</p>
+    </div>
+    <div style="max-width:700px;margin:0 auto;padding:40px 24px">${cards}</div>
+  </div>`;
+  return pageShell({
+    title: 'Example Roofing Company Website Designs | RoofingCal',
+    description: 'Browse example roofing company websites RoofingCal builds for roofing contractors -- several distinct designs, each with its own look.',
+    canonicalPath: '/website-example',
+    assets,
+    bodyHtml: body,
+    robots: 'noindex, follow',
   });
 }
 
@@ -916,6 +1004,7 @@ function main() {
   const statesMod = loadStatesData();
   const faqsMod = loadFaqsData();
   const citiesMod = loadCitiesData(statesMod, servicesMod);
+  const sitesMod = loadSitesData();
   const assets = getAssetTags();
 
   let count = 0;
@@ -936,6 +1025,10 @@ function main() {
   writeFile('partner-with-us', renderPartnerWithUs(assets));
   count++;
   writeFile('for-companies', renderForCompanies(assets));
+  count++;
+  writeFile('website-for-roofing-companies', renderWebsiteSubscription(assets));
+  count++;
+  writeFile('website-example', renderDemoGallery(sitesMod, assets));
   count++;
 
   writeFile('blog', renderBlogIndex(posts, assets));

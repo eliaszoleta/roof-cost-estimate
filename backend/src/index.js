@@ -9,6 +9,8 @@ const companyRouter = require('./routes/company');
 const authRouter = require('./routes/auth');
 const subscriptionRouter = require('./routes/subscription');
 const leadsRouter = require('./routes/leads');
+const websiteRequestRouter = require('./routes/websiteRequest');
+const websiteRequestAdminRouter = require('./routes/websiteRequestAdmin');
 const { requireAuth } = require('./middleware/auth');
 const { computeSubscriptionStatus } = require('./services/subscriptionStatus');
 const { DEFAULT_COMPANY_CONFIG } = require('./config/defaults');
@@ -33,8 +35,8 @@ app.use('/api/leads', publicCors);
 // Dashboard CORS — restricted to known origins
 const dashboardOrigins = [
   'http://localhost:3000',
-  'https://roofcalculator.com',
-  'https://www.roofcalculator.com',
+  'https://roofingcal.com',
+  'https://www.roofingcal.com',
   /\.vercel\.app$/,
   process.env.FRONTEND_URL,
 ].filter(Boolean);
@@ -60,6 +62,11 @@ app.post(
   express.raw({ type: 'application/json' }),
   subscriptionRouter.webhookHandler
 );
+app.post(
+  '/api/website-request/webhook',
+  express.raw({ type: 'application/json' }),
+  websiteRequestRouter.webhookHandler
+);
 
 // Body parsing — after webhook
 app.use(express.json({ limit: '10kb' }));
@@ -69,6 +76,10 @@ app.use('/api/auth', authRouter);
 
 // Public routes
 app.use('/api/calculate', calculateRouter);
+app.use('/api/website-request', websiteRequestRouter);
+
+// Admin routes (x-admin-key header auth handled inside the router)
+app.use('/api/admin/website-requests', websiteRequestAdminRouter);
 
 // Public company config (for widget) — no auth
 app.get('/api/company/:id/public', async (req, res) => {

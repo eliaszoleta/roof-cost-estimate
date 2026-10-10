@@ -114,3 +114,63 @@ export async function patchLead(token, leadId, updates) {
     method: 'PATCH', headers: { Authorization: `Bearer ${token}` }, body: JSON.stringify(updates),
   });
 }
+
+// WebsiteSubscription.js's "Get a Done-For-You Website" application form --
+// triggers an internal notification email instead of relying on a
+// third-party form service whose destination inbox isn't controlled from
+// this codebase.
+export async function postWebsiteRequest(payload) {
+  return apiFetch('/api/website-request', { method: 'POST', body: JSON.stringify(payload) });
+}
+
+// AdminWebsiteRequests.js -- "Get a Website" applications, same adminKey
+// convention (x-admin-key header) as the backend route gate.
+export async function getAdminWebsiteRequests(adminKey) {
+  return apiFetch('/api/admin/website-requests', { headers: { 'x-admin-key': adminKey } });
+}
+
+// Manual add (e.g. a client who reached out outside the public apply form)
+// -- deliberately skips both the internal "new application" notification
+// and the applicant's own "we got your request" confirmation email.
+export async function createAdminWebsiteRequest(adminKey, payload) {
+  return apiFetch('/api/admin/website-requests', {
+    method: 'POST', headers: { 'x-admin-key': adminKey }, body: JSON.stringify(payload),
+  });
+}
+
+export async function patchAdminWebsiteRequest(adminKey, id, updates) {
+  return apiFetch(`/api/admin/website-requests/${id}`, {
+    method: 'PATCH', headers: { 'x-admin-key': adminKey }, body: JSON.stringify(updates),
+  });
+}
+
+export async function cancelAdminWebsiteSubscription(adminKey, id) {
+  return apiFetch(`/api/admin/website-requests/${id}/cancel-subscription`, {
+    method: 'POST', headers: { 'x-admin-key': adminKey }, body: JSON.stringify({ confirm: true }),
+  });
+}
+
+// Permanent, immediate delete -- cancels their Stripe subscription (if any)
+// and removes the request row. No undo.
+export async function deleteAdminWebsiteRequestForever(adminKey, id) {
+  return apiFetch(`/api/admin/website-requests/${id}`, {
+    method: 'DELETE', headers: { 'x-admin-key': adminKey }, body: JSON.stringify({ confirm: true }),
+  });
+}
+
+// WebsiteApproval.js -- public, token-gated (no adminKey/login; the random
+// token in the URL is the auth). Backs the prospect-facing approve-and-pay
+// flow for a "Get a Website" application.
+export async function getWebsiteRequestByToken(token) {
+  return apiFetch(`/api/website-request/by-token/${token}`);
+}
+
+export async function postWebsiteRequestCheckout(token) {
+  return apiFetch(`/api/website-request/by-token/${token}/checkout`, { method: 'POST' });
+}
+
+export async function postWebsiteRequestVerifySetup(token, sessionId) {
+  return apiFetch(`/api/website-request/by-token/${token}/verify-setup`, {
+    method: 'POST', body: JSON.stringify({ sessionId }),
+  });
+}

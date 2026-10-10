@@ -71,6 +71,8 @@ export default function Footer() {
               ['Contact', url('/contact')],
               ['For Contractors', url('/for-companies')],
               ['Contractor Login', url('/company')],
+              ['Get a Roofing Website + Lead App', url('/website-for-roofing-companies')],
+              ['Example Website Designs', url('/website-example')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}

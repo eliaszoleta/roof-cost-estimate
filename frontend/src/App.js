@@ -25,6 +25,11 @@ import CalculatorPage from './components/pages/CalculatorPage';
 import EstimatorPage from './components/pages/EstimatorPage';
 import MethodologyPage from './components/pages/MethodologyPage';
 import ServiceCalculatorPage, { calculatorSlugFor } from './components/pages/ServiceCalculatorPage';
+import WebsiteSubscription from './components/pages/WebsiteSubscription';
+import WebsiteApproval from './components/pages/WebsiteApproval';
+import AdminWebsiteRequests from './components/admin/AdminWebsiteRequests';
+import DemoGallery from './components/demo-sites/DemoGallery';
+import DemoSitePage from './components/demo-sites/DemoSitePage';
 import { getAllServices } from './data/services';
 import EmbedWrapper from './components/EmbedWrapper';
 import { getPathname, url } from './utils/routes';
@@ -54,6 +59,11 @@ const isCalculatorPage = pathname === '/roofing-cost-calculator';
 const isEstimatorPage = pathname === '/roofing-cost-estimator';
 const isMethodologyPage = pathname === '/how-we-calculate-prices';
 const isServiceCalculatorPage = getAllServices().some(s => pathname === '/' + calculatorSlugFor(s));
+const isWebsiteSubscription = pathname === '/website-for-roofing-companies';
+const websiteApprovalMatch = pathname.match(/^\/website-approval\/([a-f0-9]+)$/);
+const isDemoGallery = pathname === '/website-example';
+const demoSiteMatch = pathname.match(/^\/website-example\/([a-z0-9-]+)(?:\/(about|services|service-areas|contact)(?:\/([a-z0-9-]+))?)?$/);
+const isAdminWebsiteRequests = pathname === '/admin/website-requests';
 
 const embedCompanyId = isEmbed ? searchParams.get('company') : null;
 
@@ -121,6 +131,15 @@ export default function App() {
   if (isEstimatorPage)  return <HelmetProvider><div className="app"><Header /><main><EstimatorPage /></main><Footer /></div></HelmetProvider>;
   if (isMethodologyPage) return <HelmetProvider><div className="app"><Header /><main><MethodologyPage /></main><Footer /></div></HelmetProvider>;
   if (isServiceCalculatorPage) return <HelmetProvider><div className="app"><Header /><main><ServiceCalculatorPage slug={pathname.slice(1)} /></main><Footer /></div></HelmetProvider>;
+  if (isAdminWebsiteRequests) return <HelmetProvider><AdminWebsiteRequests /></HelmetProvider>;
+  if (isWebsiteSubscription) return <HelmetProvider><div className="app"><Header /><main><WebsiteSubscription /></main><Footer /></div></HelmetProvider>;
+  if (websiteApprovalMatch) return <HelmetProvider><div className="app"><Header /><main><WebsiteApproval token={websiteApprovalMatch[1]} /></main><Footer /></div></HelmetProvider>;
+  // Demo sites render WITHOUT roofingcal.com's own Header/Footer -- each one
+  // is meant to look like a separate, standalone customer website, so our
+  // own nav/footer would break the illusion (each demo site has its own nav
+  // via DemoSiteLayout.js).
+  if (isDemoGallery) return <HelmetProvider><DemoGallery /></HelmetProvider>;
+  if (demoSiteMatch) return <HelmetProvider><DemoSitePage slug={demoSiteMatch[1]} page={demoSiteMatch[2]} subSlug={demoSiteMatch[3]} /></HelmetProvider>;
 
   return (
     <HelmetProvider>
