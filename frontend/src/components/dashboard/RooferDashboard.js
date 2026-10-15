@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-  BarChart3, Users, Palette, Layers, Code2, CreditCard,
+  BarChart3, Zap, Users, Palette, Layers, Code2, CreditCard,
   Settings, ListChecks, LogOut, Menu, Save,
 } from 'lucide-react';
 import { url } from '../../utils/routes';
 import OverviewTab      from './tabs/OverviewTab';
+import RunEstimateTab   from './tabs/RunEstimateTab';
 import LeadsTab         from './tabs/LeadsTab';
 import BrandingTab      from './tabs/BrandingTab';
 import ServicesTab      from './tabs/ServicesTab';
@@ -15,6 +16,7 @@ import SettingsTab      from './tabs/SettingsTab';
 
 const NAV = [
   { id: 'overview',     label: 'Overview',      Icon: BarChart3  },
+  { id: 'estimate',     label: 'Run an Estimate', Icon: Zap      },
   { id: 'branding',     label: 'Branding',       Icon: Palette    },
   { id: 'services',     label: 'Services',       Icon: Layers     },
   { id: 'embed',        label: 'Embed Widget',   Icon: Code2      },
@@ -185,6 +187,7 @@ export default function RooferDashboard({ session, onLogout }) {
           </div>
 
           {tab === 'overview'     && <OverviewTab leads={leads} onTabChange={handleTab} />}
+          {tab === 'estimate'     && <RunEstimateTab />}
           {tab === 'leads'        && <LeadsTab leads={leads} setLeads={setLeads} />}
           {tab === 'branding'     && <BrandingTab />}
           {tab === 'services'     && <ServicesTab />}

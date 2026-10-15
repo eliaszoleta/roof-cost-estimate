@@ -1,5 +1,5 @@
 import React from 'react';
-import { Users, Calendar, DollarSign, Globe, Palette, Code2, ArrowRight } from 'lucide-react';
+import { Users, Calendar, DollarSign, Globe, Palette, Code2, ArrowRight, Zap } from 'lucide-react';
 import { serviceTypeLabel } from '../../../utils/formatters';
 
 const STATUS_COLORS = {
@@ -71,6 +71,7 @@ export default function OverviewTab({ leads, onTabChange }) {
         <div style={{ fontSize: 11, fontWeight: 700, color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.08em', marginBottom: 14 }}>Quick Actions</div>
         <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap' }}>
           {[
+            [Zap, 'Run an Estimate', 'estimate'],
             [Palette, 'Customize Branding', 'branding'],
             [Code2, 'Get Embed Code', 'embed'],
             [Users, 'View All Leads', 'leads'],

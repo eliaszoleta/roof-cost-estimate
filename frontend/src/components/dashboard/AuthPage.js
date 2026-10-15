@@ -3,7 +3,7 @@ import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
 import { url } from '../../utils/routes';
 
 export default function AuthPage({ onAuth }) {
-  const [mode, setMode] = useState('login'); // 'login' | 'signup'
+  const [mode, setMode] = useState(() => (new URLSearchParams(window.location.search).get('mode') === 'signup' ? 'signup' : 'login')); // 'login' | 'signup'
   const [form, setForm] = useState({ name: '', email: '', password: '' });
   const [showPw, setShowPw] = useState(false);
   const [error, setError] = useState('');

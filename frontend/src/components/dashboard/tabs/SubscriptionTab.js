@@ -2,13 +2,13 @@ import React from 'react';
 import { Check, CreditCard, Shield, Zap } from 'lucide-react';
 
 const PLAN_FEATURES = [
-  'Embeddable estimator widget',
+  'Unlimited internal price calculations',
+  'Embeddable estimator widget for your website',
   'Custom branding & colors',
   'Your logo & contact info on results',
   'Lead capture (name, email, phone)',
   'Lead management dashboard',
   'Instant email notifications',
-  'Unlimited estimates',
   'Priority support',
 ];
 
@@ -29,14 +29,14 @@ export default function SubscriptionTab({ session }) {
       <div style={{ background: 'white', borderRadius: 16, border: '1.5px solid #e2e8f0', padding: '28px', marginBottom: 20, display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: 20 }}>
         <div>
           <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 10 }}>
-            <div style={{ fontSize: 13, fontWeight: 700, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '3px 10px' }}>Pro Plan</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: '#ea580c', textTransform: 'uppercase', letterSpacing: '0.08em', background: '#fff7ed', border: '1px solid #fed7aa', borderRadius: 6, padding: '3px 10px' }}>Internal Estimator</div>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 6, padding: '3px 10px' }}>
               <div style={{ width: 7, height: 7, borderRadius: 99, background: '#22c55e' }} />
               <span style={{ fontSize: 12, fontWeight: 600, color: '#166534' }}>Free Trial</span>
             </div>
           </div>
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 4, marginBottom: 8 }}>
-            <span style={{ fontSize: 38, fontWeight: 800, color: '#0f172a', lineHeight: 1, letterSpacing: '-1px' }}>$149</span>
+            <span style={{ fontSize: 38, fontWeight: 800, color: '#0f172a', lineHeight: 1, letterSpacing: '-1px' }}>$45</span>
             <span style={{ fontSize: 15, color: '#64748b', marginBottom: 4 }}>/mo</span>
           </div>
           <div style={{ fontSize: 13.5, color: '#64748b' }}>
