@@ -1,138 +1,416 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, ArrowRight, Eye, EyeOff } from 'lucide-react';
-import { url } from '../../utils/routes';
+import { Mail, CheckCircle2, Eye, EyeOff, Zap, Loader2 } from 'lucide-react';
+import { supabase } from '../../lib/supabase';
+import { postCheckout } from '../../utils/api';
+
+const API_URL = process.env.REACT_APP_API_URL || '';
+const PRIMARY = '#ea580c';
+
+// CompanyLanding.js's "Start Free Trial" CTAs link here with ?mode=signup
+// so clicking them opens straight on Create Account instead of Sign In --
+// a returning user navigating to /company directly still lands on Sign In
+// by default.
+function initialMode() {
+  try {
+    return new URLSearchParams(window.location.search).get('mode') === 'signup' ? 'signup' : 'login';
+  } catch {
+    return 'login';
+  }
+}
 
 export default function AuthPage({ onAuth }) {
-  const [mode, setMode] = useState(() => (new URLSearchParams(window.location.search).get('mode') === 'signup' ? 'signup' : 'login')); // 'login' | 'signup'
-  const [form, setForm] = useState({ name: '', email: '', password: '' });
-  const [showPw, setShowPw] = useState(false);
-  const [error, setError] = useState('');
+  const [mode, setMode] = useState(initialMode);
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [company, setCompany] = useState('');
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [emailSent, setEmailSent] = useState(false);
+  const [resetSent, setResetSent] = useState(false);
+  // True for the brief window between a fresh signup succeeding and the
+  // browser actually navigating to Stripe Checkout -- window.location.href
+  // doesn't leave this page instantly, so without this the form would just
+  // sit there looking idle (or snap back to enabled) for that gap.
+  const [redirectingToCheckout, setRedirectingToCheckout] = useState(false);
 
-  const set = (k, v) => setForm(f => ({ ...f, [k]: v }));
-
-  const handleSubmit = (e) => {
+  const handleForgotPassword = async (e) => {
     e.preventDefault();
     setError('');
-    if (!form.email || !form.password) { setError('Please fill in all fields.'); return; }
-    if (mode === 'signup' && !form.name) { setError('Please enter your company name.'); return; }
-    if (form.password.length < 6) { setError('Password must be at least 6 characters.'); return; }
+    setLoading(true);
+    try {
+      if (!supabase) throw new Error('Authentication is not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.');
+      // redirectTo points back at /company -- CompanyPortal.js watches for
+      // Supabase's PASSWORD_RECOVERY auth event and shows a "set new
+      // password" screen instead of the normal dashboard whenever the
+      // visitor arrives via this link, even though the recovery link
+      // itself also establishes a real session.
+      const { error: err } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/company`,
+      });
+      if (err) throw err;
+      setResetSent(true);
+    } catch (err) {
+      setError(err.message || 'Failed to send reset email');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError('');
+
+    if (mode === 'signup' && password !== confirmPassword) {
+      setError('Passwords do not match.');
+      return;
+    }
 
     setLoading(true);
-    setTimeout(() => {
-      const session = { email: form.email, name: mode === 'signup' ? form.name : (localStorage.getItem('rc_company_name') || form.email.split('@')[0]) };
+
+    try {
+      if (!supabase) throw new Error('Authentication is not configured. Set REACT_APP_SUPABASE_URL and REACT_APP_SUPABASE_ANON_KEY.');
+
       if (mode === 'signup') {
-        localStorage.setItem('rc_company_name', form.name);
-        // seed default branding
-        if (!localStorage.getItem('rc_branding')) {
-          localStorage.setItem('rc_branding', JSON.stringify({
-            companyName: form.name, primaryColor: '#ea580c',
-            logoUrl: '', phone: '', ctaText: 'Get a Free Quote', ctaUrl: '',
-          }));
+        const { data, error: err } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: { company_name: company },
+            emailRedirectTo: `${window.location.origin}/company`,
+          },
+        });
+        if (err) throw err;
+        if (data.user && !data.session) {
+          setEmailSent(true);
+        } else if (data.session) {
+          // Last step to activate: send them straight to Stripe Checkout
+          // (30-day trial applied server-side -- see subscription.js's
+          // POST /checkout) instead of dropping them into the dashboard
+          // first. window.location.href doesn't navigate away instantly,
+          // so redirectingToCheckout keeps this screen showing a clear
+          // "taking you to checkout" state for that gap rather than
+          // leaving the form looking idle.
+          setRedirectingToCheckout(true);
+          try {
+            const res = await postCheckout(data.session.access_token);
+            window.location.href = res.url;
+            return;
+          } catch (checkoutErr) {
+            // Checkout session creation failed -- the account itself was
+            // still created successfully, so let them into the dashboard
+            // rather than stranding them on an error. They can start
+            // checkout again anytime from the Subscription tab.
+            setRedirectingToCheckout(false);
+            onAuth(data.user);
+          }
         }
-        // seed default services
-        if (!localStorage.getItem('rc_services')) {
-          localStorage.setItem('rc_services', JSON.stringify([
-            'shingle_replacement', 'metal_roofing', 'tile_roofing',
-            'flat_roof', 'roof_repair', 'roof_inspection', 'gutter_replacement',
-          ]));
+      } else {
+        const { data, error: err } = await supabase.auth.signInWithPassword({ email, password });
+        if (err) {
+          // Supabase's real "Invalid login credentials" error always comes
+          // back as HTTP 400 -- anything else (5xx from Supabase's Auth
+          // service having an outage/restore hiccup, a network failure with
+          // no status at all) is Supabase's own infrastructure failing, not
+          // a wrong email or password. This used to show "Wrong email or
+          // password" for every single error regardless of cause, which is
+          // actively misleading when the real problem is a Supabase incident
+          // -- it sends someone with correct credentials into a confused
+          // "did I forget my password?" loop instead of telling them to
+          // just retry.
+          if (err.status !== 400) {
+            // Reassuring, not alarming -- this fires for paying customers on
+            // a working account, not someone who actually mistyped their
+            // password, so it shouldn't read like something is broken or
+            // make them doubt their own credentials.
+            throw new Error("We're working on a few things behind the scenes right now. Please check back in a few hours and try signing in again.");
+          }
+          // Supabase deliberately returns the same generic error for "no
+          // account with this email" and "wrong password" (anti-enumeration
+          // by design) -- this extra lookup is what lets the message below
+          // actually tell those two apart for the person logging in.
+          let accountExists = true;
+          try {
+            const checkRes = await fetch(`${API_URL}/api/company/check-email-exists`, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ email }),
+            });
+            const checkData = await checkRes.json();
+            accountExists = checkData.exists !== false;
+          } catch {
+            // Lookup itself failed -- fall back to the generic message rather
+            // than risk wrongly claiming a real account "doesn't exist".
+          }
+          throw new Error(accountExists ? 'Wrong email or password. Please try again.' : 'Account not found. Check your email or sign up below.');
         }
+        onAuth(data.user);
       }
-      localStorage.setItem('rc_session', JSON.stringify(session));
+    } catch (err) {
+      setError(err.message || 'Authentication failed');
+    } finally {
       setLoading(false);
-      onAuth(session);
-    }, 800);
+    }
   };
 
   const inputStyle = {
-    width: '100%', padding: '11px 14px 11px 40px', borderRadius: 9, border: '1.5px solid #e2e8f0',
-    fontSize: 14.5, color: '#0f172a', background: 'white', boxSizing: 'border-box',
-    outline: 'none', transition: 'border-color 0.15s',
+    width: '100%', padding: '13px 16px', border: '1.5px solid #e2e8f0', borderRadius: 8,
+    fontSize: 15, outline: 'none', color: '#0f172a', background: '#fafafa',
+    transition: 'border-color 0.15s, box-shadow 0.15s', boxSizing: 'border-box',
   };
+  const passwordInputStyle = { ...inputStyle, paddingRight: 44 };
+  const eyeButtonStyle = {
+    position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)',
+    background: 'none', border: 'none', padding: 4, cursor: 'pointer', color: '#94a3b8',
+    display: 'flex', alignItems: 'center', justifyContent: 'center',
+  };
+  const focusRing = `0 0 0 3px ${PRIMARY}1a`;
 
-  return (
-    <div style={{ minHeight: '100vh', background: 'linear-gradient(160deg, #0f172a 0%, #1e293b 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '32px 16px' }}>
-
-      {/* Logo */}
-      <a href={url('/')} style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none', marginBottom: 36 }}>
-        <div style={{ width: 36, height: 36, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'center', boxShadow: '0 2px 12px rgba(234,88,12,0.35)' }}>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z"/></svg>
+  // ── Email confirmation screen ───────────────────────────────────────────────
+  if (emailSent) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #7c2d12 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -160, right: -100, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(234,88,12,0.28) 0%, rgba(234,88,12,0) 70%)', pointerEvents: 'none' }} aria-hidden="true" />
+        <div style={{ background: 'white', borderRadius: 22, padding: '52px 44px', maxWidth: 420, width: '100%', boxShadow: '0 32px 80px rgba(0,0,0,0.35)', textAlign: 'center' }}>
+          <div style={{ position: 'relative', width: 76, height: 76, margin: '0 auto 28px' }}>
+            <div style={{ width: 76, height: 76, borderRadius: '50%', background: 'linear-gradient(135deg, #fff7ed, #fed7aa)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Mail size={32} color={PRIMARY} strokeWidth={1.5} />
+            </div>
+            <div style={{ position: 'absolute', bottom: 1, right: 1, width: 24, height: 24, borderRadius: '50%', background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2.5px solid white' }}>
+              <CheckCircle2 size={13} color="white" strokeWidth={2.5} />
+            </div>
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 10, letterSpacing: '-0.3px' }}>Check your inbox</h2>
+          <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>We sent a confirmation link to</p>
+          <div style={{ display: 'inline-block', background: '#f1f5f9', borderRadius: 6, padding: '6px 16px', fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 24 }}>{email}</div>
+          <p style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.7, marginBottom: 32 }}>
+            Click the link in the email to confirm your account, then activate your calculator with a quick checkout step — 30 days free before your first charge.
+          </p>
+          <button onClick={() => { setEmailSent(false); setMode('login'); }}
+            style={{ width: '100%', padding: '13px 0', borderRadius: 8, border: 'none', background: PRIMARY, color: 'white', fontWeight: 700, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 14px rgba(234,88,12,0.3)' }}>
+            Go to Sign In
+          </button>
+          <p style={{ fontSize: 12, color: '#94a3b8', marginTop: 16 }}>
+            Didn't get it? Check spam or{' '}
+            <button onClick={() => setEmailSent(false)} style={{ background: 'none', border: 'none', color: PRIMARY, fontWeight: 600, cursor: 'pointer', fontSize: 12, padding: 0 }}>try again</button>.
+          </p>
         </div>
-        <span style={{ fontWeight: 800, fontSize: 20, color: 'white' }}>RoofingCal</span>
-      </a>
+      </div>
+    );
+  }
 
-      {/* Card */}
-      <div style={{ width: '100%', maxWidth: 420, background: 'white', borderRadius: 20, padding: '36px 32px', boxShadow: '0 24px 80px rgba(0,0,0,0.35)' }}>
-        <h1 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 4 }}>
-          {mode === 'login' ? 'Welcome back' : 'Create your account'}
-        </h1>
-        <p style={{ fontSize: 14, color: '#64748b', marginBottom: 28 }}>
-          {mode === 'login' ? 'Sign in to your contractor dashboard.' : 'Start your 14-day free trial — no credit card needed.'}
-        </p>
+  // ── Reset email sent screen ─────────────────────────────────────────────────
+  if (resetSent) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #7c2d12 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -160, right: -100, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(234,88,12,0.28) 0%, rgba(234,88,12,0) 70%)', pointerEvents: 'none' }} aria-hidden="true" />
+        <div style={{ background: 'white', borderRadius: 22, padding: '52px 44px', maxWidth: 420, width: '100%', boxShadow: '0 32px 80px rgba(0,0,0,0.35)', textAlign: 'center' }}>
+          <div style={{ position: 'relative', width: 76, height: 76, margin: '0 auto 28px' }}>
+            <div style={{ width: 76, height: 76, borderRadius: '50%', background: 'linear-gradient(135deg, #fff7ed, #fed7aa)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Mail size={32} color={PRIMARY} strokeWidth={1.5} />
+            </div>
+            <div style={{ position: 'absolute', bottom: 1, right: 1, width: 24, height: 24, borderRadius: '50%', background: '#16a34a', display: 'flex', alignItems: 'center', justifyContent: 'center', border: '2.5px solid white' }}>
+              <CheckCircle2 size={13} color="white" strokeWidth={2.5} />
+            </div>
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 10, letterSpacing: '-0.3px' }}>Check your inbox</h2>
+          <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.7, marginBottom: 10 }}>If an account exists for</p>
+          <div style={{ display: 'inline-block', background: '#f1f5f9', borderRadius: 6, padding: '6px 16px', fontSize: 14, fontWeight: 700, color: '#0f172a', marginBottom: 24 }}>{email}</div>
+          <p style={{ color: '#94a3b8', fontSize: 13, lineHeight: 1.7, marginBottom: 32 }}>
+            we just sent a password reset link to it. Click it to set a new password — you'll land right back in your dashboard.
+          </p>
+          <button onClick={() => { setResetSent(false); setMode('login'); }}
+            style={{ width: '100%', padding: '13px 0', borderRadius: 8, border: 'none', background: PRIMARY, color: 'white', fontWeight: 700, fontSize: 15, cursor: 'pointer', boxShadow: '0 4px 14px rgba(234,88,12,0.3)' }}>
+            Back to Sign In
+          </button>
+        </div>
+      </div>
+    );
+  }
 
-        <form onSubmit={handleSubmit}>
-          {mode === 'signup' && (
-            <div style={{ marginBottom: 14, position: 'relative' }}>
-              <User size={15} color="#94a3b8" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-              <input
-                style={inputStyle} type="text" placeholder="Company name" value={form.name}
-                onChange={e => set('name', e.target.value)}
-                onFocus={e => { e.target.style.borderColor = '#ea580c'; }}
-                onBlur={e => { e.target.style.borderColor = '#e2e8f0'; }}
-              />
+  // ── Redirecting to checkout screen ──────────────────────────────────────────
+  if (redirectingToCheckout) {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #7c2d12 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -160, right: -100, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(234,88,12,0.28) 0%, rgba(234,88,12,0) 70%)', pointerEvents: 'none' }} aria-hidden="true" />
+        <div style={{ background: 'white', borderRadius: 22, padding: '52px 44px', maxWidth: 420, width: '100%', boxShadow: '0 32px 80px rgba(0,0,0,0.35)', textAlign: 'center' }}>
+          <div style={{ width: 76, height: 76, borderRadius: '50%', background: 'linear-gradient(135deg, #fff7ed, #fed7aa)', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 28px' }}>
+            <Loader2 size={32} color={PRIMARY} strokeWidth={1.8} className="spin" />
+          </div>
+          <h2 style={{ fontSize: 22, fontWeight: 800, color: '#0f172a', marginBottom: 10, letterSpacing: '-0.3px' }}>Last step — activate your calculator</h2>
+          <p style={{ color: '#64748b', fontSize: 14, lineHeight: 1.7, marginBottom: 4 }}>
+            Your account is created. We're taking you to a secure checkout page to activate RoofingCal.
+          </p>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: 6, background: '#fff7ed', color: PRIMARY, padding: '7px 16px', borderRadius: 999, fontSize: 13, fontWeight: 700, marginTop: 14 }}>
+            <Zap size={13} /> 30 days free, then $45/month
+          </div>
+          <style>{`@keyframes rc-auth-spin { to { transform: rotate(360deg); } } .spin { animation: rc-auth-spin 0.8s linear infinite; }`}</style>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Forgot password screen ──────────────────────────────────────────────────
+  if (mode === 'forgot') {
+    return (
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #7c2d12 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24, position: 'relative', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: -160, right: -100, width: 480, height: 480, borderRadius: '50%', background: 'radial-gradient(circle, rgba(234,88,12,0.28) 0%, rgba(234,88,12,0) 70%)', pointerEvents: 'none' }} aria-hidden="true" />
+        <div style={{ background: 'white', borderRadius: 22, padding: 'clamp(28px, 6vw, 48px) clamp(20px, 5vw, 44px)', maxWidth: 440, width: '100%', boxShadow: '0 32px 80px rgba(0,0,0,0.35)' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 36 }}>
+            <div style={{ width: 38, height: 38, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z" /></svg>
+            </div>
+            <span style={{ fontWeight: 800, fontSize: 19, color: '#0f172a', letterSpacing: '-0.2px' }}>RoofingCal</span>
+          </div>
+
+          <h1 style={{ fontSize: 23, fontWeight: 800, color: '#0f172a', marginBottom: 5, letterSpacing: '-0.3px' }}>Reset your password</h1>
+          <p style={{ color: '#64748b', fontSize: 14, marginBottom: 28, lineHeight: 1.5 }}>Enter your email and we'll send you a link to set a new one.</p>
+
+          {error && (
+            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', marginBottom: 20, color: '#dc2626', fontSize: 13.5, fontWeight: 500 }}>
+              ⚠ {error}
             </div>
           )}
 
-          <div style={{ marginBottom: 14, position: 'relative' }}>
-            <Mail size={15} color="#94a3b8" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-            <input
-              style={inputStyle} type="email" placeholder="Email address" value={form.email}
-              onChange={e => set('email', e.target.value)}
-              onFocus={e => { e.target.style.borderColor = '#ea580c'; }}
-              onBlur={e => { e.target.style.borderColor = '#e2e8f0'; }}
-            />
-          </div>
+          <form onSubmit={handleForgotPassword} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 7 }}>Email address</label>
+              <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="you@yourcompany.com" style={inputStyle}
+                onFocus={e => { e.target.style.borderColor = PRIMARY; e.target.style.boxShadow = focusRing; e.target.style.background = 'white'; }}
+                onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafafa'; }} />
+            </div>
 
-          <div style={{ marginBottom: 20, position: 'relative' }}>
-            <Lock size={15} color="#94a3b8" style={{ position: 'absolute', left: 13, top: '50%', transform: 'translateY(-50%)', pointerEvents: 'none' }} />
-            <input
-              style={{ ...inputStyle, paddingRight: 42 }} type={showPw ? 'text' : 'password'} placeholder="Password" value={form.password}
-              onChange={e => set('password', e.target.value)}
-              onFocus={e => { e.target.style.borderColor = '#ea580c'; }}
-              onBlur={e => { e.target.style.borderColor = '#e2e8f0'; }}
-            />
-            <button type="button" onClick={() => setShowPw(p => !p)}
-              style={{ position: 'absolute', right: 12, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', padding: 2, color: '#94a3b8' }}>
-              {showPw ? <EyeOff size={15} /> : <Eye size={15} />}
+            <button type="submit" disabled={loading}
+              style={{ marginTop: 4, padding: '14px 0', borderRadius: 8, border: 'none', background: loading ? '#94a3b8' : PRIMARY, color: 'white', fontWeight: 700, fontSize: 16, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 4px 16px rgba(234,88,12,0.3)', transition: 'all 0.15s', letterSpacing: '0.01em' }}>
+              {loading ? 'Sending…' : 'Send Reset Link →'}
             </button>
+          </form>
+
+          <div style={{ textAlign: 'center', marginTop: 24, paddingTop: 22, borderTop: '1px solid #f1f5f9' }}>
+            <button type="button" onClick={() => { setMode('login'); setError(''); }} style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: 13, cursor: 'pointer' }}>← Back to Sign In</button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Main auth card ─────────────────────────────────────────────────────────
+  return (
+    <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #0f172a 0%, #7c2d12 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 24 }}>
+      <div style={{ background: 'white', borderRadius: 22, padding: 'clamp(28px, 6vw, 48px) clamp(20px, 5vw, 56px)', maxWidth: 520, width: '100%', boxShadow: '0 32px 80px rgba(0,0,0,0.35)' }}>
+
+        {/* Logo -- flexWrap left at its nowrap default and every child pinned
+            with whiteSpace:nowrap so this stays one line on a narrow phone. */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 36, flexWrap: 'nowrap' }}>
+          <div style={{ width: 34, height: 34, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="white"><path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z" /></svg>
+          </div>
+          <span style={{ fontWeight: 800, fontSize: 'clamp(15px, 4.5vw, 19px)', color: '#0f172a', letterSpacing: '-0.2px', whiteSpace: 'nowrap', flexShrink: 0 }}>RoofingCal</span>
+          <span style={{ fontSize: 11, background: '#fff7ed', color: PRIMARY, padding: '3px 8px', borderRadius: 999, fontWeight: 700, letterSpacing: '0.02em', whiteSpace: 'nowrap', flexShrink: 0 }}>Contractor Portal</span>
+        </div>
+
+        <h1 style={{ fontSize: 23, fontWeight: 800, color: '#0f172a', marginBottom: 5, letterSpacing: '-0.3px' }}>
+          {mode === 'login' ? 'Welcome back' : 'Create your account'}
+        </h1>
+        <p style={{ color: '#64748b', fontSize: 14, marginBottom: 28, lineHeight: 1.5 }}>
+          {mode === 'login' ? 'Sign in to manage your estimator, leads, and billing.' : 'Start your 30-day free trial — card required, not charged until it ends.'}
+        </p>
+
+        {/* Toggle */}
+        <div style={{ display: 'flex', background: '#f1f5f9', borderRadius: 8, padding: 4, marginBottom: 26 }}>
+          {[['login', 'Sign In'], ['signup', 'Create Account']].map(([m, l]) => (
+            <button key={m} onClick={() => { setMode(m); setError(''); }}
+              style={{ flex: 1, padding: '10px 0', borderRadius: 6, border: 'none', cursor: 'pointer', fontWeight: 700, fontSize: 14, background: mode === m ? 'white' : 'transparent', color: mode === m ? '#0f172a' : '#64748b', boxShadow: mode === m ? '0 1px 6px rgba(0,0,0,0.1)' : 'none', transition: 'all 0.15s' }}>
+              {l}
+            </button>
+          ))}
+        </div>
+
+        {error && (
+          <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '12px 16px', marginBottom: 20, color: '#dc2626', fontSize: 13.5, fontWeight: 500 }}>
+            ⚠ {error}
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
+          {mode === 'signup' && (
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 7 }}>Company name</label>
+              <input type="text" required value={company} onChange={e => setCompany(e.target.value)}
+                placeholder="Summit Roofing Co." style={inputStyle}
+                onFocus={e => { e.target.style.borderColor = PRIMARY; e.target.style.boxShadow = focusRing; e.target.style.background = 'white'; }}
+                onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafafa'; }} />
+            </div>
+          )}
+
+          <div>
+            <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 7 }}>Email address</label>
+            <input type="email" required value={email} onChange={e => setEmail(e.target.value)}
+              placeholder="you@yourcompany.com" style={inputStyle}
+              onFocus={e => { e.target.style.borderColor = PRIMARY; e.target.style.boxShadow = focusRing; e.target.style.background = 'white'; }}
+              onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafafa'; }} />
           </div>
 
-          {error && (
-            <div style={{ background: '#fef2f2', border: '1px solid #fecaca', borderRadius: 8, padding: '10px 14px', fontSize: 13.5, color: '#dc2626', marginBottom: 16 }}>
-              {error}
+          <div>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 7 }}>
+              <label style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>Password</label>
+              {mode === 'login' && (
+                <button type="button" onClick={() => { setMode('forgot'); setError(''); }}
+                  style={{ background: 'none', border: 'none', padding: 0, fontSize: 12, color: PRIMARY, fontWeight: 500, cursor: 'pointer' }}>
+                  Forgot password?
+                </button>
+              )}
+            </div>
+            <div style={{ position: 'relative' }}>
+              <input type={showPassword ? 'text' : 'password'} required minLength={8} value={password} onChange={e => setPassword(e.target.value)}
+                placeholder={mode === 'signup' ? 'At least 8 characters' : '••••••••'} style={passwordInputStyle}
+                onFocus={e => { e.target.style.borderColor = PRIMARY; e.target.style.boxShadow = focusRing; e.target.style.background = 'white'; }}
+                onBlur={e => { e.target.style.borderColor = '#e2e8f0'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafafa'; }} />
+              <button type="button" onClick={() => setShowPassword(s => !s)} style={eyeButtonStyle} aria-label={showPassword ? 'Hide password' : 'Show password'} tabIndex={-1}>
+                {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+              </button>
+            </div>
+          </div>
+
+          {mode === 'signup' && (
+            <div>
+              <label style={{ fontSize: 13, fontWeight: 600, color: '#374151', display: 'block', marginBottom: 7 }}>Confirm password</label>
+              <div style={{ position: 'relative' }}>
+                <input type={showConfirmPassword ? 'text' : 'password'} required minLength={8} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)}
+                  placeholder="Re-enter your password" style={{ ...passwordInputStyle, borderColor: confirmPassword && confirmPassword !== password ? '#dc2626' : '#e2e8f0' }}
+                  onFocus={e => { e.target.style.borderColor = confirmPassword && confirmPassword !== password ? '#dc2626' : PRIMARY; e.target.style.boxShadow = focusRing; e.target.style.background = 'white'; }}
+                  onBlur={e => { e.target.style.borderColor = confirmPassword && confirmPassword !== password ? '#dc2626' : '#e2e8f0'; e.target.style.boxShadow = 'none'; e.target.style.background = '#fafafa'; }} />
+                <button type="button" onClick={() => setShowConfirmPassword(s => !s)} style={eyeButtonStyle} aria-label={showConfirmPassword ? 'Hide password' : 'Show password'} tabIndex={-1}>
+                  {showConfirmPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                </button>
+              </div>
+              {confirmPassword && confirmPassword !== password && (
+                <p style={{ fontSize: 12, color: '#dc2626', marginTop: 6 }}>Passwords do not match.</p>
+              )}
             </div>
           )}
 
           <button type="submit" disabled={loading}
-            style={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8, background: loading ? '#f97316' : '#ea580c', color: 'white', padding: '13px', borderRadius: 9, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', fontWeight: 700, fontSize: 15, boxShadow: '0 4px 16px rgba(234,88,12,0.3)' }}>
-            {loading ? 'Signing in…' : (mode === 'login' ? 'Sign In' : 'Create Account')}
-            {!loading && <ArrowRight size={16} />}
+            style={{ marginTop: 4, padding: '14px 0', borderRadius: 8, border: 'none', background: loading ? '#94a3b8' : PRIMARY, color: 'white', fontWeight: 700, fontSize: 16, cursor: loading ? 'not-allowed' : 'pointer', boxShadow: loading ? 'none' : '0 4px 16px rgba(234,88,12,0.3)', transition: 'all 0.15s', letterSpacing: '0.01em' }}>
+            {loading ? 'Please wait…' : mode === 'login' ? 'Sign In →' : 'Start Free Trial →'}
           </button>
         </form>
 
-        <div style={{ textAlign: 'center', marginTop: 22, fontSize: 13.5, color: '#64748b' }}>
-          {mode === 'login' ? (
-            <>Don't have an account? <button onClick={() => { setMode('signup'); setError(''); }} style={{ background: 'none', border: 'none', color: '#ea580c', fontWeight: 600, cursor: 'pointer', fontSize: 13.5, padding: 0 }}>Sign up free</button></>
-          ) : (
-            <>Already have an account? <button onClick={() => { setMode('login'); setError(''); }} style={{ background: 'none', border: 'none', color: '#ea580c', fontWeight: 600, cursor: 'pointer', fontSize: 13.5, padding: 0 }}>Sign in</button></>
-          )}
-        </div>
-      </div>
+        {mode === 'signup' && (
+          <p style={{ fontSize: 12, color: '#94a3b8', textAlign: 'center', marginTop: 18, lineHeight: 1.6 }}>
+            By creating an account you agree to our{' '}
+            <a href="/terms-of-service" style={{ color: PRIMARY, textDecoration: 'none', fontWeight: 500 }}>Terms of Service</a>{' '}
+            and{' '}
+            <a href="/privacy-policy" style={{ color: PRIMARY, textDecoration: 'none', fontWeight: 500 }}>Privacy Policy</a>.
+          </p>
+        )}
 
-      <div style={{ marginTop: 24, fontSize: 12.5, color: '#475569', textAlign: 'center' }}>
-        By continuing, you agree to our{' '}
-        <a href={url('/terms-of-service')} style={{ color: '#64748b' }}>Terms</a> and{' '}
-        <a href={url('/privacy-policy')} style={{ color: '#64748b' }}>Privacy Policy</a>.
+        <div style={{ textAlign: 'center', marginTop: 24, paddingTop: 22, borderTop: '1px solid #f1f5f9' }}>
+          <a href="/" style={{ color: '#94a3b8', fontSize: 13, textDecoration: 'none' }}>← Back to RoofingCal</a>
+        </div>
       </div>
     </div>
   );

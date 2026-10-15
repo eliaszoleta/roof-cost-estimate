@@ -13,9 +13,9 @@ const PLAN_FEATURES = [
 ];
 
 export default function SubscriptionTab({ session }) {
-  // Demo: show as active trial for 14 days from signup
+  // Demo: show as active trial for 30 days from signup
   const trialEnd = new Date();
-  trialEnd.setDate(trialEnd.getDate() + 14);
+  trialEnd.setDate(trialEnd.getDate() + 30);
   const trialEndStr = trialEnd.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
 
   return (

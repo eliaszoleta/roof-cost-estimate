@@ -34,7 +34,7 @@ const PROBLEMS = [
 ];
 
 const STEPS = [
-  { n: '1', Icon: Rocket,   color: PRIMARY,   bg: '#fff7ed', title: 'Sign up',               desc: 'Create your account and start your 14-day free trial.' },
+  { n: '1', Icon: Rocket,   color: PRIMARY,   bg: '#fff7ed', title: 'Sign up',               desc: 'Create your account and start your 30-day free trial.' },
   { n: '2', Icon: Settings, color: '#7c3aed', bg: '#f5f3ff', title: 'Set up your pricing',    desc: 'Add your logo, service area, and per-service markup — accurate ZIP-level roofing data is already built in.' },
   { n: '3', Icon: Zap,      color: '#d97706', bg: '#fffbeb', title: 'Run instant estimates',  desc: 'Get an accurate number the moment you need one — for your own quoting, not a public page.' },
   { n: '4', Icon: Code2,    color: '#0891b2', bg: '#ecfeff', title: 'Embed it too, if you want', desc: "Want leads coming straight from your website? Paste its calculator widget code on your site anytime — it's included." },
@@ -58,7 +58,7 @@ const PLAN_FEATURES = [
 ];
 
 const TRUST_BADGES = [
-  { Icon: ShieldCheck, text: '14-day free trial' },
+  { Icon: ShieldCheck, text: '30-day free trial (card required)' },
   { Icon: Zap,          text: 'First estimate in 2 minutes' },
   { Icon: Check,        text: 'Cancel anytime' },
 ];
@@ -125,7 +125,7 @@ export default function CompanyLanding() {
     <>
       <Helmet>
         <title>Internal Roofing Price Estimator for Roofing Contractors | RoofingCal</title>
-        <meta name="description" content="An internal pricing tool for roofing contractors. Run unlimited accurate estimates instantly on screen — with a calculator widget for your website included if you also want public lead capture. $45/month, 14-day free trial." />
+        <meta name="description" content="An internal pricing tool for roofing contractors. Run unlimited accurate estimates instantly on screen — with a calculator widget for your website included if you also want public lead capture. $45/month, 30-day free trial." />
         <link rel="canonical" href="https://roofingcal.com/for-companies" />
         <meta property="og:title" content="Internal Roofing Price Estimator for Roofing Contractors | RoofingCal" />
         <meta property="og:description" content="Price every job on your own screen before you ever show a homeowner a number. Calculator widget for your website included. $45/month." />
@@ -330,7 +330,7 @@ export default function CompanyLanding() {
                     After your{' '}
                     <span style={{ position: 'relative', fontWeight: 700, color: '#78350f', padding: '1px 6px', whiteSpace: 'nowrap' }}>
                       <span aria-hidden="true" style={{ position: 'absolute', inset: '2px -2px', background: '#fde047', borderRadius: '3px 7px 4px 8px / 5px 3px 6px 4px', transform: 'rotate(-0.6deg)', zIndex: 0 }} />
-                      <span style={{ position: 'relative', zIndex: 1 }}>14-day free trial</span>
+                      <span style={{ position: 'relative', zIndex: 1 }}>30-day free trial</span>
                     </span>
                     {' '}&middot; cancel anytime
                   </div>
@@ -348,7 +348,7 @@ export default function CompanyLanding() {
                     Start Free Trial <Arrow size={15} />
                   </a>
                   <div style={{ color: '#94a3b8', fontSize: 11.5, textAlign: 'center', marginTop: 10 }}>
-                    No credit card required to start your 14-day trial.
+                    Card required to start — you won't be charged for 30 days.
                   </div>
                 </div>
               </div>

@@ -12,9 +12,6 @@ const leadsRouter = require('./routes/leads');
 const websiteRequestRouter = require('./routes/websiteRequest');
 const websiteRequestAdminRouter = require('./routes/websiteRequestAdmin');
 const { requireAuth } = require('./middleware/auth');
-const { computeSubscriptionStatus } = require('./services/subscriptionStatus');
-const { DEFAULT_COMPANY_CONFIG } = require('./config/defaults');
-const { getCompanyConfig } = require('./services/companyConfig');
 
 const app = express();
 const PORT = process.env.PORT || 3001;
@@ -56,6 +53,17 @@ app.use('/api/calculate', rateLimit({
   message: { success: false, error: 'Too many requests. Please wait a moment.' },
 }));
 
+// POST /api/company/check-email-exists — unauthenticated and paginates
+// every Supabase auth user on each call, called once per failed login
+// attempt (see AuthPage.js) -- rate-limited for the same reason /calculate is.
+app.use('/api/company/check-email-exists', rateLimit({
+  windowMs: 60 * 1000,
+  max: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { success: false, error: 'Too many requests. Please wait a moment.' },
+}));
+
 // CRITICAL: Stripe webhook MUST be registered before express.json()
 app.post(
   '/api/subscription/webhook',
@@ -81,39 +89,19 @@ app.use('/api/website-request', websiteRequestRouter);
 // Admin routes (x-admin-key header auth handled inside the router)
 app.use('/api/admin/website-requests', websiteRequestAdminRouter);
 
-// Public company config (for widget) — no auth
-app.get('/api/company/:id/public', async (req, res) => {
-  try {
-    const config = (await getCompanyConfig(req.params.id)) || DEFAULT_COMPANY_CONFIG;
-    const sub = computeSubscriptionStatus(config);
-    const {
-      companyName, logo, primaryColor, accentColor, fontFamily,
-      ctaHeadline, ctaSubtext, ctaButtonText, ctaPhone, ctaButtonUrl,
-      serviceStates, frameHeight, borderRadius, services,
-      questionConfig, enabledServices,
-    } = config;
-    res.json({
-      success: true,
-      data: {
-        companyName, logo, primaryColor, accentColor, fontFamily,
-        ctaHeadline, ctaSubtext, ctaButtonText, ctaPhone, ctaButtonUrl,
-        serviceStates, frameHeight, borderRadius, services,
-        questionConfig:  questionConfig  || {},
-        enabledServices: enabledServices || null,
-        paused: !sub.active,
-        trialDaysLeft: sub.daysLeft,
-      },
-    });
-  } catch {
-    res.json({ success: true, data: { ...DEFAULT_COMPANY_CONFIG, paused: false } });
-  }
-});
-
 // Public leads API (API key auth handled inside router)
 app.use('/api/leads', leadsRouter);
 
-// Auth-protected routes
-app.use('/api/company', requireAuth, companyRouter);
+// requireAuth is applied per-route inside companyRouter, not blanket here --
+// GET /:id/public and POST /check-email-exists must stay reachable without
+// auth (the former is what the embedded widget calls, the latter is what
+// AuthPage.js calls on a failed login, before any session exists). A
+// standalone, duplicate /api/company/:id/public route used to live here
+// too, which (since Express matches routes in registration order) silently
+// shadowed company.js's own /public handler for any field added there after
+// the duplicate was written. Removed; company.js is now the single source
+// of truth for this path.
+app.use('/api/company', companyRouter);
 app.use('/api/subscription', requireAuth, subscriptionRouter);
 app.use('/api/company-leads', requireAuth, leadsRouter);
 

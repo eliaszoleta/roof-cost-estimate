@@ -3,9 +3,48 @@ const router = express.Router();
 const { DEFAULT_COMPANY_CONFIG } = require('../config/defaults');
 const { computeSubscriptionStatus } = require('../services/subscriptionStatus');
 const { getCompanyConfig, saveCompanyConfig } = require('../services/companyConfig');
+const { requireAuth } = require('../middleware/auth');
+
+// POST /api/company/check-email-exists — no auth. Supabase's own
+// signInWithPassword deliberately returns the same "Invalid login
+// credentials" error whether the email isn't registered or the password is
+// wrong (anti-enumeration by design), but AuthPage.js wants to tell those
+// two apart ("Account not found" vs "Wrong email or password") after a
+// failed login, so it calls this once the sign-in attempt itself has
+// already failed. Supabase-js has no admin.getUserByEmail, so this
+// paginates listUsers.
+router.post('/check-email-exists', async (req, res) => {
+  const email = String(req.body?.email || '').trim().toLowerCase();
+  if (!email) return res.json({ success: true, exists: false });
+  try {
+    const { createClient } = require('@supabase/supabase-js');
+    const url = process.env.SUPABASE_URL;
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    if (!url || !key) return res.json({ success: true, exists: false });
+    const sb = createClient(url, key, { auth: { persistSession: false } });
+
+    let page = 1;
+    let found = false;
+    // eslint-disable-next-line no-constant-condition
+    while (!found) {
+      const { data, error } = await sb.auth.admin.listUsers({ page, perPage: 1000 });
+      if (error) throw error;
+      if (data.users.some(u => (u.email || '').toLowerCase() === email)) { found = true; break; }
+      if (data.users.length < 1000) break;
+      page += 1;
+    }
+    res.json({ success: true, exists: found });
+  } catch (err) {
+    console.error('POST check-email-exists error:', err.message);
+    // Fail closed to "exists" -- worst case the error message stays generic
+    // ("wrong email or password") rather than wrongly claiming an account
+    // that actually exists was "not found".
+    res.json({ success: true, exists: true });
+  }
+});
 
 // GET /api/company/:id
-router.get('/:id', async (req, res) => {
+router.get('/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
   if (req.user.id !== id) return res.status(403).json({ success: false, error: 'Forbidden' });
 
@@ -37,7 +76,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // PUT /api/company/:id
-router.put('/:id', async (req, res) => {
+router.put('/:id', requireAuth, async (req, res) => {
   const { id } = req.params;
   if (req.user.id !== id) return res.status(403).json({ success: false, error: 'Forbidden' });
 
@@ -60,7 +99,7 @@ router.put('/:id', async (req, res) => {
 });
 
 // PATCH /api/company/:id/question-config
-router.patch('/:id/question-config', async (req, res) => {
+router.patch('/:id/question-config', requireAuth, async (req, res) => {
   const { id } = req.params;
   if (req.user.id !== id) return res.status(403).json({ success: false, error: 'Forbidden' });
   const { questionConfig, enabledServices } = req.body;
@@ -77,7 +116,7 @@ router.patch('/:id/question-config', async (req, res) => {
 });
 
 // PATCH /api/company/:id/services
-router.patch('/:id/services', async (req, res) => {
+router.patch('/:id/services', requireAuth, async (req, res) => {
   const { id } = req.params;
   if (req.user.id !== id) return res.status(403).json({ success: false, error: 'Forbidden' });
 

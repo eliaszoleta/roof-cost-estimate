@@ -44,11 +44,11 @@ function loadLeads() {
 
 function trialDaysLeft() {
   const joined = localStorage.getItem('rc_joined') || (() => { const d = new Date().toISOString(); localStorage.setItem('rc_joined', d); return d; })();
-  const diff = Math.ceil((new Date(joined).getTime() + 14 * 86400000 - Date.now()) / 86400000);
+  const diff = Math.ceil((new Date(joined).getTime() + 30 * 86400000 - Date.now()) / 86400000);
   return Math.max(0, diff);
 }
 
-export default function RooferDashboard({ session, onLogout }) {
+export default function RooferDashboard({ user, onLogout }) {
   const [tab, setTab]             = useState('overview');
   const [leads, setLeads]         = useState(loadLeads);
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -61,12 +61,13 @@ export default function RooferDashboard({ session, onLogout }) {
     return () => window.removeEventListener('resize', fn);
   }, []);
 
-  const companyName = (() => { try { return JSON.parse(localStorage.getItem('rc_branding'))?.companyName || session.name; } catch { return session.name; } })();
+  const userCompanyName = user.user_metadata?.company_name || user.email;
+  const companyName = (() => { try { return JSON.parse(localStorage.getItem('rc_branding'))?.companyName || userCompanyName; } catch { return userCompanyName; } })();
   const newLeadsCount = leads.filter(l => l.status === 'new').length;
   const daysLeft = trialDaysLeft();
-  const companyId = (session.email || '').split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+  const companyId = user.id;
 
-  const handleLogout = () => { localStorage.removeItem('rc_session'); onLogout(); };
+  const handleLogout = () => { onLogout(); };
   const handleTab = (t) => { setTab(t); setSidebarOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const handleSave = () => { setSavePulse(true); setTimeout(() => setSavePulse(false), 1800); };
 
@@ -160,7 +161,7 @@ export default function RooferDashboard({ session, onLogout }) {
             style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 16px', borderRadius: 8, border: 'none', background: savePulse ? '#1d4ed8' : '#2563eb', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 13.5, transition: 'background 0.2s' }}>
             <Save size={13} /> Save Changes
           </button>
-          {!isMobile && <span style={{ fontSize: 13, color: '#64748b' }}>{session.email}</span>}
+          {!isMobile && <span style={{ fontSize: 13, color: '#64748b' }}>{user.email}</span>}
           <button onClick={handleLogout}
             style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: 13, fontWeight: 500 }}>
             <LogOut size={14} /> Sign Out
@@ -192,9 +193,9 @@ export default function RooferDashboard({ session, onLogout }) {
           {tab === 'branding'     && <BrandingTab />}
           {tab === 'services'     && <ServicesTab />}
           {tab === 'embed'        && <EmbedTab companyId={companyId} />}
-          {tab === 'subscription' && <SubscriptionTab session={session} />}
+          {tab === 'subscription' && <SubscriptionTab session={user} />}
           {tab === 'custom-steps' && <CustomStepsTab />}
-          {tab === 'settings'     && <SettingsTab session={session} />}
+          {tab === 'settings'     && <SettingsTab session={user} />}
         </main>
       </div>
     </div>

@@ -268,7 +268,7 @@ function renderForCompanies(assets) {
   </div>`;
   return pageShell({
     title: 'Internal Roofing Price Estimator for Roofing Contractors | RoofingCal',
-    description: 'An internal pricing tool for roofing contractors. Run unlimited accurate estimates instantly on screen — with a calculator widget for your website included if you also want public lead capture. $45/month, 14-day free trial.',
+    description: 'An internal pricing tool for roofing contractors. Run unlimited accurate estimates instantly on screen — with a calculator widget for your website included if you also want public lead capture. $45/month, 30-day free trial.',
     canonicalPath: '/for-companies',
     assets,
     bodyHtml: body,
