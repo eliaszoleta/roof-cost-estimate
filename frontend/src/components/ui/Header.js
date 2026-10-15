@@ -123,7 +123,7 @@ export default function Header() {
               onMouseEnter={e => { e.currentTarget.style.background = '#c2410c'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#ea580c'; }}
             >
-              For Contractors
+              Get Estimator
             </a>
             <button
               onClick={() => setMenuOpen(m => !m)}
@@ -160,7 +160,7 @@ export default function Header() {
               onMouseEnter={e => { e.target.style.color = '#0f172a'; e.target.style.background = '#f8fafc'; }}
               onMouseLeave={e => { e.target.style.color = '#475569'; e.target.style.background = 'transparent'; }}
             >
-              For Contractors
+              Get Estimator
             </a>
             <a
               href={url("/company")}
