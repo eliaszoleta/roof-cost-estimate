@@ -168,12 +168,11 @@ function renderAbout(assets) {
   const body = `<div style="font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;min-height:60vh;padding:56px 24px">
   <div style="max-width:760px;margin:0 auto">
     <h1 style="font-size:36px;font-weight:800;color:#0f172a;margin-bottom:16px">About RoofingCal</h1>
-    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">RoofingCal is a free roofing cost estimator that helps homeowners understand what they should expect to pay before calling a contractor. We use ZIP-code-level labor data, material price indices, and regional cost-of-living adjustments to generate accurate, honest estimates.</p>
-    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">Our goal is simple: put the homeowner in the driver's seat. Armed with a realistic estimate, you can have more informed conversations with contractors, spot outliers, and make better decisions for one of the biggest investments on your home.</p>
-    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">How It Works</h2>
-    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">You answer a few questions about your roof — size, material, pitch, location — and our engine applies national base pricing adjusted for your specific state or ZIP code. Estimates include a realistic low-to-high range, a line-item breakdown, and notes on what factors most affect your price.</p>
-    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">For Contractors</h2>
-    <p style="font-size:16px;color:#475569;line-height:1.8">Roofing contractors can embed our estimator on their own websites and receive qualified leads directly. <a href="/for-companies" style="color:${PRIMARY};font-weight:600">Learn more &rarr;</a></p>
+    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">A new roof is one of the biggest repair bills a homeowner will ever face, yet most people call their first contractor with no idea what a fair price looks like. RoofingCal gives you an independent, data-driven estimate before you talk to a single contractor, so you can spot an outlier quote and negotiate with confidence.</p>
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">Built on Real Pricing Factors</h2>
+    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">Every estimate factors in roof size and shape, material, pitch and tear-off, and ZIP-code location &mdash; the same variables a contractor actually walks your roof to check, not one flat national average.</p>
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">Also Built for Roofing Contractors</h2>
+    <p style="font-size:16px;color:#475569;line-height:1.8">RoofingCal offers an internal pricing tool contractors use to run unlimited estimates on their own screen, plus a white-label embeddable calculator for their own website, included in the same $45/month plan. <a href="/for-companies" style="color:${PRIMARY};font-weight:600">See the Internal Estimator &rarr;</a></p>
   </div>
 </div>`;
   return pageShell({
@@ -260,16 +259,16 @@ function renderPartnerWithUs(assets) {
 }
 
 function renderForCompanies(assets) {
-  const body = `<div style="background:linear-gradient(160deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);padding:80px 24px;text-align:center">
+  const body = `<div style="background:linear-gradient(135deg, #0f172a 0%, #7c2d12 100%);padding:80px 24px;text-align:center">
     <div style="max-width:760px;margin:0 auto">
-      <h1 style="font-size:clamp(32px,5.5vw,52px);font-weight:800;color:white;line-height:1.08;margin-bottom:22px;letter-spacing:-1.5px">Turn Your Website Into a<br><span style="color:#fb923c">Lead Generation Machine</span></h1>
-      <p style="font-size:clamp(16px,2vw,19px);color:#94a3b8;max-width:560px;margin:0 auto 32px;line-height:1.7">Embed a branded roofing cost estimator on your website. Homeowners get instant answers &mdash; you get qualified, pre-educated leads on autopilot. $149/mo, no setup fee.</p>
-      <a href="/company" style="display:inline-flex;align-items:center;gap:8px;background:${PRIMARY};color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px">Get Started &mdash; $149/mo &rarr;</a>
+      <h1 style="font-size:clamp(24px,4vw,36px);font-weight:800;color:white;line-height:1.3;margin-bottom:16px;letter-spacing:-0.5px">Price every job right<br><span style="color:#fb923c">without tipping your hand</span></h1>
+      <p style="font-size:clamp(15px,2vw,17px);color:#cbd5e1;max-width:560px;margin:0 auto 32px;line-height:1.65">RoofingCal is an internal pricing tool for roofing contractors: unlimited, instant on-screen estimates, ready the second you click. Want a public-facing version for your website too? It's included &mdash; no separate plan to buy.</p>
+      <a href="/company?mode=signup" style="display:inline-flex;align-items:center;gap:8px;background:${PRIMARY};color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px">Start Free Trial &mdash; $45/mo &rarr;</a>
     </div>
   </div>`;
   return pageShell({
-    title: 'Roofing Estimator for Contractors — Capture More Leads | RoofingCal',
-    description: 'Embed a branded roofing cost estimator on your website. Capture qualified leads automatically. $149/mo. No setup fee.',
+    title: 'Internal Roofing Price Estimator for Roofing Contractors | RoofingCal',
+    description: 'An internal pricing tool for roofing contractors. Run unlimited accurate estimates instantly on screen — with a calculator widget for your website included if you also want public lead capture. $45/month, 14-day free trial.',
     canonicalPath: '/for-companies',
     assets,
     bodyHtml: body,
