@@ -223,14 +223,14 @@ async function handleStripeEvent(event) {
 
 async function webhookHandler(req, res) {
   const secret = process.env.STRIPE_WEBHOOK_SECRET;
+  if (!secret) {
+    console.error('Webhook rejected: STRIPE_WEBHOOK_SECRET is not configured');
+    return res.status(500).send('Webhook not configured');
+  }
   let event;
   try {
-    if (secret) {
-      const stripe = getStripe();
-      event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], secret);
-    } else {
-      event = JSON.parse(req.body.toString());
-    }
+    const stripe = getStripe();
+    event = stripe.webhooks.constructEvent(req.body, req.headers['stripe-signature'], secret);
   } catch (err) {
     console.error('Webhook signature verification failed:', err.message);
     return res.status(400).send(`Webhook error: ${err.message}`);
