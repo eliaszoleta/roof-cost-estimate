@@ -129,8 +129,14 @@ router.get('/', async (req, res) => {
   }
 });
 
-// GET /api/company-leads/company — auth-protected
+// GET /api/company-leads/company — auth-protected. This same router is
+// also mounted publicly at /api/leads (for the API-key-gated GET / above),
+// so an unauthenticated request can reach this handler too -- guard
+// req.user explicitly instead of assuming requireAuth already ran, which
+// otherwise throws synchronously on req.user.id and crashes the process
+// (Express doesn't catch a rejected promise from an async handler).
 router.get('/company', async (req, res) => {
+  if (!req.user) return res.status(401).json({ success: false, error: 'Unauthorized' });
   const companyId = req.user.id;
   const since = req.query.since;
   const limit = Math.min(parseInt(req.query.limit) || 500, 1000);
@@ -155,8 +161,11 @@ router.get('/company', async (req, res) => {
   }
 });
 
-// PATCH /api/company-leads/company/:id — auth-protected
+// PATCH /api/company-leads/company/:id — auth-protected. Same reasoning
+// as GET /company above -- guard req.user explicitly since this router is
+// also reachable unauthenticated via the public /api/leads mount.
 router.patch('/company/:id', async (req, res) => {
+  if (!req.user) return res.status(401).json({ success: false, error: 'Unauthorized' });
   const companyId = req.user.id;
   const leadId = req.params.id;
   const { notes, deleted_at } = req.body;
