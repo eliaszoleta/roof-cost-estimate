@@ -28,7 +28,9 @@ const DETAIL_STEP_COMPONENT = {
   gutter:     GutterStep,
 };
 
-const PROGRESS_LABELS = ['Service', 'Location', 'Details', 'Your Info', 'Results'];
+// Progress-bar label for each step id (the detail steps all read "Details").
+const STEP_LABELS = { service: 'Service', location: 'Location', lead: 'Your Info', results: 'Results' };
+const stepLabel = id => STEP_LABELS[id] || 'Details';
 
 export default function RoofingCalculator({ companyConfig = null, embedded = false, initialService = null, siteLanding = false, onShowResults = null }) {
   const cardRef = useRef(null);
@@ -42,7 +44,19 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const steps = serviceType ? SERVICE_STEPS[serviceType] : ['service'];
+  // No "Your Info" step when lead capture is off: on roofingcal.com's own
+  // public calculator (no company config -- the homepage, /calculator,
+  // /estimator and the service calculator pages), at the owner's request
+  // (2026-11-25: "drop the lead capture step for now and let them see the
+  // estimate onscreen right there"), and for a company that turned it off
+  // (enableLeadCapture: false -- Calculator Mode, or a widget owner). That
+  // setting used to hide "Your Info" from the progress bar only; the form
+  // itself still showed. A company widget with lead capture on is unchanged.
+  // To bring the public lead form back, make skipLead depend only on
+  // enableLeadCapture again.
+  const skipLead = !companyConfig || companyConfig.enableLeadCapture === false;
+  const allSteps = serviceType ? SERVICE_STEPS[serviceType] : ['service'];
+  const steps = skipLead ? allSteps.filter(s => s !== 'lead') : allSteps;
   const currentStep = steps[stepIndex];
 
   useEffect(() => {
@@ -93,11 +107,16 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
 
   const handleDetailsNext = (details) => {
     setServiceDetails(details);
-    goNext();
+    if (skipLead) calculate(details, null);
+    else goNext();
   };
 
-  const handleLeadNext = async (lead) => {
+  const handleLeadNext = (lead) => {
     setLeadInfo(lead);
+    calculate(serviceDetails, lead);
+  };
+
+  const calculate = async (details, lead) => {
     setError(null);
     setLoading(true);
     try {
@@ -105,7 +124,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
         serviceType,
         zip: location.zip || null,
         state: location.state || null,
-        serviceDetails,
+        serviceDetails: details,
         companyId: companyConfig?.companyId || null,
         leadInfo: lead?.email ? lead : null,
       });
@@ -130,11 +149,9 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
 
   const primaryColor = companyConfig?.primaryColor || '#ea580c';
   const companyName = companyConfig?.companyName || null;
-  const enableLead = companyConfig?.enableLeadCapture !== false;
   const customQuestions = companyConfig?.customLeadQuestions || [];
 
-  const effectiveSteps = !enableLead ? steps.filter(s => s !== 'lead') : steps;
-  const progressStep = Math.min(stepIndex, 4);
+  const progressStep = Math.min(stepIndex, steps.length - 1);
 
   if (currentStep === 'results' && result) {
     return (
@@ -193,7 +210,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
           {currentStep !== 'service' && currentStep !== 'results' && (
             <div style={{ background: '#f8fafc', borderBottom: '1px solid #e2e8f0', padding: '16px 24px' }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 8 }}>
-                {PROGRESS_LABELS.slice(0, effectiveSteps.length).map((label, i) => (
+                {steps.map(stepLabel).map((label, i) => (
                   <span key={label} style={{
                     fontSize: 12, fontWeight: 600,
                     color: i <= progressStep ? primaryColor : '#94a3b8',
@@ -205,7 +222,7 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
               <div style={{ height: 4, background: '#e2e8f0', borderRadius: 2, overflow: 'hidden' }}>
                 <div style={{
                   height: '100%',
-                  width: `${(progressStep / (effectiveSteps.length - 1)) * 100}%`,
+                  width: `${(progressStep / (steps.length - 1)) * 100}%`,
                   background: primaryColor,
                   borderRadius: 2,
                   transition: 'width 0.3s ease',
@@ -238,6 +255,8 @@ export default function RoofingCalculator({ companyConfig = null, embedded = fal
                 serviceType={serviceType}
                 onBack={goBack}
                 onNext={handleDetailsNext}
+                loading={loading}
+                nextLabel={skipLead ? 'See My Estimate →' : undefined}
                 primaryColor={primaryColor}
                 location={location}
                 companyConfig={companyConfig}

@@ -42,7 +42,7 @@ function Chips({ options, value, onChange, primaryColor }) {
   );
 }
 
-export default function InspectionStep({ value, onBack, onNext, primaryColor = '#ea580c' }) {
+export default function InspectionStep({ value, onBack, onNext, primaryColor = '#ea580c', loading = false, nextLabel }) {
   const [propertyType, setPropertyType] = useState(value.propertyType || '');
   const [stories, setStories]           = useState(value.stories || '');
   const [roofAge, setRoofAge]           = useState(value.roofAge || '');
@@ -65,6 +65,8 @@ export default function InspectionStep({ value, onBack, onNext, primaryColor = '
       })}
       canNext={canNext}
       primaryColor={primaryColor}
+      loading={loading}
+      {...(nextLabel ? { nextLabel } : {})}
     >
       <div style={fieldWrap}>
         <label style={fieldLabel}>Property type</label>

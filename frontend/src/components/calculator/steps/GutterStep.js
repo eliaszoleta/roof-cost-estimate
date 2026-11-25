@@ -88,7 +88,7 @@ function IllustrationCard({ item, value, onChange, primaryColor }) {
   );
 }
 
-export default function GutterStep({ value, onBack, onNext, primaryColor = '#ea580c' }) {
+export default function GutterStep({ value, onBack, onNext, primaryColor = '#ea580c', loading = false, nextLabel }) {
   const [linearFeet,     setLinearFeet] = useState(value.linearFeet     || '');
   const [gutterMaterial, setMaterial]   = useState(value.gutterMaterial || '');
   const [stories,        setStories]    = useState(value.stories        || '');
@@ -126,6 +126,8 @@ export default function GutterStep({ value, onBack, onNext, primaryColor = '#ea5
       }}
       canNext={canNext}
       primaryColor={primaryColor}
+      loading={loading}
+      {...(nextLabel ? { nextLabel } : {})}
     >
       {/* ── Linear footage ── */}
       <div style={fieldWrap}>

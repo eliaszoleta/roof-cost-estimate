@@ -196,7 +196,7 @@ function Chips({ options, value, onChange, primaryColor }) {
 }
 
 // ── Main Component ────────────────────────────────────────────────────────────
-export default function RoofDetailsStep({ value, serviceType, onBack, onNext, primaryColor = '#ea580c', companyConfig = null }) {
+export default function RoofDetailsStep({ value, serviceType, onBack, onNext, primaryColor = '#ea580c', companyConfig = null, loading = false, nextLabel }) {
   const qc = companyConfig?.questionConfig || {};
 
   const [roofSize,       setRoofSize]       = useState(value.roofSize       || '');
@@ -284,6 +284,8 @@ export default function RoofDetailsStep({ value, serviceType, onBack, onNext, pr
       onNext={handleNext}
       canNext={canNext}
       primaryColor={primaryColor}
+      loading={loading}
+      {...(nextLabel ? { nextLabel } : {})}
     >
       {/* ── Home size ── */}
       <div style={fieldWrap}>
