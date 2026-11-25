@@ -9,6 +9,7 @@ const BLOG_CATEGORIES = [
   { slug: 'roofing-insurance',   label: 'Roofing & Insurance'  },
   { slug: 'roofing-financing',   label: 'Roofing Financing'    },
   { slug: 'roofing-basics',      label: 'Roofing Basics'       },
+  { slug: 'starting-a-roofing-business', label: 'Starting a Roofing Business' },
 ];
 
 export default function Footer() {
@@ -73,6 +74,7 @@ export default function Footer() {
               ['Contractor Login', url('/company')],
               ['Get a Roofing Website + Lead App', url('/website-for-roofing-companies')],
               ['Example Website Designs', url('/website-example')],
+              ['Start a Roofing Business', url('/start-a-roofing-business')],
             ].map(([label, href]) => (
               <a key={href} href={href} style={{ display: 'block', fontSize: 13, color: '#94a3b8', textDecoration: 'none', marginBottom: 7 }}
                 onMouseEnter={e => { e.target.style.color = 'white'; }}

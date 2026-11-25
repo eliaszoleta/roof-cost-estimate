@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import { Helmet } from 'react-helmet-async';
-import NoWebsiteBanner from '../ui/NoWebsiteBanner';
-import { url } from '../../utils/routes';
 
 const PRIMARY = '#ea580c';
 const WEB3FORMS_KEY = 'b0da3f48-9982-4a5a-9195-4200a80ba8c6';
@@ -155,8 +153,6 @@ export default function PartnerWithUs() {
           <StatBadge number="$350" label="Per city / month" />
         </div>
       </div>
-
-      <NoWebsiteBanner />
 
       {/* Why it works */}
       <div style={{ padding: 'clamp(48px, 8vw, 80px) 24px', background: 'white' }}>

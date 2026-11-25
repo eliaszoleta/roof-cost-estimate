@@ -7,6 +7,7 @@ const BUILD   = path.join(__dirname, '../build');
 const SRC     = path.join(__dirname, '../src');
 const DOMAIN  = 'https://roofingcal.com';
 const PRIMARY = '#ea580c';
+const PRIMARY_DARK = '#c2410c';
 
 function loadBlogData() {
   const raw = fs.readFileSync(path.join(SRC, 'data/blogPosts.js'), 'utf8');
@@ -35,6 +36,15 @@ function loadStatesData() {
     .replace(/^export function /gm, 'function ')
     .replace(/^export default /gm, 'const _default = ');
   const fn = new Function(`${src}\nreturn { getAllStates, getStateBySlug, getFeaturedStates, adjustForState };`);
+  return fn();
+}
+
+function loadRoofingBizData() {
+  const raw = fs.readFileSync(path.join(SRC, 'data/stateRoofingBusinessStartup.js'), 'utf8');
+  const src = raw
+    .replace(/^export const /gm, 'const ')
+    .replace(/^export function /gm, 'function ');
+  const fn = new Function(`${src}\nreturn { STATE_BUSINESS_STARTUP, getStateBusinessStartupByCode };`);
   return fn();
 }
 
@@ -78,6 +88,7 @@ const CATEGORIES = [
   { slug: 'roofing-insurance', label: 'Roofing Insurance', desc: 'Navigate insurance claims and coverage for roof damage.' },
   { slug: 'roofing-financing', label: 'Roofing Financing', desc: 'Loans, 0% promotions, and how to pay for a new roof.' },
   { slug: 'roofing-basics',    label: 'Roofing Basics',    desc: 'Foundational knowledge every homeowner should have.' },
+  { slug: 'starting-a-roofing-business', label: 'Starting a Roofing Business', desc: 'Licensing, startup costs, equipment, and everything you need to start and grow a roofing business.' },
 ];
 
 function getAssetTags() {
@@ -157,12 +168,11 @@ function renderAbout(assets) {
   const body = `<div style="font-family:system-ui,-apple-system,sans-serif;background:#f8fafc;min-height:60vh;padding:56px 24px">
   <div style="max-width:760px;margin:0 auto">
     <h1 style="font-size:36px;font-weight:800;color:#0f172a;margin-bottom:16px">About RoofingCal</h1>
-    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">RoofingCal is a free roofing cost estimator that helps homeowners understand what they should expect to pay before calling a contractor. We use ZIP-code-level labor data, material price indices, and regional cost-of-living adjustments to generate accurate, honest estimates.</p>
-    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">Our goal is simple: put the homeowner in the driver's seat. Armed with a realistic estimate, you can have more informed conversations with contractors, spot outliers, and make better decisions for one of the biggest investments on your home.</p>
-    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">How It Works</h2>
-    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">You answer a few questions about your roof — size, material, pitch, location — and our engine applies national base pricing adjusted for your specific state or ZIP code. Estimates include a realistic low-to-high range, a line-item breakdown, and notes on what factors most affect your price.</p>
-    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">For Contractors</h2>
-    <p style="font-size:16px;color:#475569;line-height:1.8">Roofing contractors can embed our estimator on their own websites and receive qualified leads directly. <a href="/for-companies" style="color:${PRIMARY};font-weight:600">Learn more &rarr;</a></p>
+    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">A new roof is one of the biggest repair bills a homeowner will ever face, yet most people call their first contractor with no idea what a fair price looks like. RoofingCal gives you an independent, data-driven estimate before you talk to a single contractor, so you can spot an outlier quote and negotiate with confidence.</p>
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">Built on Real Pricing Factors</h2>
+    <p style="font-size:16px;color:#475569;line-height:1.8;margin-bottom:24px">Every estimate factors in roof size and shape, material, pitch and tear-off, and ZIP-code location &mdash; the same variables a contractor actually walks your roof to check, not one flat national average.</p>
+    <h2 style="font-size:22px;font-weight:700;color:#0f172a;margin-bottom:12px;margin-top:40px">Also Built for Roofing Contractors</h2>
+    <p style="font-size:16px;color:#475569;line-height:1.8">RoofingCal offers an internal pricing tool contractors use to run unlimited estimates on their own screen, plus a white-label embeddable calculator for their own website, included in the same $45/month plan. <a href="/for-companies" style="color:${PRIMARY};font-weight:600">See the Internal Estimator &rarr;</a></p>
   </div>
 </div>`;
   return pageShell({
@@ -249,16 +259,16 @@ function renderPartnerWithUs(assets) {
 }
 
 function renderForCompanies(assets) {
-  const body = `<div style="background:linear-gradient(160deg, #0f172a 0%, #1e293b 60%, #0f172a 100%);padding:80px 24px;text-align:center">
+  const body = `<div style="background:linear-gradient(135deg, #0f172a 0%, #7c2d12 100%);padding:80px 24px;text-align:center">
     <div style="max-width:760px;margin:0 auto">
-      <h1 style="font-size:clamp(32px,5.5vw,52px);font-weight:800;color:white;line-height:1.08;margin-bottom:22px;letter-spacing:-1.5px">Turn Your Website Into a<br><span style="color:#fb923c">Lead Generation Machine</span></h1>
-      <p style="font-size:clamp(16px,2vw,19px);color:#94a3b8;max-width:560px;margin:0 auto 32px;line-height:1.7">Embed a branded roofing cost estimator on your website. Homeowners get instant answers &mdash; you get qualified, pre-educated leads on autopilot. $149/mo, no setup fee.</p>
-      <a href="/company" style="display:inline-flex;align-items:center;gap:8px;background:${PRIMARY};color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px">Get Started &mdash; $149/mo &rarr;</a>
+      <h1 style="font-size:clamp(24px,4vw,36px);font-weight:800;color:white;line-height:1.3;margin-bottom:16px;letter-spacing:-0.5px">Price every job right<br><span style="color:#fb923c">without tipping your hand</span></h1>
+      <p style="font-size:clamp(15px,2vw,17px);color:#cbd5e1;max-width:560px;margin:0 auto 32px;line-height:1.65">RoofingCal is an internal pricing tool for roofing contractors: unlimited, instant on-screen estimates, ready the second you click. Want a public-facing version for your website too? It's included &mdash; no separate plan to buy.</p>
+      <a href="/company?mode=signup" style="display:inline-flex;align-items:center;gap:8px;background:${PRIMARY};color:white;padding:14px 28px;border-radius:10px;text-decoration:none;font-weight:700;font-size:15px">Start Free Trial &mdash; $45/mo &rarr;</a>
     </div>
   </div>`;
   return pageShell({
-    title: 'Roofing Estimator for Contractors — Capture More Leads | RoofingCal',
-    description: 'Embed a branded roofing cost estimator on your website. Capture qualified leads automatically. $149/mo. No setup fee.',
+    title: 'Internal Roofing Price Estimator for Roofing Contractors | RoofingCal',
+    description: 'An internal pricing tool for roofing contractors. Run unlimited accurate estimates instantly on screen — with a calculator widget for your website included if you also want public lead capture. $45/month, 30-day free trial.',
     canonicalPath: '/for-companies',
     assets,
     bodyHtml: body,
@@ -986,6 +996,202 @@ function renderMethodologyPage(assets) {
   });
 }
 
+// States with a full, genuinely state-specific deep-dive post (not just the
+// templated page) -- must stay in sync with DEEP_POST_BY_CODE in
+// StartRoofingBusinessStatePage.js.
+const ROOFING_BIZ_DEEP_POST_BY_CODE = {
+  TX: 'how-to-start-a-roofing-business-in-texas',
+  FL: 'how-to-start-a-roofing-business-in-florida',
+  CO: 'how-to-start-a-roofing-business-in-colorado',
+  OK: 'how-to-start-a-roofing-business-in-oklahoma',
+  GA: 'how-to-start-a-roofing-business-in-georgia',
+  NC: 'how-to-start-a-roofing-business-in-north-carolina',
+};
+
+const ROOFING_BIZ_STEPS = [
+  { title: 'Choose a business structure', body: 'Most roofing businesses should form an LLC rather than operate as a sole proprietor, given the liability in roof work.', href: '/blog/llc-vs-sole-proprietorship-roofing-business', linkText: 'LLC vs. sole proprietorship' },
+  { title: 'Confirm your licensing requirements', body: "Contractor licensing for roofing varies by state -- check directly with your state licensing board before you spend on anything else.", href: '/blog/roofing-contractor-license-requirements-by-state', linkText: 'Full licensing overview' },
+  { title: 'Get insured and bonded', body: 'General liability insurance and a contractor license bond, before your first paid job.', href: '/blog/roofing-business-insurance-bonding-guide', linkText: 'Insurance & bonding guide' },
+  { title: 'Buy your equipment', body: 'Fall protection, tear-off tools, and nailers -- or start lean by subcontracting installs.', href: '/blog/roofing-crew-equipment-checklist', linkText: 'Equipment checklist' },
+  { title: 'Price your jobs', body: 'Bid on a true per-square basis that covers overhead and warranty reserve, not just materials and labor.', href: '/blog/how-to-price-roofing-jobs', linkText: 'Pricing guide' },
+  { title: 'Get your first customers', body: 'Your network first, then a real web presence with an instant estimate calculator.', href: '/website-for-roofing-companies', linkText: 'Get a roofing website' },
+];
+
+function roofingBizFaqs(stateName) {
+  return [
+    { q: `How much does it cost to form an LLC in ${stateName}?`, a: `See the exact filing fee and agency above. The LLC fee is the same regardless of industry -- what varies for a roofing business specifically is contractor licensing cost and insurance, which depend on your state's requirements and your business model.` },
+    { q: `Do I need a special contractor license to roof in ${stateName}?`, a: `This genuinely varies by state and isn't something to guess on. Some states require a dedicated roofing or general contractor license, others leave regulation mostly to the city or county, and requirements change over time. Contact your state contractor licensing board directly to confirm what applies in ${stateName} before committing to a business model.` },
+    { q: `What's the fastest way to get my first customers in ${stateName}?`, a: `Your personal network almost always provides your first job. From there, a free Google Business Profile, asking every customer for a review, and getting a real website with an instant estimate calculator online are the highest-leverage next steps.` },
+    { q: `Should I install myself or subcontract in ${stateName}?`, a: `Many new roofing businesses start by handling sales, inspections, and insurance-claim coordination while subcontracting the physical tear-off and install to a licensed crew -- lower capital requirement, faster to revenue -- and bring installation in-house once they have volume. See our full startup guide for the tradeoffs.` },
+  ];
+}
+
+function renderStartBusinessStatePage(state, biz, statesMod, assets) {
+  const otherStates = statesMod.getAllStates().filter(s => s.slug !== state.slug);
+  const faqs = roofingBizFaqs(state.name);
+  const deepPostSlug = ROOFING_BIZ_DEEP_POST_BY_CODE[state.code];
+
+  const otherStatesHtml = otherStates.map(s => `<a href="/start-a-roofing-business/${s.slug}" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">${esc(s.name)}</a>`).join(' ');
+
+  const title = `How to Start a Roofing Business in ${state.name} (2026): Costs, LLC Fees & Licensing | RoofingCal`;
+  const description = `Everything you need to start a roofing business in ${state.name}: LLC filing fee (${fmt(biz.llcFee)}), licensing, insurance, equipment, pricing, and getting your first customers.`;
+
+  const stepsHtml = ROOFING_BIZ_STEPS.map((step, i) => `
+    <div style="display:flex;gap:12px">
+      <div style="flex-shrink:0;margin-top:1px;color:${PRIMARY};font-weight:800">&check;</div>
+      <div>
+        <div style="font-weight:700;font-size:14.5px;color:#0f172a;margin-bottom:2px">${i + 1}. ${esc(step.title)}</div>
+        <div style="font-size:13.5px;color:#64748b;line-height:1.6">${esc(step.body)} <a href="${step.href}" style="color:${PRIMARY};font-weight:600">${esc(step.linkText)} &rarr;</a></div>
+      </div>
+    </div>`).join('');
+
+  const deepPostBlock = deepPostSlug ? `<a href="/blog/${deepPostSlug}" style="display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:16px 20px;margin-bottom:24px;text-decoration:none;flex-wrap:wrap">
+      <span style="font-size:14px;font-weight:700;color:#0f172a">Read the full ${esc(state.name)}-specific guide &mdash; market size, storm demand, and more &rarr;</span>
+      <span style="font-size:13px;font-weight:700;color:${PRIMARY};white-space:nowrap">Read guide</span>
+    </a>` : '';
+
+  const body = `<div style="background:#f8fafc;min-height:100vh;padding:40px 24px 64px;font-family:system-ui,-apple-system,sans-serif">
+  <div style="max-width:780px;margin:0 auto">
+    <div style="display:flex;gap:6px;font-size:13px;color:#94a3b8;margin-bottom:24px;flex-wrap:wrap">
+      <a href="/" style="color:#64748b;text-decoration:none">Home</a><span>&rsaquo;</span>
+      <a href="/start-a-roofing-business" style="color:#64748b;text-decoration:none">Start a Roofing Business</a><span>&rsaquo;</span>
+      <span style="color:#0f172a">${esc(state.name)}</span>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:24px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+        <span style="font-size:12px;font-weight:700;color:${PRIMARY};text-transform:uppercase;letter-spacing:0.05em">${esc(state.name)}</span>
+      </div>
+      <h1 style="font-size:clamp(24px,4vw,32px);font-weight:800;color:#0f172a;line-height:1.25;margin-bottom:10px">How to Start a Roofing Business in ${esc(state.name)}</h1>
+      <p style="font-size:15.5px;color:#64748b;line-height:1.7">What it costs to register and insure a roofing business in ${esc(state.name)}, what to check on licensing, and the full step-by-step checklist to get your first customer.</p>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:24px">
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:16px">${esc(state.name)} LLC Filing Quick Facts</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:14px;margin-bottom:16px">
+        <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:10px;padding:14px 16px"><div style="font-size:11px;font-weight:700;color:${PRIMARY_DARK};text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">LLC Filing Fee</div><div style="font-size:22px;font-weight:800;color:#0f172a">${fmt(biz.llcFee)}</div></div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px"><div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">Filing Agency</div><div style="font-size:14px;font-weight:700;color:#0f172a;line-height:1.4">${esc(biz.agency)}</div></div>
+        <div style="background:#f8fafc;border:1px solid #e2e8f0;border-radius:10px;padding:14px 16px"><div style="font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:0.04em;margin-bottom:4px">State Income Tax</div><div style="font-size:14px;font-weight:700;color:#0f172a">${biz.noIncomeTax ? 'None' : 'Applies'}</div></div>
+      </div>
+      <p style="font-size:13.5px;color:#475569;line-height:1.7;margin:0">${esc(biz.note)}</p>
+      <p style="font-size:11.5px;color:#94a3b8;line-height:1.6;margin:12px 0 0">Filing fees change periodically &mdash; confirm the current fee directly with the ${esc(biz.agency)} before filing. This is general informational content, not legal, tax, or licensing advice.</p>
+    </div>
+    <div style="background:#fef2f2;border:1px solid #fecaca;border-radius:12px;padding:20px 24px;margin-bottom:24px">
+      <div style="font-weight:800;font-size:15px;color:#0f172a;margin-bottom:6px">Contractor licensing is state-specific &mdash; don't guess</div>
+      <p style="font-size:13.5px;color:#991b1b;line-height:1.7;margin:0">Unlike the LLC fee above, contractor licensing requirements for roofing vary meaningfully by state and change over time. Before you commit to a business model, contact ${esc(state.name)}'s contractor licensing board directly to confirm what license type, exam, and bonding your state requires. See our <a href="/blog/roofing-contractor-license-requirements-by-state" style="color:#991b1b;font-weight:700">full licensing overview</a> for what to ask and who to contact.</p>
+    </div>
+    ${deepPostBlock}
+    <div style="background:linear-gradient(135deg,${PRIMARY},${PRIMARY_DARK});border-radius:12px;padding:18px 24px;margin-bottom:28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="color:white"><div style="font-weight:700;font-size:15px">Get your ${esc(state.name)} roofing business online</div><div style="font-size:13px;opacity:0.9">$5 to start &middot; 2 months free &middot; then $249/mo</div></div>
+      <a href="/website-for-roofing-companies" style="background:white;color:${PRIMARY};padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;white-space:nowrap">Get a Free Website &rarr;</a>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:24px">
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:16px">Startup Checklist for ${esc(state.name)}</h2>
+      <div style="display:flex;flex-direction:column;gap:14px">${stepsHtml}</div>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:24px">
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-bottom:8px">The ${esc(state.name)} Roofing Market</h2>
+      <p style="font-size:13.5px;color:#64748b;line-height:1.7">A typical full roof replacement in ${esc(state.name)} runs roughly <strong style="color:#0f172a">${fmt(state.low)}&ndash;${fmt(state.high)}</strong> for a 2,000 sq ft roof &mdash; a useful benchmark when you're setting your own bids. See the <a href="/roofing-cost/${state.slug}" style="color:${PRIMARY};font-weight:600">full ${esc(state.name)} pricing breakdown</a>, or our <a href="/blog/how-to-price-roofing-jobs" style="color:${PRIMARY};font-weight:600">complete pricing guide</a> for how to build your own bids from there.</p>
+      <h2 style="font-size:19px;font-weight:800;color:#0f172a;margin-top:32px;margin-bottom:14px">FAQs</h2>
+      ${faqAccordionHtml(faqs)}
+    </div>
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:24px 28px;margin-bottom:32px;text-align:center">
+      <div style="font-weight:800;font-size:18px;color:#0f172a;margin-bottom:6px">Not ready to build your own marketing yet?</div>
+      <p style="font-size:14px;color:#64748b;margin-bottom:16px">RoofingCal's Partner Program gives one roofing company per city exclusive, guaranteed lead visibility &mdash; no website required to start.</p>
+      <a href="/partner-with-us" style="background:${PRIMARY};color:white;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:15px">See If Your City Is Available &rarr;</a>
+    </div>
+    <div style="margin-bottom:32px">
+      <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px">The Full Starting-a-Roofing-Business Guide</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">
+        <a href="/blog/how-to-start-a-roofing-business" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">Full Startup Guide</a>
+        <a href="/blog/cost-to-start-a-roofing-business" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">Startup Cost Breakdown</a>
+        <a href="/blog/roofing-crew-equipment-checklist" style="font-size:12.5px;color:#64748b;text-decoration:none;background:white;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">Equipment Checklist</a>
+        <a href="/blog/category/starting-a-roofing-business" style="font-size:12.5px;color:${PRIMARY};font-weight:700;text-decoration:none;background:white;border:1px solid #fed7aa;border-radius:20px;padding:6px 12px">See All Roofing Business Guides &rarr;</a>
+      </div>
+    </div>
+    <div>
+      <div style="font-size:11px;font-weight:700;color:#94a3b8;text-transform:uppercase;letter-spacing:0.07em;margin-bottom:16px">Start a Roofing Business in Other States</div>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${otherStatesHtml}</div>
+    </div>
+  </div>
+</div>`;
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', item: DOMAIN },
+    { name: 'Start a Roofing Business', item: `${DOMAIN}/start-a-roofing-business` },
+    { name: `Start a Roofing Business in ${state.name}`, item: `${DOMAIN}/start-a-roofing-business/${state.slug}` },
+  ]);
+
+  return pageShell({
+    title,
+    description,
+    canonicalPath: `/start-a-roofing-business/${state.slug}`,
+    assets,
+    bodyHtml: body,
+    extraHead: `<script type="application/ld+json">${faqSchema(faqs)}</script><script type="application/ld+json">${breadcrumb}</script>`,
+  });
+}
+
+function renderStartBusinessIndexPage(statesMod, posts, assets) {
+  const states = statesMod.getAllStates();
+  const bizPosts = posts.filter(p => p.category === 'starting-a-roofing-business');
+
+  const statesHtml = states.map(s => `<a href="/start-a-roofing-business/${s.slug}" style="font-size:12.5px;color:#64748b;text-decoration:none;background:#f8fafc;border:1px solid #e2e8f0;border-radius:20px;padding:6px 12px">${esc(s.name)}</a>`).join(' ');
+  const postsHtml = bizPosts.map(p => `
+    <a href="/blog/${p.slug}" style="display:block;background:white;border:1px solid #e2e8f0;border-radius:12px;padding:18px;text-decoration:none">
+      <div style="font-size:11px;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:8px">${esc(p.readTime || '8 min read')}</div>
+      <div style="font-size:15px;font-weight:700;color:#0f172a;line-height:1.4;margin-bottom:8px">${esc(p.title)}</div>
+      <span style="font-size:13px;color:${PRIMARY};font-weight:700">Read guide &rarr;</span>
+    </a>`).join('');
+
+  const title = 'How to Start a Roofing Business (2026): Costs, Licensing & State-by-State Guide | RoofingCal';
+  const description = 'Everything you need to start a roofing business: LLC setup, licensing, insurance, pricing, equipment, and safety -- plus exact LLC filing fees for all 50 states.';
+
+  const body = `<div style="background:#f8fafc;min-height:100vh;padding:40px 24px 64px;font-family:system-ui,-apple-system,sans-serif">
+  <div style="max-width:880px;margin:0 auto">
+    <div style="display:flex;gap:6px;font-size:13px;color:#94a3b8;margin-bottom:24px;flex-wrap:wrap">
+      <a href="/" style="color:#64748b;text-decoration:none">Home</a><span>&rsaquo;</span>
+      <span style="color:#0f172a">Start a Roofing Business</span>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:28px">
+      <div style="font-size:12px;font-weight:700;color:${PRIMARY};text-transform:uppercase;letter-spacing:0.05em;margin-bottom:12px">Starting Your Business</div>
+      <h1 style="font-size:clamp(26px,4.5vw,36px);font-weight:800;color:#0f172a;line-height:1.2;margin-bottom:14px">How to Start a Roofing Business</h1>
+      <p style="font-size:16px;color:#64748b;line-height:1.7">Everything you need to go from idea to your first install: business structure, licensing, insurance, equipment, pricing, OSHA safety, and getting your first customers &mdash; plus the LLC filing fee for every state.</p>
+    </div>
+    <div style="background:linear-gradient(135deg,${PRIMARY},${PRIMARY_DARK});border-radius:12px;padding:18px 24px;margin-bottom:32px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px">
+      <div style="color:white"><div style="font-weight:700;font-size:15px">Ready to get online?</div><div style="font-size:13px;opacity:0.9">$5 to start &middot; 2 months free &middot; then $249/mo</div></div>
+      <a href="/website-for-roofing-companies" style="background:white;color:${PRIMARY};padding:10px 20px;border-radius:8px;text-decoration:none;font-weight:700;font-size:14px;white-space:nowrap">Get a Free Website &rarr;</a>
+    </div>
+    <div style="margin-bottom:36px">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:16px">The Complete Starting-Out Guide</h2>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:14px">${postsHtml}</div>
+    </div>
+    <div style="background:white;border-radius:14px;border:1px solid #e2e8f0;padding:32px 36px;margin-bottom:28px">
+      <h2 style="font-size:20px;font-weight:800;color:#0f172a;margin-bottom:6px">Find Your State's LLC Filing Fee</h2>
+      <p style="font-size:13.5px;color:#64748b;margin-bottom:18px">LLC filing fees, filing agencies, and state-specific notes for every state.</p>
+      <div style="display:flex;flex-wrap:wrap;gap:8px">${statesHtml}</div>
+    </div>
+    <div style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;padding:24px 28px;text-align:center">
+      <div style="font-weight:800;font-size:18px;color:#0f172a;margin-bottom:6px">Not ready to build your own marketing yet?</div>
+      <p style="font-size:14px;color:#64748b;margin-bottom:16px">RoofingCal's Partner Program gives one roofing company per city exclusive, guaranteed lead visibility &mdash; no website required to start.</p>
+      <a href="/partner-with-us" style="background:${PRIMARY};color:white;padding:12px 28px;border-radius:9px;text-decoration:none;font-weight:700;font-size:15px">See If Your City Is Available &rarr;</a>
+    </div>
+  </div>
+</div>`;
+
+  const breadcrumb = breadcrumbSchema([
+    { name: 'Home', item: DOMAIN },
+    { name: 'Start a Roofing Business', item: `${DOMAIN}/start-a-roofing-business` },
+  ]);
+
+  return pageShell({
+    title,
+    description,
+    canonicalPath: '/start-a-roofing-business',
+    assets,
+    bodyHtml: body,
+    extraHead: `<script type="application/ld+json">${breadcrumb}</script>`,
+  });
+}
+
 function writeFile(relPath, html) {
   const full = path.join(BUILD, relPath, 'index.html');
   fs.mkdirSync(path.dirname(full), { recursive: true });
@@ -1005,6 +1211,7 @@ function main() {
   const faqsMod = loadFaqsData();
   const citiesMod = loadCitiesData(statesMod, servicesMod);
   const sitesMod = loadSitesData();
+  const roofingBizMod = loadRoofingBizData();
   const assets = getAssetTags();
 
   let count = 0;
@@ -1059,6 +1266,16 @@ function main() {
   const cities = citiesMod.getAllCities();
   for (const city of cities) {
     writeFile(`roofing-cost/city/${city.slug}`, renderCityPage(city, citiesMod, faqsMod, assets));
+    count++;
+  }
+
+  writeFile('start-a-roofing-business', renderStartBusinessIndexPage(statesMod, posts, assets));
+  count++;
+
+  for (const state of states) {
+    const biz = roofingBizMod.getStateBusinessStartupByCode(state.code);
+    if (!biz) continue;
+    writeFile(`start-a-roofing-business/${state.slug}`, renderStartBusinessStatePage(state, biz, statesMod, assets));
     count++;
   }
 

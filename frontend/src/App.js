@@ -20,6 +20,8 @@ import PrivacyPolicy from './components/pages/PrivacyPolicy';
 import TermsOfService from './components/pages/TermsOfService';
 import ServicePage from './components/pages/ServicePage';
 import StatePage from './components/pages/StatePage';
+import StartRoofingBusinessIndex from './components/pages/StartRoofingBusinessIndex';
+import StartRoofingBusinessStatePage from './components/pages/StartRoofingBusinessStatePage';
 import CityPage from './components/pages/CityPage';
 import CalculatorPage from './components/pages/CalculatorPage';
 import EstimatorPage from './components/pages/EstimatorPage';
@@ -55,6 +57,8 @@ const isServicePage = pathname.startsWith('/roofing-services/');
 // aren't orphaned.
 const isCityPage = pathname.startsWith('/roofing-cost/city/');
 const isStatePage = pathname.startsWith('/roofing-cost/') && !isCityPage;
+const isStartBusinessIndex = pathname === '/start-a-roofing-business';
+const isStartBusinessState = pathname.startsWith('/start-a-roofing-business/');
 const isCalculatorPage = pathname === '/roofing-cost-calculator';
 const isEstimatorPage = pathname === '/roofing-cost-estimator';
 const isMethodologyPage = pathname === '/how-we-calculate-prices';
@@ -127,6 +131,8 @@ export default function App() {
   if (isServicePage)  return <HelmetProvider><div className="app"><Header /><main><ServicePage slug={pathname.replace('/roofing-services/', '')} /></main><Footer /></div></HelmetProvider>;
   if (isCityPage)     return <HelmetProvider><div className="app"><Header /><main><CityPage slug={pathname.replace('/roofing-cost/city/', '')} /></main><Footer /></div></HelmetProvider>;
   if (isStatePage)    return <HelmetProvider><div className="app"><Header /><main><StatePage slug={pathname.replace('/roofing-cost/', '')} /></main><Footer /></div></HelmetProvider>;
+  if (isStartBusinessState) return <HelmetProvider><div className="app"><Header /><main><StartRoofingBusinessStatePage slug={pathname.replace('/start-a-roofing-business/', '')} /></main><Footer /></div></HelmetProvider>;
+  if (isStartBusinessIndex) return <HelmetProvider><div className="app"><Header /><main><StartRoofingBusinessIndex /></main><Footer /></div></HelmetProvider>;
   if (isCalculatorPage) return <HelmetProvider><div className="app"><Header /><main><CalculatorPage /></main><Footer /></div></HelmetProvider>;
   if (isEstimatorPage)  return <HelmetProvider><div className="app"><Header /><main><EstimatorPage /></main><Footer /></div></HelmetProvider>;
   if (isMethodologyPage) return <HelmetProvider><div className="app"><Header /><main><MethodologyPage /></main><Footer /></div></HelmetProvider>;

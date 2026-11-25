@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import {
-  BarChart3, Users, Palette, Layers, Code2, CreditCard,
+  BarChart3, Zap, Users, Palette, Layers, Code2, CreditCard,
   Settings, ListChecks, LogOut, Menu, Save,
 } from 'lucide-react';
 import { url } from '../../utils/routes';
 import OverviewTab      from './tabs/OverviewTab';
+import RunEstimateTab   from './tabs/RunEstimateTab';
 import LeadsTab         from './tabs/LeadsTab';
 import BrandingTab      from './tabs/BrandingTab';
 import ServicesTab      from './tabs/ServicesTab';
@@ -15,6 +16,7 @@ import SettingsTab      from './tabs/SettingsTab';
 
 const NAV = [
   { id: 'overview',     label: 'Overview',      Icon: BarChart3  },
+  { id: 'estimate',     label: 'Run an Estimate', Icon: Zap      },
   { id: 'branding',     label: 'Branding',       Icon: Palette    },
   { id: 'services',     label: 'Services',       Icon: Layers     },
   { id: 'embed',        label: 'Embed Widget',   Icon: Code2      },
@@ -42,29 +44,31 @@ function loadLeads() {
 
 function trialDaysLeft() {
   const joined = localStorage.getItem('rc_joined') || (() => { const d = new Date().toISOString(); localStorage.setItem('rc_joined', d); return d; })();
-  const diff = Math.ceil((new Date(joined).getTime() + 14 * 86400000 - Date.now()) / 86400000);
+  const diff = Math.ceil((new Date(joined).getTime() + 30 * 86400000 - Date.now()) / 86400000);
   return Math.max(0, diff);
 }
 
-export default function RooferDashboard({ session, onLogout }) {
+export default function RooferDashboard({ user, onLogout }) {
   const [tab, setTab]             = useState('overview');
   const [leads, setLeads]         = useState(loadLeads);
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [isMobile, setIsMobile]   = useState(() => window.innerWidth < 900);
+  const [isMobile, setIsMobile]   = useState(() => window.matchMedia('(max-width: 768px)').matches);
   const [savePulse, setSavePulse] = useState(false);
 
   useEffect(() => {
-    const fn = () => setIsMobile(window.innerWidth < 900);
-    window.addEventListener('resize', fn);
-    return () => window.removeEventListener('resize', fn);
+    const mq = window.matchMedia('(max-width: 768px)');
+    const fn = () => setIsMobile(mq.matches);
+    mq.addEventListener('change', fn);
+    return () => mq.removeEventListener('change', fn);
   }, []);
 
-  const companyName = (() => { try { return JSON.parse(localStorage.getItem('rc_branding'))?.companyName || session.name; } catch { return session.name; } })();
+  const userCompanyName = user.user_metadata?.company_name || user.email;
+  const companyName = (() => { try { return JSON.parse(localStorage.getItem('rc_branding'))?.companyName || userCompanyName; } catch { return userCompanyName; } })();
   const newLeadsCount = leads.filter(l => l.status === 'new').length;
   const daysLeft = trialDaysLeft();
-  const companyId = (session.email || '').split('@')[0].toLowerCase().replace(/[^a-z0-9]/g, '');
+  const companyId = user.id;
 
-  const handleLogout = () => { localStorage.removeItem('rc_session'); onLogout(); };
+  const handleLogout = () => { onLogout(); };
   const handleTab = (t) => { setTab(t); setSidebarOpen(false); window.scrollTo({ top: 0, behavior: 'smooth' }); };
   const handleSave = () => { setSavePulse(true); setTimeout(() => setSavePulse(false), 1800); };
 
@@ -141,27 +145,27 @@ export default function RooferDashboard({ session, onLogout }) {
             <div style={{ width: 28, height: 28, background: 'linear-gradient(135deg, #ea580c, #c2410c)', borderRadius: 7, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
               <svg width="16" height="16" viewBox="0 0 24 24" fill="white"><path d="M3 11.5L12 3L21 11.5V21H15.5V15H8.5V21H3V11.5Z"/></svg>
             </div>
-            <span style={{ fontWeight: 800, fontSize: 15, color: 'white' }}>RoofingCal</span>
+            {!isMobile && <span style={{ fontWeight: 800, fontSize: 15, color: 'white' }}>RoofingCal</span>}
           </a>
-          <span style={{ color: '#475569', fontSize: 14 }}>/</span>
-          <span style={{ color: '#94a3b8', fontSize: 14 }}>Dashboard</span>
+          {!isMobile && <span style={{ color: '#475569', fontSize: 14 }}>/</span>}
+          {!isMobile && <span style={{ color: '#94a3b8', fontSize: 14 }}>Dashboard</span>}
         </div>
 
         {/* Right: trial badge + save + email + sign out */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10 }}>
           {daysLeft > 0 && (
-            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, padding: '4px 12px', fontSize: 12.5, fontWeight: 600, color: '#94a3b8' }}>
-              Trial · {daysLeft}d left
+            <div style={{ background: '#1e293b', border: '1px solid #334155', borderRadius: 8, padding: isMobile ? '4px 8px' : '4px 12px', fontSize: 12.5, fontWeight: 600, color: '#94a3b8', whiteSpace: 'nowrap' }}>
+              {isMobile ? `${daysLeft}d` : `Trial · ${daysLeft}d left`}
             </div>
           )}
-          <button onClick={handleSave}
-            style={{ display: 'flex', alignItems: 'center', gap: 7, padding: '7px 16px', borderRadius: 8, border: 'none', background: savePulse ? '#1d4ed8' : '#2563eb', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 13.5, transition: 'background 0.2s' }}>
-            <Save size={13} /> Save Changes
+          <button onClick={handleSave} aria-label="Save Changes"
+            style={{ display: 'flex', alignItems: 'center', gap: 7, padding: isMobile ? '7px 10px' : '7px 16px', borderRadius: 8, border: 'none', background: savePulse ? '#1d4ed8' : '#2563eb', color: 'white', cursor: 'pointer', fontWeight: 700, fontSize: 13.5, transition: 'background 0.2s' }}>
+            <Save size={13} /> {!isMobile && 'Save Changes'}
           </button>
-          {!isMobile && <span style={{ fontSize: 13, color: '#64748b' }}>{session.email}</span>}
-          <button onClick={handleLogout}
+          {!isMobile && <span style={{ fontSize: 13, color: '#64748b' }}>{user.email}</span>}
+          <button onClick={handleLogout} aria-label="Sign Out"
             style={{ display: 'flex', alignItems: 'center', gap: 6, background: 'none', border: 'none', cursor: 'pointer', color: '#64748b', fontSize: 13, fontWeight: 500 }}>
-            <LogOut size={14} /> Sign Out
+            <LogOut size={14} /> {!isMobile && 'Sign Out'}
           </button>
         </div>
       </header>
@@ -185,13 +189,14 @@ export default function RooferDashboard({ session, onLogout }) {
           </div>
 
           {tab === 'overview'     && <OverviewTab leads={leads} onTabChange={handleTab} />}
+          {tab === 'estimate'     && <RunEstimateTab />}
           {tab === 'leads'        && <LeadsTab leads={leads} setLeads={setLeads} />}
           {tab === 'branding'     && <BrandingTab />}
           {tab === 'services'     && <ServicesTab />}
           {tab === 'embed'        && <EmbedTab companyId={companyId} />}
-          {tab === 'subscription' && <SubscriptionTab session={session} />}
+          {tab === 'subscription' && <SubscriptionTab session={user} />}
           {tab === 'custom-steps' && <CustomStepsTab />}
-          {tab === 'settings'     && <SettingsTab session={session} />}
+          {tab === 'settings'     && <SettingsTab session={user} />}
         </main>
       </div>
     </div>

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { url } from '../../utils/routes';
+import WebsiteOfferBanner from './WebsiteOfferBanner';
 
 const styles = {
   header: {
@@ -102,7 +103,8 @@ export default function Header() {
   }, []);
 
   return (
-    <header style={styles.header}>
+    <>
+    <header id="site-header" style={styles.header}>
       <div style={styles.inner}>
         <a href={url("/")} style={{ ...styles.logo, fontSize: isMobile ? 16 : 20 }} aria-label="RoofingCal — Free Roofing Cost Estimator">
           <span style={styles.logoIcon} aria-hidden="true">
@@ -121,7 +123,7 @@ export default function Header() {
               onMouseEnter={e => { e.currentTarget.style.background = '#c2410c'; }}
               onMouseLeave={e => { e.currentTarget.style.background = '#ea580c'; }}
             >
-              For Contractors
+              Get Estimator
             </a>
             <button
               onClick={() => setMenuOpen(m => !m)}
@@ -158,7 +160,7 @@ export default function Header() {
               onMouseEnter={e => { e.target.style.color = '#0f172a'; e.target.style.background = '#f8fafc'; }}
               onMouseLeave={e => { e.target.style.color = '#475569'; e.target.style.background = 'transparent'; }}
             >
-              For Contractors
+              Get Estimator
             </a>
             <a
               href={url("/company")}
@@ -188,5 +190,7 @@ export default function Header() {
         </div>
       )}
     </header>
+    <WebsiteOfferBanner />
+    </>
   );
 }

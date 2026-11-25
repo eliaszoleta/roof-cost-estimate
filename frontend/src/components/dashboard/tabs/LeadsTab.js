@@ -19,6 +19,19 @@ const TD = { padding: '11px 14px', fontSize: 13, whiteSpace: 'nowrap', borderBot
 function fmt(iso) {
   return new Date(iso).toLocaleDateString('en-US', { month: 'numeric', day: 'numeric', year: '2-digit' });
 }
+function isWithinDays(iso, days) {
+  const ms = Date.now() - new Date(iso).getTime();
+  return ms >= 0 && ms <= days * 24 * 60 * 60 * 1000;
+}
+
+function StatCard({ label, value, color }) {
+  return (
+    <div style={{ flex: '1 1 120px', background: 'white', border: '1px solid #e2e8f0', borderRadius: 11, padding: '12px 16px' }}>
+      <div style={{ fontSize: 22, fontWeight: 800, color: color || '#0f172a', lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 5, fontWeight: 600 }}>{label}</div>
+    </div>
+  );
+}
 function fmtPrice(n) { return n != null ? '$' + Number(n).toLocaleString() : '—'; }
 function cap(s) { return (s || '').replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase()); }
 
@@ -223,6 +236,10 @@ export default function LeadsTab({ leads, setLeads }) {
     return matchSearch && matchStatus;
   }).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 
+  const totalCount = leads.length;
+  const weekCount = leads.filter(l => isWithinDays(l.createdAt, 7)).length;
+  const newCount = leads.filter(l => l.status === 'new').length;
+
   const allChecked = filtered.length > 0 && filtered.every(l => checked.has(l.id));
   const toggleAll = () => {
     if (allChecked) { const next = new Set(checked); filtered.forEach(l => next.delete(l.id)); setChecked(next); }
@@ -303,6 +320,13 @@ export default function LeadsTab({ leads, setLeads }) {
 
       {/* Left: table area */}
       <div style={{ flex: 1, minWidth: 0 }}>
+        {/* Stats */}
+        <div style={{ display: 'flex', gap: 12, marginBottom: 16, flexWrap: 'wrap' }}>
+          <StatCard label="Total Leads" value={totalCount} />
+          <StatCard label="This Week" value={weekCount} color="#ea580c" />
+          <StatCard label="New (Unactioned)" value={newCount} color="#1d4ed8" />
+        </div>
+
         {/* Header */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16, flexWrap: 'wrap', gap: 10 }}>
           <h2 style={{ fontSize: 20, fontWeight: 800, color: '#0f172a', margin: 0 }}>
